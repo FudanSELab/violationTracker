@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.issueservice.mapper.RawIssueMatchInfoMapper">
+    <resultMap id="rawIssueMatchInfo" type="cn.edu.fudan.issueservice.domain.dbo.RawIssueMatchInfo">
+        <id property="id" column="id"/>
+        <result property="curRawIssueUuid" column="cur_rawIssue_uuid"/>
+        <result property="curCommitId" column="cur_commit_id"/>
+        <result property="preRawIssueUuid" column="pre_rawIssue_uuid"/>
+        <result property="preCommitId" column="pre_commit_id"/>
+        <result property="issueUuid" column="issue_uuid"/>
+        <result property="status" column="status"/>
+        <result property="repoUuid" column="repo_uuid"/>
+        <result property="solveWay" column="solve_way"/>
+    </resultMap>
+    <resultMap id="analysisIssueMap" type="cn.edu.fudan.issueservice.domain.dto.AnalysisIssue">
+        <id property="id" column="id"/>
+        <result property="repoUuid" column="repo_uuid"/>
+        <result property="issueUuid" column="issue_uuid"/>
+        <result property="commitId" column="commit_id"/>
+        <result property="rawIssueUuid" column="raw_issue_uuid"/>
+        <result property="status" column="status"/>
+        <result property="solveWay" column="solve_way"/>
+    </resultMap>
+
+    <insert id="insertRawIssueMatchInfoList" parameterType="List">
+        INSERT IGNORE INTO raw_issue_match_info
+        (
+        cur_rawIssue_uuid,
+        cur_commit_id,
+        pre_rawIssue_uuid,
+        pre_commit_id,
+        issue_uuid,
+        status,
+        repo_uuid,
+        solve_way
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.curRawIssueUuid},
+            #{item.curCommitId},
+            #{item.preRawIssueUuid},
+            #{item.preCommitId},
+            #{item.issueUuid},
+            #{item.status},
+            #{item.repoUuid},
+            #{item.solveWay}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteRawIssueMatchInfo">
+        DELETE FROM raw_issue_match_info
+        WHERE cur_rawIssue_uuid IN
+        <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
+            #{rawIssueUuid}
+        </foreach>
+        OR pre_rawIssue_uuid IN
+        <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
+            #{rawIssueUuid}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRawIssueMatchInfoByRepoUuid">
+        delete
+        from raw_issue_match_info
+        where repo_uuid = #{repoUuid}
+    </delete>
+
+    <select id="getIssueByPreCommits" resultType="String">
+        SELECT DISTINCT issue_uuid FROM raw_issue_match_info
+        <where>
+            <if test="preCommitParents != null and preCommitParents.size > 0">
+                cur_commit_id IN
+                <foreach collection="preCommitParents" separator="," open="(" close=")" item="preCommitParent">
+                    #{preCommitParent}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getMatchInfoByIssueUuid" resultType="java.util.Map">
+        SELECT cur_rawIssue_uuid AS curRawIssueUuid, cur_commit_id AS curCommitId, status
+        FROM raw_issue_match_info
+        WHERE issue_uuid = #{issueUuid}
+    </select>
+
+    <select id="listMatchInfoByIssueUuids" resultType="java.util.Map">
+        SELECT cur_rawIssue_uuid AS curRawIssueUuid, cur_commit_id AS curCommitId, status
+        FROM raw_issue_match_info
+        WHERE issue_uuid in
+        <foreach collection="issueUuids" separator="," open="(" close=")" item="issueUuid">
+            #{issueUuid}
+        </foreach>
+    </select>
+
+    <select id="getMatchInfoByIssueUuidAndCommitsAndRepo" resultType="String">
+        SELECT status
+        FROM raw_issue_match_info
+        <where>
+            issue_uuid = #{issueUuid} AND repo_uuid = #{repoUuid}
+            <if test="parentCommits != null  and parentCommits.size > 0">
+                AND cur_commit_id in
+                <foreach collection="parentCommits" item="parentCommit" separator="," open="(" close=")">
+                    #{parentCommit}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="countByIssueUuidAndCommitsAndRepo" resultType="Integer">
+        select count(*)
+        FROM raw_issue_match_info
+        <where>
+            issue_uuid = #{issueUuid} AND repo_uuid = #{repoUuid}
+            <if test="parentCommits != null  and parentCommits.size > 0">
+                AND cur_commit_id in
+                <foreach collection="parentCommits" item="parentCommit" separator="," open="(" close=")">
+                    #{parentCommit}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+
+    <select id="getMatchInfosByIds" resultMap="rawIssueMatchInfo">
+        select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
+        from raw_issue_match_info
+        <where>
+            <if test="matchIds != null  and matchIds.size > 0">
+                id in
+                <foreach collection="matchIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getMatchInfosByStatusAndCommits" resultMap="rawIssueMatchInfo">
+        select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
+        from raw_issue_match_info
+        <where>
+            status = #{status}
+            <if test="commits != null  and commits.size > 0">
+                and cur_commit_id in
+                <foreach collection="commits" item="c" separator="," open="(" close=")">
+                    #{c}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getRawIssueMathInfoByIssueAndCommit" resultMap="rawIssueMatchInfo">
+        SELECT id,
+        cur_rawIssue_uuid,
+        cur_commit_id,
+        pre_rawIssue_uuid,
+        pre_commit_id,
+        issue_uuid,
+        status,
+        repo_uuid
+        FROM raw_issue_match_info
+        WHERE issue_uuid = #{issueUuid}
+        AND cur_commit_id = #{commit}
+          AND cur_commit_id = #{commit}
+          AND repo_uuid = #{repoUuid}
+    </select>
+
+    <select id="getMatchInfoByCurRawIssueAndCommit" resultMap="rawIssueMatchInfo">
+        SELECT id,
+        cur_rawIssue_uuid,
+        cur_commit_id,
+        pre_rawIssue_uuid,
+        pre_commit_id,
+        issue_uuid,
+        status,
+        repo_uuid
+        FROM issueTrackerBenchmark.raw_issue_match_info
+        WHERE cur_rawIssue_uuid = #{curRawIssueUuid}
+        AND cur_commit_id = #{commit}
+    </select>
+
+
+    <select id="getMatchInfoByRepoUuidAndCommit" resultMap="rawIssueMatchInfo">
+        SELECT id,
+        cur_rawIssue_uuid,
+        cur_commit_id,
+        pre_rawIssue_uuid,
+        pre_commit_id,
+        issue_uuid,
+        status,
+        repo_uuid
+        FROM issueTrackerBenchmark.raw_issue_match_info
+        WHERE repo_uuid = #{repoUuid}
+        AND cur_commit_id = #{commit}
+    </select>
+
+    <select id="getDuplicateCurRawIssue" resultType="java.lang.String">
+        select cur_rawIssue_uuid
+        from raw_issue_match_info
+        where repo_uuid = #{repoUuid}
+        and cur_commit_id = #{commit}
+        and cur_rawIssue_uuid is not null
+        and cur_rawIssue_uuid &lt;&gt; 'empty'
+        group by cur_rawIssue_uuid
+        having count(*) > 1
+    </select>
+
+    <select id="getDuplicateCurRawIssueToIssues" resultType="java.lang.String">
+        select issue_uuid
+        from raw_issue_match_info
+        where cur_rawIssue_uuid = #{curRawIssueUuid};
+    </select>
+
+    <select id="getMaxIdMatchInfoByIssueUuid" resultMap="rawIssueMatchInfo">
+        select *
+        from raw_issue_match_info
+        where issue_uuid = #{uuid}
+          and status = #{status}
+        order by id limit 1;
+    </select>
+
+
+    <select id="getCurCommitsByIssueUuid" resultType="java.lang.String">
+        select distinct cur_commit_id
+        from raw_issue_match_info
+        where issue_uuid = #{issueUuid}
+    </select>
+
+    <select id="listRawIssueMatchInfoByRepoAndTime" resultMap="rawIssueMatchInfo">
+        SELECT *
+        FROM raw_issue_match_info rim
+        WHERE  rim.issue_uuid = #{issueUuid}
+    </select>
+
+    <select id="getAnalysisIssueInfo" resultMap="analysisIssueMap">
+        SELECT
+        id,
+        status,
+        repo_uuid,
+        cur_rawIssue_uuid raw_issue_uuid,
+        cur_commit_id commit_id,
+        issue_uuid,
+        solve_way
+        FROM raw_issue_match_info
+        <where>
+            repo_uuid = #{repoUuid}
+            <if test="status != null and status != '' ">
+                AND <![CDATA[ status = #{status} ]]>
+            </if>
+            <if test="commits != null and commits.size > 0">
+                AND cur_commit_id IN
+                <foreach collection="commits" item="c" separator="," open="(" close=")">
+                    #{c}
+                </foreach>
+            </if>
+            <if test="commits != null and commits.size == 0">
+                AND cur_commit_id IS NULL
+            </if>
+        </where>
+    </select>
+
+    <select id="getMatchInfoCount" resultType="java.lang.Integer">
+        select count(*) from raw_issue_match_info where repo_uuid = #{repoUuid}
+    </select>
+
+    <update id="batchUpdateSolveWay" parameterType="java.util.List">
+        update raw_issue_match_info
+        set solve_way =
+        <foreach collection="list" item="item" index="index"
+                 separator=" " open="case" close="end">
+            when id = #{item.first} then #{item.second}
+        </foreach>
+        where id in
+        <foreach collection="list" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item.first,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="getMatchInfoByRepoUuidAndStatuses" resultMap="rawIssueMatchInfo" >
+        select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
+        from raw_issue_match_info
+        where repo_uuid = #{repo_uuid} and status in
+        <foreach collection="statuses" item="status" separator="," open="(" close=")">
+            #{status}
+        </foreach>
+    </select>
+
+    <select id="getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay" resultMap="rawIssueMatchInfo" >
+        select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
+        from raw_issue_match_info
+        where repo_uuid = #{repo_uuid} and solve_way is null and status in
+        <foreach collection="statuses" item="status" separator="," open="(" close=")">
+            #{status}
+        </foreach>
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.issueservice.mapper.SolvedRecordMapper">
+
+    <resultMap id="solvedRecord" type="cn.edu.fudan.issueservice.core.solved.SolvedRecord">
+        <id property="id" column="id"/>
+        <result property="repoUuid" column="repo_uuid"/>
+        <result property="matchId" column="match_id"/>
+        <result property="issueUuid" column="issue_uuid"/>
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <select id="getAllByRepoUuidAndType" resultMap="solvedRecord">
+        select id, repo_uuid, match_id, issue_uuid, type from solved_record
+
+        <trim prefix="where" prefixOverrides="and">
+            <if test="repo_uuid != null">
+                repo_uuid = #{repo_uuid}
+            </if>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </trim>
+
+    </select>
+
+    <update id="batchUpdateStatus" parameterType="java.util.List">
+        update solved_record
+        set type =
+        <foreach collection="solvedRecords" item="item" index="index"
+                 separator=" " open="case" close="end">
+            when id = #{item.id} then #{item.type}
+        </foreach>
+        where id in
+        <foreach collection="solvedRecords" index="index" item="item"
+                 separator="," open="(" close=")">
+            #{item.id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+
+    <insert id="batchInsert" parameterType="List">
+        INSERT IGNORE INTO solved_record
+        (
+        repo_uuid, match_id, issue_uuid, type
+        )
+        VALUES
+        <foreach collection="solvedRecords" item="item" index="index" separator=",">
+            (
+            #{item.repoUuid},
+            #{item.matchId},
+            #{item.issueUuid},
+            #{item.type}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getTypeByIssueId" parameterType="String" resultType="String">
+        select type
+        from solved_record
+        where issue_uuid = #{issue_uuid}
+    </select>
+
+</mapper>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.issueservice.mapper.LocationMapper">
+
+    <resultMap id="location" type="cn.edu.fudan.issueservice.domain.dbo.Location">
+        <id property="uuid" column="uuid"/>
+        <result property="startLine" column="start_line"/>
+        <result property="endLine" column="end_line"/>
+        <result property="bugLines" column="bug_lines"/>
+        <result property="startToken" column="start_token"/>
+        <result property="endToken" column="end_token"/>
+        <result property="filePath" column="file_name"/>
+        <result property="className" column="class_name"/>
+        <result property="anchorName" column="method_name"/>
+        <result property="rawIssueUuid" column="rawIssue_uuid"/>
+        <result property="code" column="code"/>
+    </resultMap>
+
+    <insert id="insertLocationList" parameterType="List">
+        insert into location
+        (
+        uuid,
+        start_line,
+        end_line,
+        bug_lines,
+        offset,
+        start_token,
+        end_token,
+        file_name,
+        class_name,
+        method_name,
+        rawIssue_uuid,
+        code,
+        repo_uuid
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.uuid},
+            #{item.startLine},
+            #{item.endLine},
+            #{item.bugLines},
+            #{item.offset},
+            #{item.startToken},
+            #{item.endToken},
+            #{item.filePath},
+            #{item.className},
+            #{item.anchorName},
+            #{item.rawIssueUuid},
+            #{item.code},
+            #{item.repoUuid}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteLocationsByRepoUuid">
+        DELETE
+        FROM location
+        WHERE repo_uuid = #{repo_uuid}
+    </delete>
+
+
+    <select id="getLocations" parameterType="cn.edu.fudan.issueservice.domain.dbo.Location" resultMap="location">
+        SELECT uuid,
+               start_line,
+               end_line,
+               bug_lines,
+               start_token,
+               end_token,
+               file_name,
+               class_name,
+               method_name,
+               rawIssue_uuid,
+               code,
+               offset
+        FROM location
+        WHERE rawIssue_uuid = #{uuid}
+    </select>
+
+    <!--TODO 待修改methodName 为anchorName-->
+    <select id="getLocationsByRawIssueUuid" parameterType="String" resultType="java.util.HashMap">
+        SELECT start_line  AS startLine,
+               end_line    AS endLine,
+               file_name   AS filePath,
+               method_name AS methodName,
+               offset,
+               code
+        FROM location
+        WHERE rawIssue_uuid = #{uuid}
+    </select>
+    <select id="getRawIssueUuidsByFilePath" parameterType="String" resultType="String">
+        SELECT DISTINCT (rawIssue_uuid)
+        FROM location
+        WHERE repo_uuid= #{repoUuid}
+        AND file_name = #{filePath}
+    </select>
+    <select id="getRawIssueUuidsByMethodName" parameterType="String" resultType="String">
+        SELECT DISTINCT (rawIssue_uuid)
+        FROM location
+        WHERE method_name = #{anchorName}
+          AND file_name = #{filePath}
+    </select>
+
+    <select id="getIssueFilterDetailList" resultType="java.util.Map">
+        SELECT start_line AS startLine, end_line AS endLine, method_name AS anchorName, code
+        FROM location
+        WHERE rawIssue_uuid IN
+        <foreach collection="rawIssueUuids" separator="," open="(" close=")" item="rawIssueId">
+            #{rawIssueId}
+        </foreach>
+    </select>
+
+    <select id="getLocationsByRawIssues" resultMap="location">
+        SELECT uuid,
+        start_line,
+        end_line,
+        bug_lines,
+        start_token,
+        end_token,
+        file_name,
+        class_name,
+        method_name,
+        rawIssue_uuid,
+        code,
+        offset
+        FROM location
+        WHERE rawIssue_uuid IN
+        <foreach collection="rawIssueUuids" separator="," open="(" close=")" item="rawIssueUuid">
+            #{rawIssueUuid}
+        </foreach>
+    </select>
+
+    <select id="getLocationsByRawIssueAndRepo" resultMap="location">
+        SELECT uuid,
+               start_line,
+               end_line,
+               bug_lines,
+               start_token,
+               end_token,
+               file_name,
+               class_name,
+               method_name,
+               rawIssue_uuid,
+               code,
+               offset
+        FROM location
+        WHERE rawIssue_uuid = #{uuid} and repo_uuid = #{repoUuid}
+    </select>
+
+    <select id="getLocationCount" resultType="java.lang.Integer">
+        select count(*) from location
+        where repo_uuid = #{repoUuid}
+    </select>
+
+</mapper>

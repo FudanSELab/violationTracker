@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.issueservice.mapper.IssueRepoMapper">
+
+    <resultMap id="issueRepo" type="cn.edu.fudan.common.domain.po.scan.RepoScan">
+        <result property="repoUuid" column="repo_uuid"/>
+        <result property="branch" column="branch"/>
+        <result property="tool" column="tool"/>
+        <result property="startCommit" column="start_commit"/>
+        <result property="totalCommitCount" column="total_commit_count"/>
+        <result property="scannedCommitCount" column="scanned_commit_count"/>
+        <result property="scanTime" column="scan_time"/>
+        <result property="scanStatus" column="status"/>
+        <result property="startScanTime" column="start_scan_time"/>
+        <result property="endScanTime" column="end_scan_time"/>
+    </resultMap>
+
+    <insert id="insertOneIssueRepo">
+        insert into issue_repo
+        (repo_uuid,
+         branch,
+         tool,
+         start_commit,
+         total_commit_count,
+         scan_time,
+         scanned_commit_count,
+         status,
+         start_scan_time,
+         end_scan_time)
+        VALUES (#{issueRepo.repoUuid},
+                #{issueRepo.branch},
+                #{issueRepo.tool},
+                #{issueRepo.startCommit},
+                #{issueRepo.totalCommitCount},
+                #{issueRepo.scanTime},
+                #{issueRepo.scannedCommitCount},
+                #{issueRepo.scanStatus},
+                #{issueRepo.startScanTime},
+                #{issueRepo.endScanTime})
+    </insert>
+
+    <update id="updateIssueRepo">
+        UPDATE issue_repo
+        SET end_scan_time        = #{issueRepo.endScanTime},
+            scanned_commit_count = #{issueRepo.scannedCommitCount},
+            scan_time            = #{issueRepo.scanTime},
+            status               = #{issueRepo.scanStatus},
+            total_commit_count   = #{issueRepo.totalCommitCount}
+        WHERE repo_uuid = #{issueRepo.repoUuid}
+          AND tool = #{issueRepo.tool}
+    </update>
+
+    <delete id="deleteIssueRepoByCondition" parameterType="String">
+        DELETE FROM issue_repo
+        WHERE repo_uuid = #{repo_uuid}
+        <if test="tool != null and tool != ''">
+            AND tool = #{tool}
+        </if>
+    </delete>
+
+    <select id="getIssueRepoByCondition" resultMap="issueRepo">
+        select repo_uuid, branch, tool, status, scanned_commit_count, scan_time,
+        total_commit_count, start_commit, start_scan_time, end_scan_time from issue_repo
+        <where>
+            repo_uuid = #{repoUuid}
+            <if test="tool != null and tool != ''">
+                and tool = #{tool}
+            </if>
+        </where>
+    </select>
+
+    <select id="getNotScanCommitsCount" resultType="java.util.HashMap">
+        SELECT total_commit_count, scanned_commit_count FROM issue_repo
+        <trim prefix="where" prefixOverrides="and">
+            <if test="repoUuid != null and repoUuid != ''">
+                and repo_uuid = #{repoUuid}
+            </if>
+            <if test="tool != null and tool != ''">
+                and tool = #{tool}
+            </if>
+        </trim>
+    </select>
+
+    <select id="getMainIssueRepo" resultMap="issueRepo">
+        SELECT start_commit FROM issue_repo
+        <trim prefix="where" prefixOverrides="and">
+            <if test="repoUuid != null and repoUuid != ''">
+                AND repo_uuid = #{repoUuid}
+            </if>
+            <if test="tool != null and tool != ''">
+                AND tool = #{tool}
+            </if>
+        </trim>
+        LIMIT 1
+    </select>
+
+    <select id="getRepoScan" resultMap="issueRepo">
+        SELECT repo_uuid,
+               branch,
+               tool,
+               start_commit,
+               total_commit_count,
+               scanned_commit_count,
+               scan_time,
+               status,
+               start_scan_time,
+               end_scan_time
+        FROM issue_repo
+        WHERE repo_uuid = #{repoUuid}
+          AND tool = #{tool}
+    </select>
+
+    <select id="getStartCommitTime" resultType="java.lang.String">
+        SELECT c.commit_time
+        FROM commit c
+        WHERE c.commit_id =
+              (SELECT ir.start_commit
+               FROM issue_repo ir
+               WHERE ir.repo_uuid = #{repoUuid}
+                 AND ir.tool = #{tool}
+            LIMIT 1)
+    </select>
+    <select id="getStartCommit" resultType="java.lang.String">
+        SELECT start_commit
+        FROM issue_repo
+        WHERE repo_uuid = #{repoUuid}
+          AND tool = #{tool} LIMIT 1
+    </select>
+
+    <select id="getStartCommits" resultType="java.lang.String">
+        SELECT start_commit
+        FROM issue_repo
+        WHERE tool = #{tool}
+        <if test="repoUuids != null and repoUuids.size > 0 ">
+            AND repo_uuid IN
+            <foreach collection="repoUuids" separator="," open="(" close=")" item="repoUuid">
+                #{repoUuid}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getScanningRepos" resultMap="issueRepo">
+        select repo_uuid, branch, tool, status, scanned_commit_count, scan_time,
+        total_commit_count, start_commit, start_scan_time, end_scan_time from issue_repo
+        <where>
+            status = "scanning"
+        </where>
+    </select>
+</mapper>
+
