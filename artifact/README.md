@@ -6,7 +6,7 @@ Therefore, this artifact provides with an end-to-end demonstration for building 
 
 # Obtaining the artifact
 
-The artifact is permanently available on Zenodo.  It is also available at [FudanSELab/violationTracker (github.com)](https://github.com/FudanSELab/violationTracker) website.
+The artifact is permanently available on Zenodo with DOI [10.5281/zenodo.7571344](https://doi.org/10.5281/zenodo.7571344).  It is also available at [FudanSELab/violationTracker (github.com)](https://github.com/FudanSELab/violationTracker) website.
 
 The main part of the artifact is the ViolationTracker packed file `icse-artifact.tar.gz`, which includes the core components of ViolationTracker and all dependencies in the form of docker images, along with several command line scripts for running the tool. Please refer to INSTALL.md to install and run ViolationTracker with the accompanied open source project or other Java projects you have at hand.
 

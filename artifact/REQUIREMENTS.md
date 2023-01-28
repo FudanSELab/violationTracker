@@ -8,7 +8,7 @@ Evaluators are supposed to have basic skills to work with Docker and MySql as we
 
 Servers or workstations with mainstream CPUs should suffice.
 
-Please prepare minimal 14GB free disk space (8GB for Docker and 6 GB for the artifact working directory). If you are planning to try ViolationTracker on more projects, please prepare more disk space. The reason of the disk space requirement is mainly for the sake of ease of use. The size of the core modules of ViolationTracker is about 90MB. It depends on SonarQube, MySql and MongoDB and requires certain configurations. To make the configurations easier, we decide to pack all dependencies, including SonarQube, MySql, and MongoDB, into Docker images so that the configurations can be almost automatic.
+Please prepare minimal 14GB free disk space (8GB for Docker and 6GB for the artifact working directory). If you are planning to try ViolationTracker on more projects, please prepare more disk space. The reason of the disk space requirement is mainly for the sake of ease of use. The size of the core modules of ViolationTracker is about 90MB. It depends on SonarQube, MySql and MongoDB and requires certain configurations. To make the configurations easier, we decide to pack all dependencies, including SonarQube, MySql, and MongoDB, into Docker images so that the configurations can be almost automatic.
 
 **Software requirement**: The artifact requires Linux-based OS with Docker support. We have tested the artifact under CentOS 7, Ubuntu Server 18.04.2, and Ubuntu Server 22.04.1. CentOS 7+ or Ubuntu Server 18+ should suffice.
 
