@@ -7,21 +7,21 @@ Users are supposed to have basic skills to work with Docker and MySql as well as
 
 **Hardware requirement**.
 
-*Memory*. 16GB RAM is suggested for running the artifact. However, ViolationTracker also passed the tests with only 4GB RAM when running with the accompanied example project. Typically, larger RAM supports larger software projects and longer evolution histories to be analyzed. 
+***Memory***. 16GB RAM is suggested for running the artifact. However, ViolationTracker also passed the tests with only 4GB RAM when running with the accompanied example project. Typically, larger RAM supports larger software projects and longer evolution histories to be analyzed. 
 
-*CPU*. Servers or workstations with mainstream CPUs should suffice.
+***CPU***. Servers or workstations with mainstream CPUs should suffice.
 
-*Storage*. Please prepare minimal 14GB free disk space (8GB for Docker and 6GB for the artifact working directory). If you are planning to try ViolationTracker on more projects, please prepare more disk space. 
+***Storage***. Please prepare minimal 14GB free disk space (8GB for Docker and 6GB for the artifact working directory). If you are planning to try ViolationTracker on more projects, please prepare more disk space. 
 
 The reason of the disk space requirement is mainly for the sake of ease of use. The size of the core modules of ViolationTracker is about 90MB. It depends on SonarQube, MySql and MongoDB and requires certain configurations. To make the configurations easier, we decide to pack all dependencies, including SonarQube, MySql, and MongoDB, into Docker images so that the configurations can be almost automatic.
 
 **Software requirement**.
 
-*Operating System (OS)*. The artifact requires Linux-based OS with Docker support. We have tested the artifact under CentOS 7, Ubuntu Server 18.04.2, and Ubuntu Server 22.04.1. CentOS 7+ or Ubuntu Server 18+ should suffice.
+***Operating System (OS)***. The artifact requires Linux-based OS with Docker support. We have tested the artifact under CentOS 7, Ubuntu Server 18.04.2, and Ubuntu Server 22.04.1. CentOS 7+ or Ubuntu Server 18+ should suffice.
 
 Windows OS is *not* tested and may cause error due to different path separators used.
 
-*Docker*. To make the artifact work, Docker Engine and related components should be properly installed. Make sure you have successfully installed Docker for CentOS according to the official docker [documentation](https://docs.docker.com/engine/install/centos/). If you are using Ubuntu, you can also find [documentation](https://docs.docker.com/engine/install/ubuntu/#installation-methods) to install Docker.
+***Docker***. To make the artifact work, Docker Engine and related components should be properly installed. Make sure you have successfully installed Docker for CentOS according to the official docker [documentation](https://docs.docker.com/engine/install/centos/). If you are using Ubuntu, you can also find [documentation](https://docs.docker.com/engine/install/ubuntu/#installation-methods) to install Docker.
 
 **Note**: Docker's default image storage path is /var/lib/docker/. All images of this artifact takes no more than 5GB storage. However, working data may use additional space. Therefore, please allow approximately 8GB disk space in this directory. If you are planning to try ViolationTracker on more projects, please prepare more disk space.
 
