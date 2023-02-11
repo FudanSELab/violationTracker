@@ -1,13 +1,18 @@
-# Purpose of the Research Artifact
+# Purpose of ViolationTracker Artifact
 ViolationTracker is a tool that automatically matches static analysis violations detected in adjacent revisions in Git repositories and builds precise full histories for all detected violations. The core algorithms of violation matching and tracking are implemented in the tool. The tool also contains a module to parse SonarQube scan results. But it essentially does not contain the static analysis functionality which is provided by SonarQube.
+
 For the sake of ease of use, the ViolationTracker artifact integrates, besides the core modules for violation matching and tracking, all supporting environments such as SonarQube Community Version and other supporting environment such as required databases. The artifact only supports analyzing Java projects for the time being.
 Therefore, this artifact provides with an end-to-end demonstration for building precise histories of static analysis violations. The input is Java projects in the format of Git repositories; the output is the violations detected by SonarQube with full histories. There are also querying functionalities available in the form of RESTful APIs or SQL queries. 
+
+# Availability of the Artifact
+The artifact is also permanently available on Zenodo with DOI [10.5281/zenodo.7571344](https://doi.org/10.5281/zenodo.7571344).
+
+The main part of the artifact is the ViolationTracker packed file `icse-artifact.tar.gz`, which includes the core components of ViolationTracker and all dependencies in the form of docker images, along with several command line scripts for running the tool. It is however large (~1.5GB) and we are not able to store it freely on GitHub. Please find this file at Zenodo. 
 
 # Replicate the results presented in the paper
 Our artifact is carefully packed in Docker images containing all supporting environment and provided with step-by-step installation and running instructions. 
 
-Although it is not feasible to replicate all results reported in the paper *ViolationTracker: Building Precise Histories for Static Analysis Violations* (icse23main-p2422) within only 30 minutes, one may install and run the accompanied example with no difficulties. One may also use our tool to replicate all results by configuring SonarQube, MySQL Server, Mongo DB Server and other environment on his/her own computer (physical PC or Workstation or Server). You can refer to the INSTALL-DETAIL.md to configure the environment. 
-
+Although it is not feasible to replicate all results reported in the paper *ViolationTracker: Building Precise Histories for Static Analysis Violations* (to appear in ICSE 2023) within only 30 minutes, one may install and run the accompanied example with no difficulties. One may also use our tool to replicate all results by configuring SonarQube, MySQL Server, Mongo DB Server and other environment on his/her own computer (physical PC or Workstation or Server). You can refer to the INSTALL-DETAIL.md to configure the environment and run the tool. 
 
 We attach the basic information of the code repositories analysed  in the paper, you can refer to documents REQUIREMENTS and INSTALL later to analyze the repositories.
 
@@ -25,7 +30,7 @@ Our experiment was conducted on a server of Centos7 with the CPU Intel Xeon CPU 
 
 # BenchMark
 ## Benchmark for matching violation instances
-Download the details in this [link](https://docs.google.com/spreadsheets/d/1LVYIAhPLQPfj3KXYhTxGV1yguw9WPh-6yJQro33egQw/edit#gid=0). 
+Download the details in this [link](https://github.com/FudanSELab/violationTracker/blob/master/resources/Benchmark%20for%20matching%20violation%20instances.xlsx). 
 
 The table consists of two tabs, the first tab is the benchmark of violation instances marked NEW and the second is those marked CLOSED.
 The first tab contains table headers projects, commit, file_path, location_lines, type and detail.
@@ -34,5 +39,5 @@ Note that if the column file_path/pre_file_path is empty, there is no NEW/CLOSED
 
 
 ## Benchmark for Tracking violation cases
-Download the details in this [link](https://docs.google.com/spreadsheets/d/1HUTQTmKWDLY0rqDL9WxpGVO_Dx1vffYeOkOk4Wd_MpY/edit#gid=0). 
+Download the details in this [link](https://github.com/FudanSELab/violationTracker/blob/master/resources/Benchmark%20for%20Tracking%20violation%20cases.xlsx). 
 The table shows violation cases lifecycle, including the the first version information (commit, file_path, location_lines) and the threads (the quantity of threads, commits of threads start and end, the average days of the threads).
