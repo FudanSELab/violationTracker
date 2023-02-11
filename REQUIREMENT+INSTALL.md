@@ -111,7 +111,7 @@ INFO 253605 --- [           main] c.e.f.i.IssueServiceApplication          : Sta
 
 **Step3**: Analyze the sample code repository.
 
-The sample code repository is placed under the directory **icse-artifact/repo/**. If you want to analyze a repository other than the accompanied one, please refer to [Analyze another repository](#Analyze another repository).
+The sample code repository is placed under the directory **icse-artifact/repo/**. If you want to analyze a repository other than the accompanied one, please refer to [analyze another repository](#analyze-another-repository).
 Now run the script `startScan.sh` to analyze the code repository.
 The usage of the command is as follows:
 
@@ -318,7 +318,7 @@ If your server is rebooted, follow these steps to restart the services.
    ```
 
 2. If docker container still exists, you can use the following command to restart it. 
-   If the container does not exist, we suggest that you [reset the environment](#Reset the configuration environment) and re-analyze it.
+   If the container does not exist, we suggest that you [reset the environment](#reset-the-configuration-environment) and re-analyze it.
 - Check that the docker container still exists
   
   ```
@@ -382,4 +382,3 @@ docker run -d -p 9000:9000 \
 ### Supports
 
 If you experience any other difficulties, please contact wuyijian@fudan.edu.cn for technical support.
-Please also find updates from our [website](https://github.com/FudanSELab/violationTracker)
