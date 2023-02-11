@@ -5,7 +5,7 @@ Users are supposed to have basic skills to work with Docker and MySql as well as
 
 # Environment Required for Running the Artifact
 
-**Hardware requirement**.
+**Hardware Requirement**.
 
 ***Memory***. 16GB RAM is suggested for running the artifact. However, ViolationTracker also passed the tests with only 4GB RAM when running with the accompanied example project. Typically, larger RAM supports larger software projects and longer evolution histories to be analyzed. 
 
@@ -15,7 +15,7 @@ Users are supposed to have basic skills to work with Docker and MySql as well as
 
 The reason of the disk space requirement is mainly for the sake of ease of use. The size of the core modules of ViolationTracker is about 90MB. It depends on SonarQube, MySql and MongoDB and requires certain configurations. To make the configurations easier, we decide to pack all dependencies, including SonarQube, MySql, and MongoDB, into Docker images so that the configurations can be almost automatic.
 
-**Software requirement**.
+**Software Requirement**.
 
 ***Operating System (OS)***. The artifact requires Linux-based OS with Docker support. We have tested the artifact under CentOS 7, Ubuntu Server 18.04.2, and Ubuntu Server 22.04.1. CentOS 7+ or Ubuntu Server 18+ should suffice.
 
@@ -27,9 +27,9 @@ Windows OS is *not* tested and may cause error due to different path separators 
 
 # Getting Started
 
-## Setting up the Environment
+Please **ensure you have `sudo` priviledge or logged in as root** during the following steps.
 
-When you setup the server environment, please **ensure you have `sudo` priviledge or logged in as root**.
+## Setting up the Environment
 
 <!-- 1.Here are the setup insturctions to run docker, please run with sudo privileges or use root account: -->
 
@@ -65,7 +65,7 @@ When you setup the server environment, please **ensure you have `sudo` priviledg
 
 <!--  build  docker file and  run docker compose -->
 
-## Setup
+## ViolationTracker Runtime Environment Configuration
 
 Download the ViolationTracker artifact package file `icse-artifact.tar.gz`.
 
@@ -81,6 +81,8 @@ Then, configure environment by:
 cd icse-artifact/
 /bin/bash configureEnvironment.sh
 ```
+
+In this step, the docker images are loaded and should be ready to accept requests from ViolationTracker.
 
 **Note**: The working directory is **icse-artifact/**. After unpacking all components, it will take about 3GB disk space. Please allow approximately 5GB of disk space in the directory for data storage. If you are planning to try ViolationTracker on more projects, please prepare more disk space.
 
