@@ -28,7 +28,7 @@ We attach the basic information of the code repositories analysed  in the paper,
 
 Our experiment was conducted on a server of Centos7 with the CPU Intel Xeon CPU E5-2620 v4 @ 2.10GHz and  64GB memory. We support simultaneous analysis of multiple repositories. In the case of analysing Jedis, Cim and Jmeter repositories at the same time, each repository uses three threads to prepare the violation data simultaneously. For the Jmeter repository (203,958 lines of code), we analysed 4,356 revisions and spent 4.76 hours. Of these, the Pre-Processing step accounts for 68.89\% of the time, the Matching Violation Instances step accounts for 0.25\% of the time, the Tracking Violation Cases step accounts for 17.17\% of the time, and the data persistence accounts for 13.70\%. Statistics for all projects are available on the  [here](https://github.com/FudanSELab/violationTracker/blob/master/resources/performance.jpg).
 
-# BenchMark
+# BenchMark Datasets
 ## Benchmark for matching violation instances
 Download the details in this [link](https://github.com/FudanSELab/violationTracker/blob/master/resources/Benchmark%20for%20matching%20violation%20instances.xlsx). 
 
@@ -38,6 +38,6 @@ The second tab contains table headers projects, commit, pre_commit, pre_file_pat
 Note that if the column file_path/pre_file_path is empty, there is no NEW/CLOSED violation in the commit.
 
 
-## Benchmark for Tracking violation cases
+## Benchmark for tracking violation cases
 Download the details in this [link](https://github.com/FudanSELab/violationTracker/blob/master/resources/Benchmark%20for%20Tracking%20violation%20cases.xlsx). 
 The table shows violation cases lifecycle, including the the first version information (commit, file_path, location_lines) and the threads (the quantity of threads, commits of threads start and end, the average days of the threads).
