@@ -63,43 +63,43 @@
 
     <select id="getLocations" parameterType="cn.edu.fudan.issueservice.domain.dbo.Location" resultMap="location">
         SELECT uuid,
-               start_line,
-               end_line,
-               bug_lines,
-               start_token,
-               end_token,
-               file_name,
-               class_name,
-               method_name,
-               rawIssue_uuid,
-               code,
-               offset
+        start_line,
+        end_line,
+        bug_lines,
+        start_token,
+        end_token,
+        file_name,
+        class_name,
+        method_name,
+        rawIssue_uuid,
+        code,
+        offset
         FROM location
         WHERE rawIssue_uuid = #{uuid}
     </select>
 
     <!--TODO 待修改methodName 为anchorName-->
     <select id="getLocationsByRawIssueUuid" parameterType="String" resultType="java.util.HashMap">
-        SELECT start_line  AS startLine,
-               end_line    AS endLine,
-               file_name   AS filePath,
-               method_name AS methodName,
-               offset,
-               code
+        SELECT start_line AS startLine,
+        end_line AS endLine,
+        file_name AS filePath,
+        method_name AS methodName,
+        offset,
+        code
         FROM location
         WHERE rawIssue_uuid = #{uuid}
     </select>
     <select id="getRawIssueUuidsByFilePath" parameterType="String" resultType="String">
         SELECT DISTINCT (rawIssue_uuid)
         FROM location
-        WHERE repo_uuid= #{repoUuid}
+        WHERE repo_uuid = #{repoUuid}
         AND file_name = #{filePath}
     </select>
     <select id="getRawIssueUuidsByMethodName" parameterType="String" resultType="String">
         SELECT DISTINCT (rawIssue_uuid)
         FROM location
         WHERE method_name = #{anchorName}
-          AND file_name = #{filePath}
+        AND file_name = #{filePath}
     </select>
 
     <select id="getIssueFilterDetailList" resultType="java.util.Map">
@@ -133,23 +133,25 @@
 
     <select id="getLocationsByRawIssueAndRepo" resultMap="location">
         SELECT uuid,
-               start_line,
-               end_line,
-               bug_lines,
-               start_token,
-               end_token,
-               file_name,
-               class_name,
-               method_name,
-               rawIssue_uuid,
-               code,
-               offset
+        start_line,
+        end_line,
+        bug_lines,
+        start_token,
+        end_token,
+        file_name,
+        class_name,
+        method_name,
+        rawIssue_uuid,
+        code,
+        offset
         FROM location
-        WHERE rawIssue_uuid = #{uuid} and repo_uuid = #{repoUuid}
+        WHERE rawIssue_uuid = #{uuid}
+        and repo_uuid = #{repoUuid}
     </select>
 
     <select id="getLocationCount" resultType="java.lang.Integer">
-        select count(*) from location
+        select count(*)
+        from location
         where repo_uuid = #{repoUuid}
     </select>
 

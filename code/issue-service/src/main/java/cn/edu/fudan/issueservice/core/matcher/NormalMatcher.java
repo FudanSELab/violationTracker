@@ -128,8 +128,4 @@ public class NormalMatcher extends BaseMatcher {
         }
     }
 
-
-
-
-
 }

@@ -51,9 +51,10 @@ public class RawIssueDao {
         }
         List<RawIssue> rawIssues = new ArrayList<>();
         for (String issueUuid : issueUuids) {
-            RawIssue lastVersionRawIssue = rawIssueMapper.getLastVersionRawIssue(issueUuid, preCommitsForParent);
-            if(lastVersionRawIssue != null){
-                rawIssues.add(lastVersionRawIssue);
+            final List<RawIssue> rawIssueByIssueUuid = rawIssueMapper.getRawIssueByIssueUuid(issueUuid);
+            if (rawIssueByIssueUuid != null) {
+                rawIssueByIssueUuid.stream().filter(rawIssue -> preCommitsForParent.contains(rawIssue.getCommitId()))
+                        .max(Comparator.comparingInt(RawIssue::getVersion)).ifPresent(rawIssues::add);
             }
         }
         rawIssues.forEach(rawIssue -> rawIssue.setVersion(rawIssueMapper.getMaxVersion(rawIssue.getIssueId())));
@@ -65,7 +66,6 @@ public class RawIssueDao {
         setLocationInRawIssues(rawIssues);
         return rawIssues;
     }
-
 
 
     public List<RawIssue> getRawIssueWithLocationByUuids(List<String> rawIssueUuids) {
@@ -82,8 +82,8 @@ public class RawIssueDao {
 
     private void setLocationInRawIssues(List<RawIssue> rawIssues) {
         Map<String, List<Location>> locationMap = locationDao.getLocationsByRawIssues(rawIssues.stream()
-                .map(RawIssue::getUuid)
-                .collect(Collectors.toList()))
+                        .map(RawIssue::getUuid)
+                        .collect(Collectors.toList()))
                 .parallelStream().collect(Collectors
                         .groupingBy(Location::getRawIssueUuid));
 
@@ -91,13 +91,12 @@ public class RawIssueDao {
     }
 
 
-
     public List<String> getFirstVersionRawIssueUuids(List<String> issueUuids) {
-        if(issueUuids.isEmpty()){
+        if (issueUuids.isEmpty()) {
             return new ArrayList<>();
         }
         List<String> firstVersionRawIssueUuids = rawIssueMapper.getFirstVersionRawIssueUuids(issueUuids);
-        return firstVersionRawIssueUuids == null?new ArrayList<>():firstVersionRawIssueUuids;
+        return firstVersionRawIssueUuids == null ? new ArrayList<>() : firstVersionRawIssueUuids;
     }
 
     public List<RawIssue> getFirstVersionIssues2RawIssueUuids(List<String> issueUuids) {
@@ -113,11 +112,11 @@ public class RawIssueDao {
     }
 
     public RawIssue getRawIssueByUuid(String rawIssueUuid, String repoUuid) {
-        return rawIssueMapper.getRawIssueByUuid(rawIssueUuid,repoUuid);
+        return rawIssueMapper.getRawIssueByUuid(rawIssueUuid, repoUuid);
     }
 
     public RawIssue getRawIssueIncludingLocations(String rawIssueUuid, String repoUuid) {
-        RawIssue rawIssue = rawIssueMapper.getRawIssueByUuid(rawIssueUuid,repoUuid);
+        RawIssue rawIssue = rawIssueMapper.getRawIssueByUuid(rawIssueUuid, repoUuid);
         if (rawIssue != null) {
             rawIssue.setLocations(locationDao.getLocations(rawIssue.getUuid()));
         }
@@ -132,7 +131,7 @@ public class RawIssueDao {
     public Set<String> getIssueUuidsByRawIssueHashs(List<String> list, String repoUuid) {
         if (list.isEmpty())
             return new HashSet<>();
-        return new HashSet<>(rawIssueMapper.getIssueUuidsByRawIssueHashs(list,repoUuid));
+        return new HashSet<>(rawIssueMapper.getIssueUuidsByRawIssueHashs(list, repoUuid));
     }
 
     public String getIssueUuidsByRawIssueHash(String rawIssueHash, String repoUuid) {
@@ -147,29 +146,37 @@ public class RawIssueDao {
         return rawIssues == null ? new ArrayList<>() : rawIssues;
     }
 
-    public String getIssueUuidByRawIssueHashAndParentCommits(String repoUuid, String rawIssueHash, List<String> parentCommits){
-        if(parentCommits == null || parentCommits.isEmpty()){
+    public String getIssueUuidByRawIssueHashAndParentCommits(String repoUuid, String rawIssueHash, List<String> parentCommits) {
+        if (parentCommits == null || parentCommits.isEmpty()) {
             return null;
         }
-        return rawIssueMapper.getIssueUuidByRawIssueHashAndParentCommits(repoUuid,rawIssueHash, parentCommits);
+        final List<RawIssue> rawIssueByRawIssueHashOrIssueUuid = rawIssueMapper.getRawIssueByRawIssueHash(repoUuid, rawIssueHash);
+        if (rawIssueByRawIssueHashOrIssueUuid == null) {
+            return null;
+        }
+        return rawIssueByRawIssueHashOrIssueUuid.stream().filter(rawIssue -> parentCommits.contains(rawIssue.getCommitId()))
+                .max(Comparator.comparingInt(RawIssue::getId)).orElse(new RawIssue()).getIssueId();
     }
 
-    public void deleteRawIssuesByRepoUuid(String repoUuid){
+    public void deleteRawIssuesByRepoUuid(String repoUuid) {
         rawIssueMapper.deleteRawIssuesByRepoUuid(repoUuid);
     }
 
 
     public List<RawIssue> getRawIssuesByRawIssueHashes(String repoUuid, List<String> hashes) {
-        List<RawIssue> rawIssueList = rawIssueMapper.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid,hashes,new ArrayList<>());
+        List<RawIssue> rawIssueList = rawIssueMapper.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid, hashes, new ArrayList<>());
         return rawIssueList == null ? new ArrayList<>() : rawIssueList;
     }
 
     public List<RawIssue> getRawIssueUuidsByRawIssueHashAndParentCommits(String repoUuid, List<String> hashes, List<String> allParentCommits) {
-        if (hashes == null || allParentCommits == null || hashes.isEmpty() || allParentCommits.isEmpty()) {
+        if (hashes == null || hashes.isEmpty()) {
             return new ArrayList<>();
         }
-        List<RawIssue> rawIssueList = rawIssueMapper.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid,hashes,allParentCommits);
-        return rawIssueList == null ? new ArrayList<>() : rawIssueList;
+        List<RawIssue> rawIssueList = rawIssueMapper.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid, hashes, null);
+        if (rawIssueList == null) {
+            return new ArrayList<>();
+        }
+        return rawIssueList.stream().filter(rawIssue -> allParentCommits.contains(rawIssue.getCommitId())).collect(Collectors.toList());
     }
 
     public List<RawIssue> getRawIssuesByRepoIdAndTool(String repoUuid, String tool) {

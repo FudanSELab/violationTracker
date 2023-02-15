@@ -62,6 +62,7 @@ public interface LocationMapper {
 
     /**
      * 根据rawIssues 获取locations
+     *
      * @param rawIssueUuids location 表中的 rawIssue_uuid
      * @return
      */
@@ -76,7 +77,7 @@ public interface LocationMapper {
      */
     List<String> getRawIssueUuidsByFilePath(@Param("repoUuid") String repoUuid, @Param("filePath") String filePath);
 
-    List<Location> getLocationsByRawIssueAndRepo(@Param("uuid")String rawIssueId, @Param("repoUuid")String repoUuid);
+    List<Location> getLocationsByRawIssueAndRepo(@Param("uuid") String rawIssueId, @Param("repoUuid") String repoUuid);
 
     int getLocationCount(String repoUuid);
 

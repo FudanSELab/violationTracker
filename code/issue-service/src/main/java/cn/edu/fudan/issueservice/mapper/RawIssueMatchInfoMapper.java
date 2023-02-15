@@ -1,9 +1,9 @@
 package cn.edu.fudan.issueservice.mapper;
 
+import cn.edu.fudan.common.util.pojo.TwoValue;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssueMatchInfo;
 import cn.edu.fudan.issueservice.domain.dto.AnalysisIssue;
 import cn.edu.fudan.issueservice.domain.enums.RawIssueStatus;
-import cn.edu.fudan.common.util.pojo.TwoValue;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -49,7 +49,7 @@ public interface RawIssueMatchInfoMapper {
     /**
      * get raw issue match info status list
      *
-     * @param issueUuid    issueUuid
+     * @param issueUuid     issueUuid
      * @param parentCommits parentCommit
      * @return status list
      */
@@ -58,12 +58,11 @@ public interface RawIssueMatchInfoMapper {
     /**
      * 查看某些commit 包含特定 Issue 的匹配状态数量
      *
-     * @param issueUuid    issueUuid
-     * @param parentCommits parent commits
+     * @param issueUuid issueUuid
      * @param repoUuid  repoUuid
-     * @return  number
+     * @return number
      */
-    Integer countByIssueUuidAndCommitsAndRepo(String issueUuid, @Param("parentCommits") List<String> parentCommits, String repoUuid);
+    List<RawIssueMatchInfo> getByIssueUuidAndRepoUuid(String issueUuid, String repoUuid);
 
 
     /**
@@ -141,22 +140,25 @@ public interface RawIssueMatchInfoMapper {
 
     /**
      * 根据ID 批量 更新 solve way
+     *
      * @param updateSolveList key RawIssueMatchInfoId value solve_way
      */
     void batchUpdateSolveWay(@Param("list") List<TwoValue<Integer, String>> updateSolveList);
 
     /**
      * 根据uuid 和  status 获取
+     *
      * @param repoUuid repoUuid
-     * @param type {@link RawIssueStatus#type}
+     * @param type     {@link RawIssueStatus#type}
      * @return list
      */
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatuses(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);
 
     /**
      * 根据uuid 和  status 获取
+     *
      * @param repoUuid repoUuid
-     * @param type {@link RawIssueStatus#type}
+     * @param type     {@link RawIssueStatus#type}
      * @return list
      */
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);

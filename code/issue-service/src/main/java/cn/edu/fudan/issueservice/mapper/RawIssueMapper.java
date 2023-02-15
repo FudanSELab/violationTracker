@@ -73,13 +73,11 @@ public interface RawIssueMapper {
     List<RawIssue> getRawIssuesByUuids(@Param("uuids") List<String> uuids);
 
 
-
     /**
      * get first version rawIssue uuids
      *
      * @param issueUuids issueUuids
      * @return rawIssue uuids
-     *
      */
     List<String> getFirstVersionRawIssueUuids(@Param("issueUuids") List<String> issueUuids);
 
@@ -88,7 +86,6 @@ public interface RawIssueMapper {
      *
      * @param issueUuids issueUuids
      * @return rawIssue uuids
-     *
      */
     List<String> getLatestVersionRawIssueUuids(@Param("issueUuids") List<String> issueUuids);
 
@@ -129,30 +126,35 @@ public interface RawIssueMapper {
      */
     List<String> getIssueUuidsByRawIssueHashs(@Param("rawIssueHashs") List<String> rawIssueHashs, @Param("repoUuid") String repoUuid);
 
-    String getIssueUuidByRawIssueHashAndParentCommits(@Param("repoUuid")String repoUuid, @Param("rawIssueHash") String rawIssueHash, @Param("parentCommits") List<String> parentCommits);
+    String getIssueUuidByRawIssueHashAndParentCommits(@Param("repoUuid") String repoUuid, @Param("rawIssueHash") String rawIssueHash, @Param("parentCommits") List<String> parentCommits);
 
-    String getRawIssueUuidByRawIssueHashAndParentCommits(@Param("repoUuid")String repoUuid, @Param("rawIssueHash") String rawIssueHash, @Param("parentCommits") List<String> parentCommits);
+    String getRawIssueUuidByRawIssueHashAndParentCommits(@Param("repoUuid") String repoUuid, @Param("rawIssueHash") String rawIssueHash, @Param("parentCommits") List<String> parentCommits);
 
-    String getIssueUuidsByRawIssueHash(@Param("rawIssueHash")String rawIssueHash, @Param("repoUuid")String repoUuid);
+    String getIssueUuidsByRawIssueHash(@Param("rawIssueHash") String rawIssueHash, @Param("repoUuid") String repoUuid);
 
     /**
      * 根据issue获取rawIssue 初次引入的
+     *
      * @param issueUuids
      * @return rawIssue list
      */
-    List<RawIssue> getFirstVersionIssues2RawIssueUuids(@Param("issueUuids")List<String> issueUuids);
+    List<RawIssue> getFirstVersionIssues2RawIssueUuids(@Param("issueUuids") List<String> issueUuids);
 
     /**
      * 获取issue版本信息、文件路径等
+     *
      * @param uuids
      * @return
      */
     List<Map<String, Object>> listSimpleRawIssueByRawIssueUuids(@Param("uuids") List<String> uuids);
 
-    void deleteRawIssuesByRepoUuid(@Param("repoUuid")String repoUuid);
+    void deleteRawIssuesByRepoUuid(@Param("repoUuid") String repoUuid);
 
-    List<RawIssue> getRawIssueUuidsByRawIssueHashAndParentCommits(@Param("repoUuid")String repoUuid, @Param("rawIssueHashes")List<String> hashes, @Param("parentCommits")List<String> allParentCommits);
+    List<RawIssue> getRawIssueUuidsByRawIssueHashAndParentCommits(@Param("repoUuid") String repoUuid, @Param("rawIssueHashes") List<String> hashes, @Param("parentCommits") List<String> allParentCommits);
 
     List<RawIssue> getRawIssuesByRepoUuidAndTool(String repoUuid, String tool);
 
+    List<RawIssue> getRawIssueByRawIssueHash(@Param("repoUuid") String repoUuid, @Param("rawIssueHash") String rawIssueHash);
+
+    List<RawIssue> getRawIssueByIssueUuid(@Param("issueUuid") String issueUuid);
 }

@@ -71,13 +71,21 @@ public interface IssueScanMapper {
      */
     List<String> getScannedCommitList(String repoUuid, String tool);
 
+    /**
+     * 获取扫描的起止commit日期
+     * @param repoUuid
+     * @param tool
+     * @return
+     */
+    Map<String, Object> getRangeCommitDate(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
      * 包含 parent_commit 信息
+     *
      * @param repoUuid
      * @return
      */
-    List<Commit> getAllCommitsWithParents(@Param("repoUuid") String repoUuid, @Param("since") String since,@Param("until") String until);
+    List<Commit> getAllCommitsWithParents(@Param("repoUuid") String repoUuid, @Param("since") String since, @Param("until") String until);
 
     /**
      * 获取扫描失败的commit list

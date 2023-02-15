@@ -6,7 +6,10 @@ import cn.edu.fudan.issueservice.domain.dbo.LogicalStatement;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
 import cn.edu.fudan.issueservice.domain.enums.RawIssueStatus;
 import cn.edu.fudan.issueservice.domain.enums.ToolEnum;
-import cn.edu.fudan.issueservice.util.*;
+import cn.edu.fudan.issueservice.util.FileFilter;
+import cn.edu.fudan.issueservice.util.FileUtil;
+import cn.edu.fudan.issueservice.util.JavaAstParserUtil;
+import cn.edu.fudan.issueservice.util.ShUtil;
 import cn.edu.fudan.issueservice.util.stat.LogicalStatementUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -44,11 +47,12 @@ import java.util.stream.Collectors;
 public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
 
 
-    private static final Lock ANALYZE_LOCK = new ReentrantLock();
-
-    private static final Map<String, AnalysisSignal> ANALYSIS_COMPLETE_FLAG = new ConcurrentHashMap<>(32);
     static final boolean IS_WINDOWS = System.getProperty("os.name").contains("Windows");
-
+    static final String RULE = "rule";
+    static final String SONAR_SEPARATOR = ":";
+    final static int SPLITTED_STR_LENGTH = 2;
+    private static final Lock ANALYZE_LOCK = new ReentrantLock();
+    private static final Map<String, AnalysisSignal> ANALYSIS_COMPLETE_FLAG = new ConcurrentHashMap<>(32);
     private static final String COMPONENT = "component";
     private static final String KEY = "key";
     private static final String TOTAL = "total";
@@ -58,11 +62,32 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
      */
     private static final int PREFIX_LENGTH = 41;
     private static final int COMMIT_LENGTH = 40;
-
     private static SonarRest rest;
-
+    final int maxWait = 4;
+    final int MAX_SONAR_RESULT = 10000;
+    final String LINE = "line";
     @Value("${deleteSonarProject:false}")
     private boolean deleteSonarProject;
+
+    /**
+     * wake up specific projectKey
+     */
+    public static void signalForAnalysis(String projectKey, boolean success) {
+        AnalysisSignal finishedCondition = ANALYSIS_COMPLETE_FLAG.get(projectKey);
+        if (finishedCondition == null) {
+            log.debug("can not find projectKey {}", projectKey);
+            return;
+        }
+        log.info("signal {} and success is {}", projectKey, success);
+        finishedCondition.getSuccessful().set(success);
+        finishedCondition.getDone().set(true);
+        ANALYZE_LOCK.lock();
+        try {
+            finishedCondition.getCondition().signal();
+        } finally {
+            ANALYZE_LOCK.unlock();
+        }
+    }
 
     /**
      * @param repoUuid     A unique identifier with a maximum of 36 digits
@@ -127,55 +152,12 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         return finishedCondition.successful.get();
     }
 
-
-    /**
-     * wake up specific projectKey
-     */
-    public static void signalForAnalysis(String projectKey, boolean success) {
-        AnalysisSignal finishedCondition = ANALYSIS_COMPLETE_FLAG.get(projectKey);
-        if (finishedCondition == null) {
-            log.debug("can not find projectKey {}", projectKey);
-            return;
-        }
-        log.info("signal {} and success is {}", projectKey, success);
-        finishedCondition.getSuccessful().set(success);
-        finishedCondition.getDone().set(true);
-        ANALYZE_LOCK.lock();
-        try {
-            finishedCondition.getCondition().signal();
-        } finally {
-            ANALYZE_LOCK.unlock();
-        }
-    }
-
-
-    @AllArgsConstructor
-    @Getter
-    static class AnalysisSignal {
-        /**
-         * Scan flag information
-         */
-        Condition condition;
-        /**
-         * scanning complete flag
-         */
-        AtomicBoolean done;
-        /**
-         * scan Success or not
-         */
-        AtomicBoolean successful;
-    }
-
-
     /**
      * todo sonarqube 分析的最长等待时间应该不是固定的 需要根据分析的文件数量来做判断
-     * TimeUnit.MILLI_SCALE
      */
     private int analysisMaxTimeOut(String repoPath, String commit) {
         return 180000;
     }
-
-    static final int MAX_SONAR_RESULT = 10000;
 
     @Override
     public List<RawIssue> analyze(String scanRepoPath, String repoUuid, String commit) {
@@ -206,7 +188,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         List<RawIssue> hotspots = analyzeSonarIssue2RawIssues(scanRepoPath, repoUuid, commit, null, null, true);
         resultRawIssues.addAll(hotspots);
 
-        log.info("It takes {}s to wait for the latest sonar result ", (System.currentTimeMillis() - analyzeStartTime) / 1000);
+        log.info("It takes {} s to wait for the latest sonar result ", (System.currentTimeMillis() - analyzeStartTime) / 1000);
         return resultRawIssues;
     }
 
@@ -312,11 +294,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
                     }
                     // todo 当未清除前一次增量扫描文件，并且尝试创建增量文件夹失败时，采用全量扫描路径
                     //  此时也存在 filepath = commit id + 实际路径的情况（未定位到原因，暂时在创建增量文件夹前删除旧文件夹）
-//                    if (isTotalScan(componentKey)) {
-//                        log.info("componketKey: {}, {}", componentKey, sonarRelativeFilePath);
-//                    }
-
-
+                    //  pjh：复现出一种情况，与sonarqube之前有数据未删除有关系，若再次出现此种情况，可以将deleteSonarProject置为true，重扫
                     completeRawIssue(rawIssue, locations);
                     rawIssues.add(rawIssue);
                 }
@@ -336,7 +314,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     }
 
     /**
-     *  Decouple from the specific scan path
+     * Decouple from the specific scan path
      */
     protected void resetRawIssueCommitAndFilePath4Incremental(RawIssue rawIssue, String sonarRelativeFilePath) {
         String prefixCommit = sonarRelativeFilePath.substring(0, COMMIT_LENGTH);
@@ -345,12 +323,11 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     }
 
     /**
-     *  Decouple from the specific scan path
+     * Decouple from the specific scan path
      */
     protected String getRelativeFilePath4Incremental(String sonarRelativeFilePath) {
         return sonarRelativeFilePath.substring(PREFIX_LENGTH);
     }
-
 
     private int getNumberOfSonarIssue(String componentKeys, boolean isSecurityHotspots, String directories, String fileUuids) {
 
@@ -379,8 +356,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         locations.forEach(location -> location.setRawIssueUuid(rawIssueUuid));
     }
 
-//    public void addExtraAttributeInRawIssueLocations(List<RawIssue> tempRawIssues, String scanRepoPath) {
-
     public void addExtraAttributeInRawIssueLocations(List<RawIssue> tempRawIssues, String scanRepoPath, String componentKey) {
 
         final Map<String, List<RawIssue>> file2RawIssuesMap = tempRawIssues.stream().collect(Collectors.groupingBy(rawIssue -> rawIssue.getLocations().get(0).getSonarRelativeFilePath()));
@@ -398,7 +373,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
 
             // Localization of files for non-Linux platforms
             if (IS_WINDOWS) {
-                realFilePath =  realFilePath.replaceAll("/", Matcher.quoteReplacement(File.separator));
+                realFilePath = realFilePath.replaceAll("/", Matcher.quoteReplacement(File.separator));
             }
 
             log.info("cur file  {}, rawIssueTotal is {}", realFilePath, rawIssues.size());
@@ -417,8 +392,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
                     location.setCode(codeList.get(i1));
                 }
             } catch (Exception e) {
-                log.error("parse file {} failed! rawIssue num is {}", realFilePath, rawIssues.size());
-//                log.error("parse message: {} ...", StringsUtil.firstLine(e.getMessage()));
+                log.error("parse file {} failed! rawIssue num is {}, begin lines: {}, tokens:{}", realFilePath, rawIssues.size(), beginLines, startTokens);
                 e.printStackTrace();
             }
         }
@@ -473,9 +447,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         return result;
     }
 
-
-    static final String LINE = "line";
-
     public List<Location> analyzeSecurityHotspotLocations(JSONObject sonarSh, String repoUuid, String commit) {
 
 
@@ -497,7 +468,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         return Collections.singletonList(newLocation(line, line, sonarRelativeFilePath, repoUuid, commit, 0, 0));
 
     }
-
 
     public List<Location> analyzeLocations(JSONObject issue, String repoUuid, String commit) {
         int startLine = 0;
@@ -586,8 +556,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         return location;
     }
 
-    static final String RULE = "rule";
-
     private RawIssue getRawIssue(String repoUuid, String commit, String category, JSONObject issue, boolean isSecurityHotspots) {
 
         //根据ruleId获取rule的name
@@ -626,10 +594,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         return rawIssue;
     }
 
-
-    static final String SONAR_SEPARATOR = ":";
-    static final int SPLITTED_STR_LENGTH = 2;
-
     /**
      * sonarPath depends on the scanRepoPath The scanned address is scanRepoPath; The address of the
      * file is {scanRepoPath}/{appendDirPrefix}/{relativeFilePath} SonarPath is {projectKey}:{appendDirPrefix}/{relativeFilePath}
@@ -650,7 +614,6 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         }
         return null;
     }
-
 
     private String concatPath(String componentKey, String directories, String fileUuids) {
         StringBuilder sb = new StringBuilder(componentKey);
@@ -690,8 +653,25 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     }
 
     @Autowired
-    public void setRestInterfaceManager(SonarRest sonarRest) {
-        SonarQubeBaseAnalyzer.rest = sonarRest;
+    public void setRestInterfaceManager(SonarRest restInterfaceManager) {
+        SonarQubeBaseAnalyzer.rest = restInterfaceManager;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    static class AnalysisSignal {
+        /**
+         * Scan flag information
+         */
+        Condition condition;
+        /**
+         * scanning complete flag
+         */
+        AtomicBoolean done;
+        /**
+         * scan Success or not
+         */
+        AtomicBoolean successful;
     }
 
 

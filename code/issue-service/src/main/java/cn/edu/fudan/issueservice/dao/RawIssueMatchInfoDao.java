@@ -47,9 +47,12 @@ public class RawIssueMatchInfoDao {
     }
 
     public boolean checkParentCommitHasIssue(String issueUuid, List<String> parentCommits, String repoUuid) {
-        return rawIssueMatchInfoMapper.countByIssueUuidAndCommitsAndRepo(issueUuid, parentCommits, repoUuid) > 0;
+        final List<RawIssueMatchInfo> matchInfosByIssueUuidAndRepo = rawIssueMatchInfoMapper.getByIssueUuidAndRepoUuid(issueUuid, repoUuid);
+        if (matchInfosByIssueUuidAndRepo == null || matchInfosByIssueUuidAndRepo.isEmpty()) {
+            return false;
+        }
+        return matchInfosByIssueUuidAndRepo.stream().anyMatch(rawIssueMatchInfo -> parentCommits.contains(rawIssueMatchInfo.getCurCommitId()));
     }
-
 
 
     public List<RawIssueMatchInfo> getMatchInfosByStatusAndCommits(String status, List<String> commitList) {
@@ -109,6 +112,7 @@ public class RawIssueMatchInfoDao {
     public void deleteMatchInfosByRepoUuid(String repoUuid) {
         rawIssueMatchInfoMapper.deleteRawIssueMatchInfoByRepoUuid(repoUuid);
     }
+
     public List<AnalysisIssue> getAnalysisIssueInfo(String repoUuid, List<String> commits, String status) {
         return rawIssueMatchInfoMapper.getAnalysisIssueInfo(repoUuid, commits, status);
     }

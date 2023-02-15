@@ -12,23 +12,23 @@
     <insert id="addOneScanResult" parameterType="cn.edu.fudan.issueservice.domain.dbo.ScanResult">
         insert into scan_result
         (category,
-         repo_uuid,
-         scan_date,
-         commit_id,
-         commit_date,
-         developer,
-         new_count,
-         eliminated_count,
-         remaining_count)
+        repo_uuid,
+        scan_date,
+        commit_id,
+        commit_date,
+        developer,
+        new_count,
+        eliminated_count,
+        remaining_count)
         values (#{category},
-                #{repoId},
-                #{scanDate},
-                #{commitId},
-                #{commitDate},
-                #{developer},
-                #{newCount},
-                #{eliminatedCount},
-                #{remainingCount})
+        #{repoId},
+        #{scanDate},
+        #{commitId},
+        #{commitDate},
+        #{developer},
+        #{newCount},
+        #{eliminatedCount},
+        #{remainingCount})
     </insert>
 
     <insert id="addScanResults" parameterType="java.util.List">
@@ -67,7 +67,7 @@
         delete
         from scan_result
         where repo_uuid = #{repo_uuid}
-          and category = #{category}
+        and category = #{category}
     </delete>
 
     <delete id="deleteScanResultsByRepoUuid">
@@ -114,13 +114,6 @@
         ORDER BY commit_date ASC LIMIT 1
     </select>
 
-    <select id="getRangeCommitDateUTC" resultType="java.util.Map">
-        SELECT MAX(commit_date) endCommitDate, MIN(commit_date) startCommitDate
-        FROM scan_result
-        WHERE repo_uuid = #{repoUuid}
-          AND category = #{tool} limit 1
-    </select>
-
     <select id="getMinMaxScannedCommitDate" resultType="java.sql.Timestamp">
         SELECT commit_time
         FROM commit
@@ -143,12 +136,13 @@
     <select id="getScannedCommits" resultMap="commit">
         SELECT repo_uuid, commit_id, commit_date, developer, parent_commit_id as parent_commit
         FROM scan_result
-        WHERE repo_uuid=#{repoUuid}
+        WHERE repo_uuid = #{repoUuid}
     </select>
 
     <select id="getScannedCommitsWithParents" resultMap="commit">
         SELECT sr.repo_uuid, sr.commit_id, sr.commit_date, sr.developer, parent_commit
-        FROM scan_result sr LEFT JOIN commit c ON sr.commit_id = c.commit_id
-        WHERE sr.repo_uuid=#{repoUuid}
+        FROM scan_result sr
+        LEFT JOIN commit c ON sr.commit_id = c.commit_id
+        WHERE sr.repo_uuid = #{repoUuid}
     </select>
 </mapper>

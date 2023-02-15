@@ -1,6 +1,7 @@
 package cn.edu.fudan.issueservice.dao;
 
 import cn.edu.fudan.common.domain.po.scan.RepoScan;
+import cn.edu.fudan.common.domain.po.scan.ScanStatus;
 import cn.edu.fudan.issueservice.mapper.IssueRepoMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +22,27 @@ public class IssueRepoDao {
         issueRepoMapper.insertOneIssueRepo(issueRepo);
     }
 
-//    public void insertOneIssueRepo(RepoScan issueRepo) {
+    //    public void insertOneIssueRepo(RepoScan issueRepo) {
 //        issueRepoMapper.insertOneIssueRepo(issueRepo, UUID.randomUUID().toString());
 //    }
-    public List<RepoScan> getScanningRepos() {
-        return issueRepoMapper.getScanningRepos();
+    public List<RepoScan> getScanningRepos(String tool) {
+        return issueRepoMapper.getReposByScanStatus(ScanStatus.SCANNING, tool);
+    }
+
+    public List<RepoScan> getCompleteRepos(String tool) {
+        return issueRepoMapper.getReposByScanStatus(ScanStatus.COMPLETE, tool);
+    }
+
+    public List<RepoScan> getInterruptRepos(String tool) {
+        return issueRepoMapper.getReposByScanStatus(ScanStatus.INTERRUPT, tool);
     }
 
     public void updateIssueRepo(RepoScan issueRepo) {
         issueRepoMapper.updateIssueRepo(issueRepo);
     }
 
-    public void delIssueRepo(String repoId, String tool) {
-        issueRepoMapper.deleteIssueRepoByCondition(repoId, tool);
+    public void delIssueRepo(String repoId, String tool, String status) {
+        issueRepoMapper.deleteIssueRepoByCondition(repoId, tool, status);
     }
 
     public List<RepoScan> getIssueRepoByRepoUuid(String repoId) {
@@ -56,11 +65,11 @@ public class IssueRepoDao {
         return issueRepoMapper.getStartCommitTime(repoUuid, tool);
     }
 
-    public String getStartCommit(@Param("repoUuid") String repoUuid, @Param("tool") String tool){
+    public String getStartCommit(@Param("repoUuid") String repoUuid, @Param("tool") String tool) {
         return issueRepoMapper.getStartCommit(repoUuid, tool);
     }
 
-    public List<String> getStartCommits(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool){
+    public List<String> getStartCommits(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool) {
         return issueRepoMapper.getStartCommits(repoUuids, tool);
     }
 

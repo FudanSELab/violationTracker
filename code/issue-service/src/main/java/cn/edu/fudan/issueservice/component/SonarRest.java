@@ -267,7 +267,7 @@ public class SonarRest extends BaseRepoRestManager {
             return restTemplate.exchange(urlPath, HttpMethod.GET, sonarAuthHeader, JSONObject.class).getBody();
         } catch (Exception e) {
             log.error(e.getMessage());
-            log.error("projectName: {} ---> request sonar api failed 获取最新版本时间API 失败", projectName);
+            log.error("projectName: {} ---> request sonar api failed", projectName);
         }
 
         return error;

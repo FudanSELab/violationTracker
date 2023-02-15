@@ -4,8 +4,8 @@ import cn.edu.fudan.common.jgit.DiffFile;
 import cn.edu.fudan.common.jgit.JGitHelper;
 import cn.edu.fudan.common.util.pojo.TwoValue;
 import cn.edu.fudan.issueservice.dao.RawIssueCacheDao;
-import cn.edu.fudan.issueservice.domain.dbo.RawIssueCache;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
+import cn.edu.fudan.issueservice.domain.dbo.RawIssueCache;
 import cn.edu.fudan.issueservice.domain.enums.ScanStatusEnum;
 import cn.edu.fudan.issueservice.util.DeveloperUniqueNameUtil;
 import cn.edu.fudan.issueservice.util.FileUtil;
@@ -47,28 +47,34 @@ public abstract class BaseAnalyzer {
      */
     protected static final int PREFIX_LENGTH = 41;
     protected static final int COMMIT_LENGTH = 40;
-
+    /**
+     * key repoUuid + commitId
+     */
+    static final Map<String, Boolean> IS_TOTAL_SCAN_MAP = new ConcurrentHashMap<>(1000);
     /**
      * the absolute path directory of script, ending with File.separator, such as /home/bin/
      */
     @Value("${binHome}")
     protected String binHome;
-
     @Value("${copyTempRepoPath}")
     protected String copyTempRepoPath;
-
     @Value("${pidFile}")
     protected String pidFile;
 
     // protected boolean isTotalScan = false;
-
-    /**
-     * key repoUuid + commitId
-     */
-    static final Map<String, Boolean> IS_TOTAL_SCAN_MAP = new ConcurrentHashMap<>(1000);
+    @Value("${enableTotalScan:true}")
+    protected boolean enableTotalScan;
+    @Value("${debugMode}")
+    protected boolean debugMode;
+    @Value("${wholeProcessTest:false}")
+    protected boolean wholeProcessTest;
 
     public boolean isTotalScan(String key) {
         return IS_TOTAL_SCAN_MAP.getOrDefault(key, false);
+    }
+
+    public void removeTotalScan(String key) {
+        IS_TOTAL_SCAN_MAP.remove(key);
     }
 
     public Map<String, Boolean> getIsTotalScanMap() {
@@ -78,11 +84,6 @@ public abstract class BaseAnalyzer {
     public String generateUniqueProjectKey(String repoUuid, String commit) {
         return repoUuid + "_" + commit;
     }
-
-    @Value("${debugMode}")
-    protected boolean debugMode;
-    @Value("${wholeProcessTest:false}")
-    protected boolean wholeProcessTest;
 
     /**
      * Call ASAT scan
@@ -168,7 +169,7 @@ public abstract class BaseAnalyzer {
 
         ScanStatusEnum scanStatusEnum = ScanStatusEnum.CHECKOUT_FAILED;
         List<RawIssue> rawIssues = Collections.emptyList();
-        //todo 并发情况下此处可能报NLP ?
+        //todo 并发情况下此处可能报NPE? https://fdse.atlassian.net/browse/FDSE-2556
         if (jGitHelper.checkout(commit)) {
             String scanRepoPath = jGitHelper.getRepoPath();
 
@@ -287,17 +288,32 @@ public abstract class BaseAnalyzer {
      * Full analysis: The directory containing the .git file
      */
     public String getScanRepoPath(String repoUuid, String curCommit, JGitHelper jGitHelper, RawIssueCacheDao rawIssueCacheDao, List<String> commitList) throws IOException {
-        String[] commitParents = jGitHelper.getCommitParents(curCommit);
-        String toolName = getToolName();
 
-        boolean isTotalScan = commitParents.length == 0;
-        // 如果扫描列表并且cache中不存在parent 才是全量扫描
-        for (String commitParent : commitParents) {
-            if (!commitList.contains(commitParent) && !rawIssueCacheDao.cached(repoUuid, commitParent, toolName)) {
-                isTotalScan = true;
-                break;
+        List<String> commitParents = new ArrayList<>();
+
+        boolean isTotalScan = false;
+        if (enableTotalScan) {
+            for (String commitParent : jGitHelper.getCommitParents(curCommit)) {
+                if (commitList.contains(commitParent)) {
+                    commitParents.add(commitParent);
+                }
             }
+            isTotalScan = commitParents.size() == 0;
+            // 如果扫描列表并且cache中不存在parent 才是全量扫描
+            for (String commitParent : commitParents) {
+                if (!commitList.contains(commitParent) && !rawIssueCacheDao.cached(repoUuid, commitParent, getToolName())) {
+                    isTotalScan = true;
+                    break;
+                }
+            }
+        } else {
+            commitParents = Arrays.asList(jGitHelper.getCommitParents(curCommit));
         }
+
+        //只有第一个需要全量扫描
+//        boolean isTotalScan = curCommit.equals(commitList.get(0));
+
+
         IS_TOTAL_SCAN_MAP.put(generateUniqueProjectKey(repoUuid, curCommit), isTotalScan);
 
         if (isTotalScan) {
@@ -330,7 +346,11 @@ public abstract class BaseAnalyzer {
             List<String> parentFiles = new ArrayList<>();
             parentFiles.addAll(deleteFiles);
             parentFiles.addAll(changeFiles.keySet());
-            jGitHelper.checkout(commitParent);
+            if (!jGitHelper.checkout(commitParent)) {
+                // 如果 checkout 失败则全量扫描
+                IS_TOTAL_SCAN_MAP.replace(generateUniqueProjectKey(repoUuid, curCommit), true);
+                return jGitHelper.getRepoPath();
+            }
             for (String parentFile : parentFiles) {
                 if (!filterFile(parentFile)) {
                     FileUtil.copyFile(jGitHelper.getRepoPath() + FILE_SEPARATOR + parentFile, parentBaseDir + parentFile);
@@ -339,7 +359,11 @@ public abstract class BaseAnalyzer {
             curFiles.addAll(addFiles);
             curFiles.addAll(changeFiles.values());
         }
-        jGitHelper.checkout(curCommit);
+        if (!jGitHelper.checkout(curCommit)) {
+            // 如果 checkout 失败则全量扫描
+            IS_TOTAL_SCAN_MAP.replace(generateUniqueProjectKey(repoUuid, curCommit), true);
+            return jGitHelper.getRepoPath();
+        }
         // copyTempRepoPath / repoUuid / curCommit / curCommit /
         String curBaseDir = targetRepoDir + FILE_SEPARATOR + curCommit + FILE_SEPARATOR;
         new File(curBaseDir).mkdirs();

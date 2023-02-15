@@ -4,7 +4,6 @@ import cn.edu.fudan.common.domain.po.scan.RepoScan;
 import cn.edu.fudan.common.domain.po.scan.ScanStatus;
 import cn.edu.fudan.common.scan.AbstractToolScan;
 import cn.edu.fudan.common.scan.BaseScanProcess;
-import cn.edu.fudan.issueservice.component.SonarRest;
 import cn.edu.fudan.issueservice.dao.*;
 import cn.edu.fudan.issueservice.domain.dbo.IssueScan;
 import lombok.NonNull;
@@ -12,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,32 +28,67 @@ import java.util.*;
 @Component
 public class IssueScanProcess extends BaseScanProcess {
 
+    private final Map<String, Map<String, String>> repoUuid2ToolWithBeginCommit = new HashMap<>();
     private IssueScanDao issueScanDao;
-
     private IssueRepoDao issueRepoDao;
-
     private RawIssueCacheDao rawIssueCacheDao;
-
     private IssueDao issueDao;
-
     private RawIssueDao rawIssueDao;
-
     private RawIssueMatchInfoDao rawIssueMatchInfoDao;
-
     private LocationDao locationDao;
-
-
+    private IssueRepoScanListDao issueRepoScanListDao;
     @Value("${enableAllScan}")
     private boolean enableAllScan;
-
-    private static ThreadLocal<Map<String, String>> toolWithBeginCommit;
-
-    private final Map<String, Map<String, String>> repoUuid2ToolWithBeginCommit = new HashMap<>();
+    @Value("${maxPoolSize:5}")
+    private int maxPoolSize;
 
     public IssueScanProcess(@Autowired ApplicationContext applicationContext) {
         super(applicationContext);
     }
 
+    private final Set<String> repoIsAdded = new HashSet<>();
+
+    @Transactional(rollbackFor = Exception.class)
+    void handleBeforeStartScan(String repoUuid) {
+        issueRepoScanListDao.updateStatusByRepoUuid(repoUuid, ScanStatus.SCANNING);
+    }
+
+    //Every 150s, check whether there are still repos to be scanned
+    @Scheduled(fixedRate = 150000)
+    public void scanReposWaitForScan() {
+        final List<RepoScan> waitToScanList = issueRepoScanListDao.getRepoScansByCondition(null, Arrays.asList(ScanStatus.WAITING_FOR_SCAN, ScanStatus.INTERRUPT));
+        if (waitToScanList.isEmpty()) {
+            return;
+        }
+        final int scanningRepoSize = issueRepoDao.getScanningRepos(null).size();
+        //Some threads are reserved to service new scanning requests
+        int reserveForScanRequestThreadNum = 2;
+        log.info("maxPoolSize:{} scanningRepoSize:{} waitToScanList:{}",maxPoolSize, scanningRepoSize, waitToScanList.size());
+        if (scanningRepoSize <= maxPoolSize - reserveForScanRequestThreadNum) {
+            int canAddRepoNum = maxPoolSize - reserveForScanRequestThreadNum - scanningRepoSize;
+            for (RepoScan repoScan : waitToScanList) {
+                if (canAddRepoNum == 0) {
+                    break;
+                }
+                String repoUuid = repoScan.getRepoUuid();
+                if (!repoIsAdded.contains(repoUuid)) {
+                    repoIsAdded.add(repoUuid);
+                    canAddRepoNum--;
+                    log.info("start scan repoUuid:{} branch:{}", repoUuid, repoScan.getBranch());
+                    IssueScanProcess issueScanProcess = applicationContext.getBean(IssueScanProcess.class);
+                    try {
+                        handleBeforeStartScan(repoUuid);
+                        //由于调用方与被调用方在同一个类，导致scan()的@Async注解失效，所以通过此种方法启用异步
+                        issueScanProcess.scan(repoScan.getRepoUuid(), repoScan.getBranch(), repoScan.getStartCommit(), repoScan.getEndCommit());
+                    } catch (Exception e) {
+                        log.warn("add thead to pool failed");
+                        issueRepoScanListDao.updateStatusByRepoUuid(repoUuid, ScanStatus.WAITING_FOR_SCAN);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * 根据不同的工具或者不同的策略生成不同的 beginCommit
@@ -77,16 +112,6 @@ public class IssueScanProcess extends BaseScanProcess {
             log.info("get begin commit:{} from request", beginCommit);
             return beginCommit;
         }
-        String beginCommitFromScanService = toolWithBeginCommit.get().get(tool);
-        if (beginCommitFromScanService != null) {
-            log.info("get begin commit:{} from scan service", beginCommitFromScanService);
-            return beginCommitFromScanService;
-        }
-        final Map<String, String> tool2BeginCommit = repoUuid2ToolWithBeginCommit.get(repoUuid);
-        if (tool2BeginCommit != null && tool2BeginCommit.containsKey(tool)) {
-            log.info("get begin commit:{} from before issue repo", tool2BeginCommit.get(tool));
-            return tool2BeginCommit.get(tool);
-        }
         //找不到该repo的beginCommit 触发全局扫描
         return "";
     }
@@ -98,6 +123,7 @@ public class IssueScanProcess extends BaseScanProcess {
      * because the issue repo status will be directly recorded as failed if it cannot be found in subsequent queries
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     protected void handleExceptionInScan(String repoUuid, String branch, String beginCommit, String endCommit, Exception e) {
         final List<RepoScan> issueRepoByRepoUuid = issueRepoDao.getIssueRepoByRepoUuid(repoUuid);
         if (issueRepoByRepoUuid.isEmpty()) {
@@ -111,6 +137,16 @@ public class IssueScanProcess extends BaseScanProcess {
                     repoScan.setScanTime(duration.toMillis() / 1000);
                     updateRepoScan(repoScan);
                 });
+        log.info("repoUuid:{} handle exception in scan after issue repo", repoUuid);
+        issueRepoScanListDao.updateStatusByRepoUuid(repoUuid, ScanStatus.FAILED);
+        log.info("repoUuid:{} handle exception in scan after issue repo scan list", repoUuid);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    protected void handleAfterScan(String repoUuid, String branch, String beginCommit, String endCommit) {
+        log.info("repoUuid:{} handle after scan", repoUuid);
+        issueRepoScanListDao.updateStatusByRepoUuid(repoUuid, ScanStatus.COMPLETE);
     }
 
     @Override
@@ -150,7 +186,7 @@ public class IssueScanProcess extends BaseScanProcess {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRepo(String repoUuid) {
-        issueRepoDao.delIssueRepo(repoUuid, null);
+        issueRepoDao.delIssueRepo(repoUuid, null, null);
         issueScanDao.deleteIssueScanByRepoIdAndTool(repoUuid, null);
         rawIssueCacheDao.deleteRepo(repoUuid, null);
         issueDao.deleteIssuesByRepoUuid(repoUuid);
@@ -178,15 +214,10 @@ public class IssueScanProcess extends BaseScanProcess {
         return toScanCommitList;
     }
 
-    public Map<String, Map<String, String>> getRepoUuid2ToolWithBeginCommit() {
-        return repoUuid2ToolWithBeginCommit;
-    }
-
     @Override
     protected String getBeginCommit(String repoUuid, String tool) {
         return issueRepoDao.getRepoScan(repoUuid, tool).getStartCommit();
     }
-
 
     @Autowired
     public void setIssueScanDao(IssueScanDao issueScanDao) {
@@ -221,5 +252,10 @@ public class IssueScanProcess extends BaseScanProcess {
     @Autowired
     public void setLocationDao(LocationDao locationDao) {
         this.locationDao = locationDao;
+    }
+
+    @Autowired
+    public void setIssueRepoScanListDao(IssueRepoScanListDao issueRepoScanListDao) {
+        this.issueRepoScanListDao = issueRepoScanListDao;
     }
 }

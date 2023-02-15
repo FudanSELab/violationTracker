@@ -1,22 +1,18 @@
 package cn.edu.fudan.issueservice.dao;
 
 import cn.edu.fudan.issueservice.domain.dbo.Commit;
-import cn.edu.fudan.issueservice.domain.dbo.IssueTrackerNode;
 import cn.edu.fudan.issueservice.domain.dbo.ScanResult;
 import cn.edu.fudan.issueservice.mapper.ScanResultMapper;
-import cn.edu.fudan.issueservice.util.DateTimeUtil;
-import cn.edu.fudan.issueservice.util.StringsUtil;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author WZY
@@ -68,16 +64,13 @@ public class ScanResultDao {
         scanResultMapper.deleteScanResultsByRepoUuid(repoUuid);
     }
 
-    public Map<String, Object> getRangeCommitDateUTC(String repoUuid, String tool) {
-        return scanResultMapper.getRangeCommitDateUTC(repoUuid, tool);
-    }
-
     public Timestamp getMinMaxScannedCommitDate(String repoUuid, String tool, Boolean isMin) {
         return scanResultMapper.getMinMaxScannedCommitDate(repoUuid, tool, isMin);
     }
 
     /**
      * 所有成功扫描的 commit，不等于所有 commit
+     *
      * @param repoUuid
      * @return
      */

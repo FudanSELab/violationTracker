@@ -4,6 +4,7 @@ import cn.edu.fudan.common.domain.po.scan.RepoScan;
 import cn.edu.fudan.common.domain.po.scan.ScanStatus;
 import cn.edu.fudan.issueservice.component.SonarRest;
 import cn.edu.fudan.issueservice.dao.*;
+import cn.edu.fudan.issueservice.domain.dto.ScanRequestDTO;
 import cn.edu.fudan.issueservice.service.IssueScanService;
 import cn.edu.fudan.issueservice.util.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class IssueScanServiceImpl implements IssueScanService {
     private RawIssueDao rawIssueDao;
     private RawIssueMatchInfoDao rawIssueMatchInfoDao;
     private LocationDao locationDao;
+    private IssueRepoScanListDao issueRepoScanListDao;
+    private SonarRest restInterfaceManager;
 
 
     @Override
@@ -50,7 +53,7 @@ public class IssueScanServiceImpl implements IssueScanService {
         final List<RepoScan> issueReposOrderByEndScanTime = issueRepos.stream()
                 .sorted(Comparator.comparing(r -> DateTimeUtil.format(r.getEndScanTime()))).collect(Collectors.toList());
         issueRepo.setStartScanTime(issueReposOrderByEndScanTime.get(0).getStartScanTime());
-        issueRepo.setEndScanTime(issueReposOrderByEndScanTime.get(issueReposOrderByEndScanTime.size()-1).getEndScanTime());
+        issueRepo.setEndScanTime(issueReposOrderByEndScanTime.get(issueReposOrderByEndScanTime.size() - 1).getEndScanTime());
         boolean isScanning = false;
         boolean isFailed = false;
         for (RepoScan repoScan : issueReposOrderByEndScanTime) {
@@ -63,8 +66,23 @@ public class IssueScanServiceImpl implements IssueScanService {
                 isScanning = true;
             }
         }
-        issueRepo.setScanStatus(isFailed||issueRepos.isEmpty()?ScanStatus.FAILED:((isScanning||tools.size()!= issueRepos.size())?ScanStatus.SCANNING:ScanStatus.COMPLETE));
+        issueRepo.setScanStatus(isFailed || issueRepos.isEmpty() ? ScanStatus.FAILED : ((isScanning || tools.size() != issueRepos.size()) ? ScanStatus.SCANNING : ScanStatus.COMPLETE));
         return issueRepo;
+    }
+
+    @Override
+    public void handleScanList(List<ScanRequestDTO> scanRequestDTOList) throws Exception {
+        List<RepoScan> waitToScanList = new ArrayList<>();
+        scanRequestDTOList.forEach(scanRequestDTO -> {
+            RepoScan repoScan = RepoScan.builder()
+                    .repoUuid(scanRequestDTO.getRepoUuid())
+                    .branch(scanRequestDTO.getBranch())
+                    .scanStatus(ScanStatus.WAITING_FOR_SCAN)
+                    .startCommit(scanRequestDTO.getBeginCommit())
+                    .build();
+            waitToScanList.add(repoScan);
+        });
+        issueRepoScanListDao.insertRepoScanList(waitToScanList);
     }
 
     @Override
@@ -84,7 +102,7 @@ public class IssueScanServiceImpl implements IssueScanService {
 
     @Transactional(rollbackFor = Exception.class)
     public void cleanDataByRepoUuidAndTool(String repoUuid, String tool) {
-        issueRepoDao.delIssueRepo(repoUuid, tool);
+        issueRepoDao.delIssueRepo(repoUuid, tool, null);
         issueScanDao.deleteIssueScanByRepoIdAndTool(repoUuid, tool);
         rawIssueCacheDao.deleteRepo(repoUuid, tool);
         issueDao.deleteIssuesByRepoUuid(repoUuid);
@@ -134,4 +152,13 @@ public class IssueScanServiceImpl implements IssueScanService {
         this.locationDao = locationDao;
     }
 
+    @Autowired
+    public void setRestInterfaceManager(SonarRest restInterfaceManager) {
+        this.restInterfaceManager = restInterfaceManager;
+    }
+
+    @Autowired
+    public void setIssueRepoScanListDao(IssueRepoScanListDao issueRepoScanListDao) {
+        this.issueRepoScanListDao = issueRepoScanListDao;
+    }
 }

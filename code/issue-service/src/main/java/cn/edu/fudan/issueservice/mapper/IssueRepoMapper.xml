@@ -19,36 +19,63 @@
     <insert id="insertOneIssueRepo">
         insert into issue_repo
         (repo_uuid,
-         branch,
-         tool,
-         start_commit,
-         total_commit_count,
-         scan_time,
-         scanned_commit_count,
-         status,
-         start_scan_time,
-         end_scan_time)
+        branch,
+        tool,
+        start_commit,
+        total_commit_count,
+        scan_time,
+        scanned_commit_count,
+        status,
+        start_scan_time,
+        end_scan_time)
         VALUES (#{issueRepo.repoUuid},
-                #{issueRepo.branch},
-                #{issueRepo.tool},
-                #{issueRepo.startCommit},
-                #{issueRepo.totalCommitCount},
-                #{issueRepo.scanTime},
-                #{issueRepo.scannedCommitCount},
-                #{issueRepo.scanStatus},
-                #{issueRepo.startScanTime},
-                #{issueRepo.endScanTime})
+        #{issueRepo.branch},
+        #{issueRepo.tool},
+        #{issueRepo.startCommit},
+        #{issueRepo.totalCommitCount},
+        #{issueRepo.scanTime},
+        #{issueRepo.scannedCommitCount},
+        #{issueRepo.scanStatus},
+        #{issueRepo.startScanTime},
+        #{issueRepo.endScanTime})
+    </insert>
+
+    <insert id="insertIssueRepos">
+        insert into issue_repo
+        (repo_uuid,
+        branch,
+        tool,
+        start_commit,
+        total_commit_count,
+        scan_time,
+        scanned_commit_count,
+        status,
+        start_scan_time,
+        end_scan_time)
+        VALUES
+        <foreach collection="repoScanList" separator="," open="" close="" item="issueRepo">
+            (#{issueRepo.repoUuid},
+            #{issueRepo.branch},
+            #{issueRepo.tool},
+            #{issueRepo.startCommit},
+            #{issueRepo.totalCommitCount},
+            #{issueRepo.scanTime},
+            #{issueRepo.scannedCommitCount},
+            #{issueRepo.scanStatus},
+            #{issueRepo.startScanTime},
+            #{issueRepo.endScanTime})
+        </foreach>
     </insert>
 
     <update id="updateIssueRepo">
         UPDATE issue_repo
         SET end_scan_time        = #{issueRepo.endScanTime},
-            scanned_commit_count = #{issueRepo.scannedCommitCount},
-            scan_time            = #{issueRepo.scanTime},
-            status               = #{issueRepo.scanStatus},
-            total_commit_count   = #{issueRepo.totalCommitCount}
+        scanned_commit_count = #{issueRepo.scannedCommitCount},
+        scan_time            = #{issueRepo.scanTime},
+        status               = #{issueRepo.scanStatus},
+        total_commit_count   = #{issueRepo.totalCommitCount}
         WHERE repo_uuid = #{issueRepo.repoUuid}
-          AND tool = #{issueRepo.tool}
+        AND tool = #{issueRepo.tool}
     </update>
 
     <delete id="deleteIssueRepoByCondition" parameterType="String">
@@ -56,6 +83,9 @@
         WHERE repo_uuid = #{repo_uuid}
         <if test="tool != null and tool != ''">
             AND tool = #{tool}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
         </if>
     </delete>
 
@@ -97,35 +127,35 @@
 
     <select id="getRepoScan" resultMap="issueRepo">
         SELECT repo_uuid,
-               branch,
-               tool,
-               start_commit,
-               total_commit_count,
-               scanned_commit_count,
-               scan_time,
-               status,
-               start_scan_time,
-               end_scan_time
+        branch,
+        tool,
+        start_commit,
+        total_commit_count,
+        scanned_commit_count,
+        scan_time,
+        status,
+        start_scan_time,
+        end_scan_time
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-          AND tool = #{tool}
+        AND tool = #{tool}
     </select>
 
     <select id="getStartCommitTime" resultType="java.lang.String">
         SELECT c.commit_time
         FROM commit c
         WHERE c.commit_id =
-              (SELECT ir.start_commit
-               FROM issue_repo ir
-               WHERE ir.repo_uuid = #{repoUuid}
-                 AND ir.tool = #{tool}
-            LIMIT 1)
+        (SELECT ir.start_commit
+        FROM issue_repo ir
+        WHERE ir.repo_uuid = #{repoUuid}
+        AND ir.tool = #{tool}
+        LIMIT 1)
     </select>
     <select id="getStartCommit" resultType="java.lang.String">
         SELECT start_commit
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-          AND tool = #{tool} LIMIT 1
+        AND tool = #{tool} LIMIT 1
     </select>
 
     <select id="getStartCommits" resultType="java.lang.String">
@@ -140,12 +170,23 @@
         </if>
     </select>
 
-    <select id="getScanningRepos" resultMap="issueRepo">
+    <select id="getReposByScanStatus" resultMap="issueRepo">
         select repo_uuid, branch, tool, status, scanned_commit_count, scan_time,
         total_commit_count, start_commit, start_scan_time, end_scan_time from issue_repo
         <where>
-            status = "scanning"
+            status = #{status}
+            <if test="tool != null and tool != ''">
+                AND tool = #{tool}
+            </if>
         </where>
     </select>
+
+    <select id="getRepoScanByStatus" resultMap="issueRepo">
+        select repo_uuid, branch, tool, status, scanned_commit_count, scan_time,
+        total_commit_count, start_commit, start_scan_time, end_scan_time
+        from issue_repo
+        where status = #{status}
+    </select>
+
 </mapper>
 

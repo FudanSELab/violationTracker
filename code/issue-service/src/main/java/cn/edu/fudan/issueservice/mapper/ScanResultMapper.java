@@ -57,15 +57,7 @@ public interface ScanResultMapper {
      */
     void addScanResults(@Param("scanResults") List<ScanResult> scanResults);
 
-    void deleteScanResultsByRepoUuid(@Param("repoUuid")String repoUuid);
-
-    /**
-     * 获取扫描的起止commit日期（UTC）
-     * @param repoUuid
-     * @param tool
-     * @return
-     */
-    Map<String, Object> getRangeCommitDateUTC(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
+    void deleteScanResultsByRepoUuid(@Param("repoUuid") String repoUuid);
 
     /**
      * 获取扫描的起止commit日期

@@ -7,20 +7,15 @@ import cn.edu.fudan.issueservice.component.SonarRest;
 import cn.edu.fudan.issueservice.core.analyzer.AnalyzerFactory;
 import cn.edu.fudan.issueservice.core.analyzer.BaseAnalyzer;
 import cn.edu.fudan.issueservice.core.process.IssueMatcher;
-import cn.edu.fudan.issueservice.core.process.IssueMergeManager;
 import cn.edu.fudan.issueservice.core.process.IssuePersistenceManager;
 import cn.edu.fudan.issueservice.core.process.IssueStatistics;
 import cn.edu.fudan.issueservice.core.solved.IssueSolved;
-import cn.edu.fudan.issueservice.dao.RawIssueCacheDao;
-import cn.edu.fudan.issueservice.dao.IssueDao;
-import cn.edu.fudan.issueservice.dao.IssueScanDao;
-import cn.edu.fudan.issueservice.dao.RawIssueMatchInfoDao;
-import cn.edu.fudan.issueservice.domain.dbo.RawIssueCache;
+import cn.edu.fudan.issueservice.dao.*;
 import cn.edu.fudan.issueservice.domain.dbo.IssueScan;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
+import cn.edu.fudan.issueservice.domain.dbo.RawIssueCache;
 import cn.edu.fudan.issueservice.domain.enums.ScanStatusEnum;
 import cn.edu.fudan.issueservice.domain.enums.ToolEnum;
-import cn.edu.fudan.issueservice.mapper.SolvedRecordMapper;
 import cn.edu.fudan.issueservice.util.DateTimeUtil;
 import cn.edu.fudan.issueservice.util.RawIssueParseUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -62,11 +57,6 @@ public class IssueToolScanImpl extends AbstractToolScan {
     private final Lock lock1 = new ReentrantLock();
     private final Condition hasResource = lock.newCondition();
     private final Condition resourceReady = lock.newCondition();
-
-    @Autowired
-    RawIssueMatchInfoDao rawIssueMatchInfoDao;
-    @Autowired
-    SolvedRecordMapper solvedRecordMapper;
 
     private IssueScanDao issueScanDao;
     private RawIssueCacheDao rawIssueCacheDao;
@@ -117,6 +107,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
             } else {
                 repoPath = rest.getCodeServiceRepo(repoUuid);
             }
+            // todo repoPath is null
             JGitHelper jGitHelper = JGitHelper.getInstance(repoPath);
             repoResource.put(jGitHelper, true);
         }
@@ -184,6 +175,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         if (analyzer.closeResourceLoader()) {
             return;
         }
+        log.info("begin prepare {}", commit);
         lock.lock();
         try {
             // 等待 prepare 线程产生资源
@@ -216,14 +208,22 @@ public class IssueToolScanImpl extends AbstractToolScan {
             //1 init IssueScan
             Date commitTime = jGitHelper.getCommitDateTime(commit);
             Date authorTime = jGitHelper.getAuthorDate(commit);
-            String[] parentCommit = jGitHelper.getCommitParents(commit);
+            List<String> parentCommits = new ArrayList<>();
+            for (String commitParent : jGitHelper.getCommitParents(commit)) {
+                if (scanData.getToScanCommitList().contains(commitParent)) {
+                    parentCommits.add(commitParent);
+                }
+            }
             String developer = jGitHelper.getAuthorName(commit);
             IssueScan issueScan = IssueScan.initIssueScan(scanData.getRepoUuid(), commit, scanData.getRepoScan().getTool(),
-                    commitTime, authorTime, Arrays.toString(parentCommit), developer);
+                    commitTime, authorTime, Arrays.toString(parentCommits.toArray()), developer);
             RawIssueCache rawIssueCache = RawIssueCache.init(scanData.getRepoUuid(), commit, scanData.getRepoScan().getTool());
 
             //2 checkout
-            jGitHelper.checkout(commit);
+            if (!jGitHelper.checkout(commit)){
+                log.error("checkout failed! skip the commit [{}]", commit);
+                return false;
+            }
 
             //3 execute scan
             scan(rawIssueCache, issueScan, scanData.getRepoPath(), analyzer);
@@ -237,6 +237,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
                 scanPersistenceStatus = "failed";
             }
             log.info("issue scan result  persist {}! commit id --> {}", scanPersistenceStatus, commit);
+            // todo 由于 mongod 服务不可用导致持久化失败，则中止扫描
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -322,7 +323,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         //6 issue merge
 //        long issueMergeTime = System.currentTimeMillis();
 //        // 全部扫描的commit才可能出现issue合并的情况
-//        if(issueAnalyzerDao.getIsTotalScan(repoUuid, commit, issueAnalyzer.getTool()) == 1){
+//        if(rawIssueCacheDao.getIsTotalScan(repoUuid, commit, analyzer.getToolName()) == 1){
 //            boolean mergeResult = issueMergeManager.issueMerge(issueStatistics, repoUuid);
 //            if (!mergeResult) {
 //                log.error("merge failed!repo path is {}, commit is {}", repoPath, commit);
@@ -344,6 +345,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
         issueScan.setStatus(ScanStatusEnum.DONE.getType());
     }
+
 
     /**
      * 加载资源 准备 rawIssue
@@ -372,7 +374,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
                 issueScan.setStatus(scanStatusEnum.getType());
                 if (scanStatusEnum.equals(ScanStatusEnum.DONE)) {
                     rawIssueCache.updateIssueAnalyzeStatus(rawIssues);
-                    rawIssueCache.setIsTotalScan(isTotalScan ?  1 : 0 );
+                    rawIssueCache.setIsTotalScan(isTotalScan ? 1 : 0);
                     rawIssueCacheDao.insertIssueAnalyzer(rawIssueCache);
                 } else {
                     rawIssueCache.setInvokeResult(RawIssueCache.InvokeResult.FAILED.getStatus());
@@ -399,8 +401,11 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
     @Override
     public void cleanUpForOneScan(String commit) {
+        log.info("start to clean up buffer after one commit: {}", commit);
         issueMatcher.cleanParentRawIssueResult();
         issueStatistics.cleanRawIssueUuid2DataBaseUuid();
+        // 释放 JGit 资源
+//        JGitHelper.release(scanData.getRepoPath());
     }
 
     @Override

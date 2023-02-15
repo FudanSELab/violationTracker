@@ -28,7 +28,9 @@ public class DiffLines {
     List<Integer> preChangeLines;
     List<Integer> cruChangeLines;
 
-    /** 可暂时不填 */
+    /**
+     * 可暂时不填
+     */
     Map<List<Integer>, List<Integer>> changeLineMap;
 
     public static DiffLines analyzeDiffLines(String preAbsoluteFilePath, String curAbsoluteFilePath) throws IOException {

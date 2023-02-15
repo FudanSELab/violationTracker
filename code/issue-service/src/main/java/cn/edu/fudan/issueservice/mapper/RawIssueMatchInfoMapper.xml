@@ -24,7 +24,7 @@
     </resultMap>
 
     <insert id="insertRawIssueMatchInfoList" parameterType="List">
-        INSERT IGNORE INTO raw_issue_match_info
+        INSERT INTO raw_issue_match_info
         (
         cur_rawIssue_uuid,
         cur_commit_id,
@@ -110,20 +110,13 @@
     </select>
 
 
-    <select id="countByIssueUuidAndCommitsAndRepo" resultType="Integer">
-        select count(*)
+    <select id="getByIssueUuidAndRepoUuid" resultMap="rawIssueMatchInfo">
+        select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
         FROM raw_issue_match_info
         <where>
             issue_uuid = #{issueUuid} AND repo_uuid = #{repoUuid}
-            <if test="parentCommits != null  and parentCommits.size > 0">
-                AND cur_commit_id in
-                <foreach collection="parentCommits" item="parentCommit" separator="," open="(" close=")">
-                    #{parentCommit}
-                </foreach>
-            </if>
         </where>
     </select>
-
 
 
     <select id="getMatchInfosByIds" resultMap="rawIssueMatchInfo">
@@ -166,8 +159,8 @@
         FROM raw_issue_match_info
         WHERE issue_uuid = #{issueUuid}
         AND cur_commit_id = #{commit}
-          AND cur_commit_id = #{commit}
-          AND repo_uuid = #{repoUuid}
+        AND cur_commit_id = #{commit}
+        AND repo_uuid = #{repoUuid}
     </select>
 
     <select id="getMatchInfoByCurRawIssueAndCommit" resultMap="rawIssueMatchInfo">
@@ -220,7 +213,7 @@
         select *
         from raw_issue_match_info
         where issue_uuid = #{uuid}
-          and status = #{status}
+        and status = #{status}
         order by id limit 1;
     </select>
 
@@ -234,7 +227,7 @@
     <select id="listRawIssueMatchInfoByRepoAndTime" resultMap="rawIssueMatchInfo">
         SELECT *
         FROM raw_issue_match_info rim
-        WHERE  rim.issue_uuid = #{issueUuid}
+        WHERE rim.issue_uuid = #{issueUuid}
     </select>
 
     <select id="getAnalysisIssueInfo" resultMap="analysisIssueMap">
@@ -265,7 +258,9 @@
     </select>
 
     <select id="getMatchInfoCount" resultType="java.lang.Integer">
-        select count(*) from raw_issue_match_info where repo_uuid = #{repoUuid}
+        select count(*)
+        from raw_issue_match_info
+        where repo_uuid = #{repoUuid}
     </select>
 
     <update id="batchUpdateSolveWay" parameterType="java.util.List">
@@ -282,7 +277,7 @@
         </foreach>
     </update>
 
-    <select id="getMatchInfoByRepoUuidAndStatuses" resultMap="rawIssueMatchInfo" >
+    <select id="getMatchInfoByRepoUuidAndStatuses" resultMap="rawIssueMatchInfo">
         select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
         from raw_issue_match_info
         where repo_uuid = #{repo_uuid} and status in
@@ -291,7 +286,7 @@
         </foreach>
     </select>
 
-    <select id="getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay" resultMap="rawIssueMatchInfo" >
+    <select id="getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay" resultMap="rawIssueMatchInfo">
         select id, cur_rawIssue_uuid, cur_commit_id, pre_rawIssue_uuid, pre_commit_id, issue_uuid, status
         from raw_issue_match_info
         where repo_uuid = #{repo_uuid} and solve_way is null and status in
@@ -299,7 +294,6 @@
             #{status}
         </foreach>
     </select>
-
 
 
 </mapper>

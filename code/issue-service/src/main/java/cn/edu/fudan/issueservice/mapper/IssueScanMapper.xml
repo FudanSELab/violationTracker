@@ -90,10 +90,10 @@
                 and tool=#{tool}
             </if>
             <if test="since != null">
-                and <![CDATA[ start_commit_date >= #{since} ]]>
+                and <![CDATA[ commit_time >= #{since} ]]>
             </if>
             <if test="until != null">
-                and <![CDATA[ start_commit_date < #{until} ]]>
+                and <![CDATA[ commit_time < #{until} ]]>
             </if>
         </where>
         order by commit_time
@@ -147,15 +147,22 @@
         AND status &lt;&gt; 'done'
     </select>
 
+    <select id="getRangeCommitDate" resultType="java.util.Map">
+        SELECT MAX(commit_time) endCommitDate, MIN(author_time) startCommitDate
+        FROM issue_scan
+        WHERE repo_uuid = #{repoUuid}
+        AND tool = #{tool} limit 1
+    </select>
+
     <select id="getAllCommitsWithParents" resultMap="commit">
         SELECT repo_uuid, commit_id, commit_time, author_time, developer, parent_commit
         FROM issue_scan
         <where>repo_uuid = #{repoUuid}
             <if test="since != null">
-                and <![CDATA[ start_commit_date >= #{since} ]]>
+                and <![CDATA[ commit_time >= #{since} ]]>
             </if>
             <if test="until != null">
-                and <![CDATA[ start_commit_date < #{until} ]]>
+                and <![CDATA[ commit_time <= #{until} ]]>
             </if>
         </where>
     </select>

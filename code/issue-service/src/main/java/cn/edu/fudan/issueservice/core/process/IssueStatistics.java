@@ -93,21 +93,23 @@ public class IssueStatistics {
 
     private List<String> parentCommits = new ArrayList<>();
 
-    private Map<String,String> rawIssueUuid2DataBaseUuid = new HashMap<>();
+    private Map<String, String> rawIssueUuid2DataBaseUuid = new HashMap<>();
 
     @Autowired
     public IssueStatistics(IssueDao issueDao, RawIssueCacheDao rawIssueCacheDao, RawIssueDao rawIssueDao) {
         IssueStatistics.issueDao = issueDao;
         IssueStatistics.rawIssueCacheDao = rawIssueCacheDao;
-        IssueStatistics.rawIssueDao =  rawIssueDao;
+        IssueStatistics.rawIssueDao = rawIssueDao;
     }
 
     /**
      * 根据issueMatch中的信息做数据统计
      **/
     public boolean doingStatisticalAnalysis(IssueMatcher issueMatcher, String repoUuid, String tool) {
-
-        try{
+        log.info("start statistical analysis process");
+        long startProcess = System.currentTimeMillis();
+        try {
+            log.info("analysis process[{}], step 1: count the number of issues", repoUuid);
             //0.get all data
             Map<String, Issue> newIssue = issueMatcher.getNewIssues();
             Map<String, Issue> solvedIssue = issueMatcher.getSolvedIssue();
@@ -163,31 +165,37 @@ public class IssueStatistics {
 
             //5.set issue matcher for next step persist data
             this.issueMatcher = issueMatcher;
-
+            log.info("analysis process[{}], step 2: mapping issue uuid, step 1 uses {} s", repoUuid, (System.currentTimeMillis() - startProcess) / 1000);
+            startProcess = System.currentTimeMillis();
+            // 增量扫描的时候，进行比较的是前后commit的同一文件，但是此时生成的preRawIssue的uuid并不一定是数据库中记录的，
+            // 所以需要进行查询以及映射，确保preRawIssue的uuid为数据库中记录的uuid
             Map<String, List<RawIssue>> parentRawIssuesResult = issueMatcher.getParentRawIssuesResult();
             for (Map.Entry<String, List<RawIssue>> stringListEntry : parentRawIssuesResult.entrySet()) {
                 String parentCommit = stringListEntry.getKey();
                 List<RawIssue> preRawIssues = stringListEntry.getValue();
-                log.info("statistics parentCommit:{}  jgitRepoPath:{}",parentCommit,jGitHelper.getRepoPath());
+                log.info("statistics parentCommit:{}  jgitRepoPath:{}", parentCommit, jGitHelper.getRepoPath());
                 List<String> allParentCommits = jGitHelper.getAllCommitParents(parentCommit);
-                Map<String, String> uuid2Hash = preRawIssues.stream().collect(Collectors.toMap(RawIssue::getUuid,RawIssue::getRawIssueHash,(oldValue,newValue) -> newValue));
+                Map<String, String> uuid2Hash = preRawIssues.stream().collect(Collectors.toMap(RawIssue::getUuid, RawIssue::getRawIssueHash, (oldValue, newValue) -> newValue));
                 Map<String, String> hash2RecordedUuid = new HashMap<>();
                 List<String> hashes = new ArrayList<>(uuid2Hash.values());
 //                List<Map<String,Object>> rawIssueAndHash =  rawIssueDao.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid,hashes,allParentCommits);
 //                rawIssueAndHash.forEach(temp -> hash2RecordedUuid.put((String) temp.get("rawIssueHash"),(String) temp.get("uuid")));
+                // 此处由于是包含所有的parent commits，所以速度较慢
                 List<RawIssue> rawIssueList = rawIssueDao.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid, hashes, allParentCommits);
                 Map<String, List<RawIssue>> hash2RawIssues = rawIssueList.stream().collect(Collectors.groupingBy(RawIssue::getRawIssueHash));
                 //todo 待验证
                 for (Map.Entry<String, List<RawIssue>> hash2RawIssue : hash2RawIssues.entrySet()) {
                     RawIssue rawIssue = hash2RawIssue.getValue().stream()
                             .sorted(Comparator.comparing(RawIssue::getId).reversed()).collect(Collectors.toList()).get(0);
-                    hash2RecordedUuid.put(hash2RawIssue.getKey(),rawIssue.getUuid());
+                    hash2RecordedUuid.put(hash2RawIssue.getKey(), rawIssue.getUuid());
                 }
                 for (Map.Entry<String, String> temp : uuid2Hash.entrySet()) {
-                    rawIssueUuid2DataBaseUuid.put(temp.getKey(),hash2RecordedUuid.get(temp.getValue()));
+                    rawIssueUuid2DataBaseUuid.put(temp.getKey(), hash2RecordedUuid.get(temp.getValue()));
                 }
             }
-        }catch (Exception e){
+            log.info("analysis process[{}] success!, step 2 uses {} s", repoUuid, (System.currentTimeMillis() - startProcess) / 1000);
+
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -195,7 +203,7 @@ public class IssueStatistics {
     }
 
 
-    public void cleanRawIssueUuid2DataBaseUuid(){
+    public void cleanRawIssueUuid2DataBaseUuid() {
         rawIssueUuid2DataBaseUuid.clear();
     }
 

@@ -5,14 +5,15 @@ import cn.edu.fudan.issueservice.core.analyzer.BaseAnalyzer;
 import cn.edu.fudan.issueservice.core.matcher.Matcher;
 import cn.edu.fudan.issueservice.core.matcher.MatcherFactory;
 import cn.edu.fudan.issueservice.dao.*;
-import cn.edu.fudan.issueservice.domain.dbo.Issue;
-import cn.edu.fudan.issueservice.domain.dbo.IssueScan;
-import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
+import cn.edu.fudan.issueservice.domain.dbo.*;
 import cn.edu.fudan.issueservice.domain.dto.MatcherCommitInfo;
 import cn.edu.fudan.issueservice.domain.dto.MatcherData;
 import cn.edu.fudan.issueservice.domain.dto.MatcherResult;
 import cn.edu.fudan.issueservice.domain.enums.CommitStatusEnum;
+import cn.edu.fudan.issueservice.domain.enums.IgnoreTypeEnum;
+import cn.edu.fudan.issueservice.domain.enums.IssuePriorityEnums;
 import cn.edu.fudan.issueservice.domain.enums.ScanStatusEnum;
+import cn.edu.fudan.issueservice.util.DateTimeUtil;
 import cn.edu.fudan.issueservice.util.FileFilter;
 import cn.edu.fudan.issueservice.util.SearchUtil;
 import lombok.Data;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -51,6 +53,9 @@ public class IssueMatcher {
     private int ignoreMergeSolvedIssueNum;
     @Value("${baseLogHome}")
     private String logHome;
+    @Value("${enableTotalScan:true}")
+    private boolean enableTotalScan;
+    private static Map<String, IssueType> issueTypeMap = new HashMap<>();
 
     /**
      * des: @key parentCommitId   @value 与curCommit 映射后
@@ -107,12 +112,17 @@ public class IssueMatcher {
 
     public boolean matchProcess(String repoUuid, String curCommit, JGitHelper jGitHelper, String tool, List<RawIssue> parentAndCurRawIssues) {
         try {
+            long startProcess = System.currentTimeMillis();
             // checkout 当前 commit
+            log.info("match process[{}], step 1: checkout commit {}", repoUuid, curCommit);
             this.jGitHelper = jGitHelper;
             jGitHelper.checkout(curCommit);
-
+            log.info("match process[{}], step 2: get scanned parent commits, commit {}, step 1 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
+            startProcess = System.currentTimeMillis();
             // 获取成功扫描的 parent commits 并初始化 matcher data
-            List<String> parentCommits = getPreScanSuccessfullyCommit(repoUuid, curCommit, jGitHelper, tool);
+            List<String> parentCommits = enableTotalScan ? getPreScanSuccessfullyCommit(repoUuid, curCommit, jGitHelper, tool) : Arrays.asList(jGitHelper.getCommitParents(curCommit));
+            log.info("match process[{}], step 3: init matcher data, commit {}, step 2 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
+            startProcess = System.currentTimeMillis();
             //准备匹配需要的各项数据
             MatcherData matcherData = initMatcherData(repoUuid, curCommit, jGitHelper, tool, parentAndCurRawIssues, parentCommits);
 
@@ -121,14 +131,17 @@ public class IssueMatcher {
             if (!parentCommits.isEmpty()) {
                 commitStatusEnum = parentCommits.size() > 1 ? CommitStatusEnum.MERGE : CommitStatusEnum.NORMAL;
             }
-
+            log.info("match process[{}], step 4: match raw issues, commit {}, step 3 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
+            startProcess = System.currentTimeMillis();
             // 获取 Matcher 并匹配
             Matcher matcher = matcherFactory.createMatcher(commitStatusEnum, matcherData);
             matcher.init(logHome, issueDao, issueTypeDao, rawIssueDao, rawIssueMatchInfoDao);
             MatcherResult matcherResult = matcher.matchRawIssues();
-
+            log.info("match process[{}], step 5: sum up matcher data, commit {}, step 4 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
+            startProcess = System.currentTimeMillis();
             // 整理 matcher data
             sumUpMatcherData(matcherData, matcherResult);
+            log.info("match process[{}] success, commit {}, step 5 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
         } catch (Exception e) {
             log.error("match throw exception, check the code");
             e.printStackTrace();
@@ -139,7 +152,8 @@ public class IssueMatcher {
     }
 
     private MatcherData initMatcherData(String repoUuid, String curCommit, JGitHelper jGitHelper, String tool, List<RawIssue> parentAndCurRawIssues, List<String> parentCommits) {
-        log.info("start init matcher data for current commit: {}", curCommit);
+        long startInit = System.currentTimeMillis();
+        log.info("start init matcher data[{}] for current commit: {}", repoUuid, curCommit);
         Set<RawIssue> curRawIssueSet = new HashSet<>();
         Map<String, List<String>> commitFileMap = new HashMap<>(8);
         Map<String, List<RawIssue>> parentRawIssuesMap = new HashMap<>(8);
@@ -150,18 +164,27 @@ public class IssueMatcher {
 
         List<RawIssue> curRawIssues = commitToRawIssues.getOrDefault(curCommit, new ArrayList<>());
 
+        if (issueTypeMap.isEmpty()) {
+            issueTypeDao.getIssueTypes(null).forEach(issueType -> issueTypeMap.putIfAbsent(issueType.getType(), issueType));
+        }
+
 //        curRawIssueSet.addAll(curRawIssues);
         if (parentCommits.isEmpty()) {
             curRawIssueSet.addAll(curRawIssues);
         }
 
+        log.info("init matcher data[{}], step 1:init matcher data for current commit: {}", repoUuid, curCommit);
+
         for (String parentCommit : parentCommits) {
             Map<String, String> preFile2CurFile = new HashMap<>(16);
             Map<String, String> curFile2PreFile = new HashMap<>(16);
 
+            log.info("init matcher data[{}], step 1-1:get diff files for current commit: {} parentCommit: {}, last step uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - startInit) / 1000);
+            startInit = System.currentTimeMillis();
             // 获取有 diff 的文件
             List<String> diffFiles = jGitHelper.getDiffFilePair(parentCommit, curCommit, preFile2CurFile, curFile2PreFile);
-
+            log.info("init matcher data[{}], step 1-2:filter files and issues for current commit: {} parentCommit: {}, step 1-1 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - startInit) / 1000);
+            startInit = System.currentTimeMillis();
             // 处理 diff 文件名
             var delimiter = ",";
             List<String> preFiles = diffFiles.stream().filter(d -> !d.startsWith(delimiter)).map(f -> Arrays.asList(f.split(delimiter)).get(0)).collect(Collectors.toList());
@@ -171,30 +194,47 @@ public class IssueMatcher {
             curFiles = curFiles.stream().filter(file -> !FileFilter.fileFilter(tool, file)).collect(Collectors.toList());
 
             preFiles = preFiles.stream().filter(file -> !FileFilter.fileFilter(tool, file)).collect(Collectors.toList());
+
             List<String> finalCurFiles = curFiles;
             curRawIssueSet.addAll(curRawIssues.stream().filter(rawIssue -> finalCurFiles.contains(rawIssue.getFileName())).collect(Collectors.toList()));
 
             List<RawIssue> preRawIssues = commitToRawIssues.getOrDefault(parentCommit, new ArrayList<>());
-            List<String> preCommitsForParent = jGitHelper.getAllCommitParents(parentCommit);
+            // 在这一步很卡，并且如果库很大会导致获取的parentCommits很大，待优化
+//            List<String> preCommitsForParent = jGitHelper.getAllCommitParents(parentCommit);
 
             List<String> finalPreFiles = preFiles;
             preRawIssues = preRawIssues.stream().filter(rawIssue -> finalPreFiles.contains(rawIssue.getFileName())).collect(Collectors.toList());
+
+            log.info("init matcher data[{}], step 1-3:match rawIssue in database for current commit: {} parentCommit: {}, step 1-2 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - startInit) / 1000);
+            startInit = System.currentTimeMillis();
+            List<Issue> newIssueList = new ArrayList<>();
+            List<RawIssue> newRawIssueList = new ArrayList<>();
+            List<String> allParentCommits = jGitHelper.getAllCommitParents(curCommit);
             //根据rawIssueHash及parentCommit去找该rawIssue对应的issue uuid
             preRawIssues.forEach(rawIssue -> {
-                String issueId = rawIssueDao.getIssueUuidByRawIssueHashAndParentCommits(repoUuid, rawIssue.getRawIssueHash(), preCommitsForParent);
+                // 对于大表，需要添加repo_uuid与rawIssueHash的索引
+                String issueId = rawIssueDao.getIssueUuidByRawIssueHashAndParentCommits(repoUuid, rawIssue.getRawIssueHash(), allParentCommits);
                 if (issueId == null) {
                     log.warn("hash: " + rawIssue.getRawIssueHash() + " is null, commit id: {}, type: {}", rawIssue.getCommitId(), rawIssue.getType());
+                    rawIssue.setCommitTime(DateTimeUtil.localToUtc(jGitHelper.getCommitTime(rawIssue.getCommitId())));
+                    newIssueList.add(generateOneIssue(rawIssue));
+                    newRawIssueList.add(rawIssue);
+                } else {
+                    rawIssue.setIssueId(issueId);
                 }
-                rawIssue.setIssueId(issueId);
             });
-
+            log.info("init matcher data[{}], step 1-4:insert issues not found in database for current commit: {} parentCommit: {}, step 1-3 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - startInit) / 1000);
+            startInit = System.currentTimeMillis();
+            insertIssueNotFoundInDataBase(newIssueList, newRawIssueList);
+            log.info("init matcher data[{}], step 1-5:current commit: {} parentCommit: {}, step 1-4 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - startInit) / 1000);
+            startInit = System.currentTimeMillis();
             commitFileMap.put(parentCommit, curFiles);
             parentRawIssuesMap.put(parentCommit, preRawIssues);
             preFile2CurFileMap.put(parentCommit, preFile2CurFile);
             curFile2PreFileMap.put(parentCommit, curFile2PreFile);
         }
         this.fileMap = preFile2CurFileMap;
-        log.info("init matcher data success!");
+        log.info("init matcher data[{}] success, uses {} s", repoUuid, (System.currentTimeMillis() - startInit) / 1000);
         return MatcherData.builder()
                 .tool(tool)
                 .repoUuid(repoUuid)
@@ -284,6 +324,29 @@ public class IssueMatcher {
         return trueParents;
     }
 
+    private Issue generateOneIssue(RawIssue rawIssue) {
+        Issue issue = Issue.valueOf(rawIssue);
+        //这种放入的缺陷都应该被忽略掉
+        issue.setManualStatus(IgnoreTypeEnum.IGNORE.getName());
+        IssueType issueType = issueTypeMap.get(rawIssue.getType());
+        issue.setIssueCategory(issueType == null ? IssuePriorityEnums.getIssueCategory(rawIssue.getTool(), rawIssue.getPriority()) : issueType.getCategory());
+        rawIssue.setIssueId(issue.getUuid());
+        rawIssue.getMatchInfos().forEach(rawIssueMatchInfo -> rawIssueMatchInfo.setIssueUuid(issue.getUuid()));
+        return issue;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void insertIssueNotFoundInDataBase(List<Issue> newIssues, List<RawIssue> newRawIssues) {
+        issueDao.insertIssueList(newIssues);
+        rawIssueDao.insertRawIssueList(newRawIssues);
+        List<RawIssueMatchInfo> rawIssueMatchInfos = new ArrayList<>();
+        newRawIssues.forEach(rawIssue -> rawIssueMatchInfos.addAll(rawIssue.getMatchInfos()));
+        rawIssueMatchInfoDao.insertRawIssueMatchInfoList(rawIssueMatchInfos);
+        List<Location> locations = new ArrayList<>();
+        newRawIssues.forEach(rawIssue -> locations.addAll(rawIssue.getLocations()));
+        locationDao.insertLocationList(locations);
+    }
+
     public void cleanParentRawIssueResult() {
         parentRawIssuesResult.clear();
     }
@@ -295,34 +358,33 @@ public class IssueMatcher {
 
     @Autowired
     public void setIssueScanDao(IssueScanDao issueScanDao) {
-        this.issueScanDao = issueScanDao;
+        IssueMatcher.issueScanDao = issueScanDao;
     }
 
     @Autowired
     public void setRawIssueDao(RawIssueDao rawIssueDao) {
-        this.rawIssueDao = rawIssueDao;
+        IssueMatcher.rawIssueDao = rawIssueDao;
     }
 
     @Autowired
     public void setIssueDao(IssueDao issueDao) {
-        this.issueDao = issueDao;
+        IssueMatcher.issueDao = issueDao;
     }
 
     @Autowired
     public void setIssueTypeDao(IssueTypeDao issueTypeDao) {
-        this.issueTypeDao = issueTypeDao;
+        IssueMatcher.issueTypeDao = issueTypeDao;
     }
 
     @Autowired
     public void setRawIssueMatchInfoDao(RawIssueMatchInfoDao rawIssueMatchInfoDao) {
-        this.rawIssueMatchInfoDao = rawIssueMatchInfoDao;
+        IssueMatcher.rawIssueMatchInfoDao = rawIssueMatchInfoDao;
     }
-
 
 
     @Autowired
     public void setLocationDao(LocationDao locationDao) {
-        this.locationDao = locationDao;
+        IssueMatcher.locationDao = locationDao;
     }
 
     @Autowired

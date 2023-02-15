@@ -42,7 +42,7 @@ public interface IssueRepoMapper {
      * @param repoId repoUuid
      * @param tool   tool
      */
-    void deleteIssueRepoByCondition(@Param("repo_uuid") String repoId, @Param("tool") String tool);
+    void deleteIssueRepoByCondition(@Param("repo_uuid") String repoId, @Param("tool") String tool, @Param("status") String status);
 
     /**
      * 返回没扫描commit数
@@ -73,14 +73,16 @@ public interface IssueRepoMapper {
 
     /**
      * 获取开始扫描的commit 时间
+     *
      * @param repoUuid
      * @param tool
      * @return
      */
-    String getStartCommitTime(@Param("repoUuid") String repoUuid, @Param("tool")String tool);
+    String getStartCommitTime(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
      * 获取开始扫描的 commit id
+     *
      * @param repoUuid
      * @param tool
      * @return
@@ -99,8 +101,13 @@ public interface IssueRepoMapper {
 
     /**
      * 获取正在扫描的 repo 数据
+     *
      * @return
      */
-    List<RepoScan> getScanningRepos();
+    List<RepoScan> getReposByScanStatus(@Param("status") String status, @Param("tool") String tool);
+
+    List<RepoScan> getRepoScanByStatus(@Param("status") String status);
+
+    void insertIssueRepos(@Param("repoScanList") List<RepoScan> repoScanList);
 
 }
