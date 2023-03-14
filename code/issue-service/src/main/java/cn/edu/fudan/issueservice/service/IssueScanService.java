@@ -12,7 +12,7 @@ import java.util.Map;
 public interface IssueScanService {
 
     /**
-     * 获取扫描状态
+     * get scan status by repo uuid
      *
      * @param repoUuid repoUuid
      * @return
@@ -27,7 +27,7 @@ public interface IssueScanService {
     List<RepoScan> getIssueReposByRepoUuid(String repoId);
 
     /**
-     * 获取扫描失败的commit list
+     * get the commits that have scanned failed
      *
      * @param repoUuid
      * @return

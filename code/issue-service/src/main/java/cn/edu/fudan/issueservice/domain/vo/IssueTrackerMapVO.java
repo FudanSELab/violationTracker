@@ -38,18 +38,18 @@ public class IssueTrackerMapVO implements Serializable {
                                List<RawIssue> rawIssueList, List<RawIssue> solvedPreRawIssueList,
                                Set<String> failedCommitList, boolean showAll, Integer page, Integer ps) {
         this.metaInfo = new FileMetaInfo();
-        // 追溯次数
+        // Tracker number
         this.metaInfo.setTrackerNum(rawIssueMatchInfoList.size());
         log.debug("tracker num is {}", rawIssueMatchInfoList.size());
         if (rawIssueList == null || rawIssueList.isEmpty()) {
             log.debug("add or mapped raw-issue list is empty");
             return;
         }
-        // 键值对 commit id -> commit
+        // key: commit id, value commit
         Map<String, Commit> commitMap = new HashMap<>(32);
         commitList.forEach(commit -> commitMap.put(commit.getCommitId(), commit));
 
-        // 设置 raw issue 时间
+        // Set the time for the raw issue
         rawIssueList.forEach(rawIssue -> {
             rawIssue.setMessage(commitMap.get(rawIssue.getCommitId()).getMessage());
             rawIssue.setCommitTime(DateTimeUtil.stringToDate(commitMap.get(rawIssue.getCommitId()).getCommitTime()));
@@ -65,19 +65,19 @@ public class IssueTrackerMapVO implements Serializable {
         Map<String, Set<String>> trackerCommitMap = new HashMap<>();
         //      a. changed commits（all）
         trackerCommitMap.put(IssueTrackerStatus.CHANGED.getType(), new HashSet<>());
-        //      b. 新增issue的commit
+        //      b. Issues were introduced in these commits
         trackerCommitMap.put(IssueTrackerStatus.BUG_ADD.getType(), new HashSet<>());
-        //      c. issue变化的commit
+        //      c. Issues were changed in these commits
         trackerCommitMap.put(IssueTrackerStatus.BUG_CHANGED.getType(), new HashSet<>());
-        //      d. issue可能发生变化的commit（default、failed 等）
+        //      d. Issues may be changed in these commits（default and failed）
         trackerCommitMap.put(IssueTrackerStatus.BUG_MAY_CHANGED.getType(), new HashSet<>());
-        //      e. 解决issue的commit
+        //      e. Issues were solved in these commits
         trackerCommitMap.put(IssueTrackerStatus.SOLVED.getType(), new HashSet<>());
 
-        // 以 file delete 方式修复的 commit
+        // The solved way is file deletion
         Set<String> fileDeleteSet = new HashSet<>(8);
         Map<String, String> solvedRawIssueUuidMap = new HashMap<>(8);
-        // 最早出现的日期
+        // The date of the earliest introduced violation
         Date addDate = null;
         for (RawIssueMatchInfo info : rawIssueMatchInfoList) {
             trackerCommitMap.get(IssueTrackerStatus.CHANGED.getType()).add(info.getCurCommitId());
@@ -94,7 +94,7 @@ public class IssueTrackerMapVO implements Serializable {
                     RawIssueStatus.REOPEN.getType().equals(info.getStatus()) ||
                     RawIssueStatus.MERGE_REOPEN.getType().equals(info.getStatus())) {
                 trackerCommitMap.get(IssueTrackerStatus.BUG_ADD.getType()).add(info.getCurCommitId());
-                // 最早出现的时间
+                // The date of the earliest introduced violation
                 if (commitMap.get(info.getCurCommitId()) != null && (addDate == null ||
                         !after(commitMap.get(info.getCurCommitId()).getCommitTime(), addDate))) {
                     addDate = DateTimeUtil.stringToDate(commitMap.get(info.getCurCommitId()).getCommitTime());
@@ -105,10 +105,10 @@ public class IssueTrackerMapVO implements Serializable {
                 trackerCommitMap.get(IssueTrackerStatus.BUG_MAY_CHANGED.getType()).add(info.getCurCommitId());
             }
         }
-        // 扫描失败的commit
+        // A list of failed commits for scanning
         trackerCommitMap.get(IssueTrackerStatus.BUG_MAY_CHANGED.getType()).addAll(failedCommitList);
 
-        // 初始化 tracker node 信息
+        // Initialize the tracker nodes
         List<IssueTrackerNode> nodes = getTrackerNodes(commitList, rawIssueList, solvedPreRawIssueList, solvedRawIssueUuidMap, fileDeleteSet, trackerCommitMap);
 
         log.debug("all nodes size is {}", nodes.size());
@@ -116,25 +116,23 @@ public class IssueTrackerMapVO implements Serializable {
             log.debug("{} nodes size is {}", entry.getKey(), entry.getValue().size());
         }
         nodes.sort(Comparator.comparing(IssueTrackerNode::getCommitTime).reversed());
-        // commit 边关系
+        // commit edges
         Set<String> edgeSet = initEdges(nodes, commitMap, addDate);
 
         if (page == 1) {
-            // 仅首次需要返回的信息
+            // Returned only in the first request
             this.setIssueLocations(rawIssueList);
         }
 
         if (Boolean.TRUE.equals(showAll)) {
-            // 所有节点
+            // All nodes
             PagedGridResult<IssueTrackerNode> nodePagedGridResult = PagedGridResult.restPage(nodes, page, ps);
             this.setNode(nodePagedGridResult);
             if (nodePagedGridResult.getRows().isEmpty()) {
                 return;
             }
-            // 设置 commit 间的父子关系
             this.setEdge(handleDirectEdges(page, ps, nodes, edgeSet));
         } else {
-            // 筛选有 issue 或追溯有变更的 node 历史
             log.debug("filter nodes with issues/changes");
             List<IssueTrackerNode> filterNodes = new ArrayList<>();
             nodes.forEach(n -> {
@@ -160,7 +158,6 @@ public class IssueTrackerMapVO implements Serializable {
                 return;
             }
             log.debug("update the edges of the nodes");
-            // commit 间的非直接父子关系
             this.setEdge(handleIndirectEdges(page, ps,
                     new HashSet<>(trackerCommitMap.get(IssueTrackerStatus.CHANGED.getType())),
                     filterNodes, commitMap, rawIssueList));
@@ -168,21 +165,23 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 初始化 tracker node
+     * Initialize tracker nodes
      *
      * @param commitList
      * @return
      */
     private List<IssueTrackerNode> getTrackerNodes(List<Commit> commitList, List<RawIssue> rawIssues, List<RawIssue> solvedPreRawIssues,
                                                    Map<String, String> solvedRawIssueUuidMap, Set<String> fileDeleteSet, Map<String, Set<String>> trackerCommitMap) {
-        // 键值对 commit -> rawIssue
+        // key: commit, value: rawIssue
         Map<String, RawIssue> rawIssueMap = new HashMap<>(16);
         rawIssues.forEach(rawIssue -> rawIssueMap.put(rawIssue.getCommitId(), rawIssue));
-        // 键值对 raw issue uuid -> rawIssue
+        // key: raw issue uuid, value: rawIssue
         Map<String, RawIssue> preRawIssueMap = new HashMap<>(8);
         solvedPreRawIssues.forEach(rawIssue -> preRawIssueMap.put(rawIssue.getUuid(), rawIssue));
 
-        // 不直接通过 repo uuid 查找 commit 表，存在一个 commit 属于多个 repo 的情况，获取的 commit 列表不全
+        // Do not directly look up the commit table through the repo uuid,
+        // there is a situation where a commit belongs to multiple repos,
+        // and the list of committed lists obtained is incomplete
         List<IssueTrackerNode> trackerNodes = new ArrayList<>();
         Set<String> distinctCommits = new HashSet<>();
         for (Commit commit : commitList) {
@@ -198,7 +197,7 @@ public class IssueTrackerMapVO implements Serializable {
                 trackerNode.setAuthorTime(DateTimeUtil.stringToDate(commit.getAuthorTime()));
                 String filePath;
                 if (fileDeleteSet.contains(trackerNode.getCommitId())) {
-                    // 以 file delete 方式解决的 commit，文件路径应当为空
+                    // file deletion
                     filePath = "";
                     trackerNode.setSolveWay(SolveWayEnum.FILE_DELETE.lowercase);
                 } else {
@@ -210,7 +209,7 @@ public class IssueTrackerMapVO implements Serializable {
                     }
                 }
                 trackerNode.setFilePath(filePath);
-                // 更新状态
+                // update status
                 setTrackerStatus(trackerCommitMap, trackerNode);
                 trackerNodes.add(trackerNode);
                 distinctCommits.add(trackerNode.getCommitId());
@@ -220,7 +219,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * commit 父子关系
+     * commit edges
      *
      * @param nodes
      * @param commitMap
@@ -242,7 +241,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 直接父子关系
+     * Direct edges
      *
      * @param page
      * @param ps
@@ -269,7 +268,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 间接父子关系
+     * Indirect edges
      *
      * @param page
      * @param ps
@@ -284,9 +283,9 @@ public class IssueTrackerMapVO implements Serializable {
                                                  Map<String, Commit> commitMap,
                                                  List<RawIssue> rawIssues) {
         List<CommitEdge> edges = new ArrayList<>();
-        // 当前page
+        // Current page
         List<IssueTrackerNode> curNodes = filterNodes.subList((page - 1) * ps, Math.min(page * ps, filterNodes.size()));
-        // 当前page前的所有node
+        // All nodes before the current page
         List<IssueTrackerNode> beforeNodes = filterNodes.subList(0, Math.min(page * ps, filterNodes.size()));
         if (curNodes.isEmpty()) return edges;
         Date minDate = curNodes.get(curNodes.size() - 1).getCommitTime();
@@ -295,11 +294,10 @@ public class IssueTrackerMapVO implements Serializable {
             Set<String> parents = new HashSet<>();
             Set<String> directParents = Set.of(commitMap.get(n.getCommitId()).getParentCommits().split(","));
             Set<String> visitedCommits = new HashSet<>();
-            // 寻找commit的parents
+            // Look for the parents of the current revision
             findParentCommits(n.getCommitId(), parents, curCommitSet, commitMap, minDate, visitedCommits);
             for (String parent : parents) {
                 if (!curCommitSet.contains(parent)) {
-                    // 只保留当前页面的commit作为source的edge
                     continue;
                 }
                 CommitEdge e = CommitEdge.builder()
@@ -323,7 +321,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 更新状态
+     * Update status
      *
      * @param commitMap
      * @param node
@@ -339,7 +337,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 寻找 commitOfCurrentPage 中 commit 的 parent，结果放在 parents 中
+     * Look for the parents in the revision in commitOfCurrentPage and put the result in parents
      *
      * @param commitId
      * @param parents
@@ -354,15 +352,13 @@ public class IssueTrackerMapVO implements Serializable {
         }
         Set<String> parentCommitSet = new HashSet<>(StringsUtil.parseParentCommits(commitMap.get(commitId).getParentCommits()));
         for (String parentCommit : parentCommitSet) {
-            // 找到commitOfCurrentPage中它的indirect parent后结束
+            // It ends after finding its indirect parent in the commitOfCurrentPage
             if (!visitedCommits.contains(parentCommit)) {
-                // visitedCommits表明已经遍历过，不再重复遍历
                 visitedCommits.add(parentCommit);
                 if (commitOfCurrentPage.contains(parentCommit)) {
                     parents.add(parentCommit);
                 } else if (commitMap.get(parentCommit) != null && (after(commitMap.get(parentCommit).getCommitTime(), minDate)
                         || MeasureCommitUtil.isCherryPick(commitMap.get(parentCommit), commitMap))) {
-                    // 注意检查是否因为 cherry-pick 导致的时间错乱，
                     findParentCommits(commitMap.get(parentCommit).getCommitId(), parents, commitOfCurrentPage, commitMap, minDate, visitedCommits);
                 }
             }
@@ -370,7 +366,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 获取追溯版本号
+     * Get the version of current commit
      *
      * @param rawIssues
      * @param commitId
@@ -385,7 +381,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 获取 raw issue location 文件路径
+     * Get the file path of raw issue
      *
      * @param rawIssue
      * @return
@@ -401,7 +397,7 @@ public class IssueTrackerMapVO implements Serializable {
     }
 
     /**
-     * 获取类名
+     * Get the class name
      *
      * @param filePath
      * @return

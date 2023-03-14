@@ -56,7 +56,7 @@ public interface RawIssueMatchInfoMapper {
     List<String> getMatchInfoByIssueUuidAndCommitsAndRepo(String issueUuid, @Param("parentCommits") List<String> parentCommits, String repoUuid);
 
     /**
-     * 查看某些commit 包含特定 Issue 的匹配状态数量
+     * get rawIssueMathcInfos by repoUuid and issueUuid
      *
      * @param issueUuid issueUuid
      * @param repoUuid  repoUuid
@@ -66,7 +66,7 @@ public interface RawIssueMatchInfoMapper {
 
 
     /**
-     * 根据Id 得到 RawIssueMatchInfo
+     * get the rawIssueMatchInfo by id
      *
      * @param matchIds ids
      * @return RawIssueMatchInfos
@@ -74,7 +74,7 @@ public interface RawIssueMatchInfoMapper {
     List<RawIssueMatchInfo> getMatchInfosByIds(@Param("matchIds") List<Integer> matchIds);
 
     /**
-     * 根据repoUuid和 commits 得到 RawIssueMatchInfo
+     * get the rawIssueMatchInfos by commits
      *
      * @param status     status
      * @param commitList commits
@@ -125,7 +125,7 @@ public interface RawIssueMatchInfoMapper {
                                                                @Param("issueUuid") String issueUuid);
 
     /**
-     * 获取项目/分支的的issue
+     * get issues by repoUuid
      *
      * @param repoUuid
      * @param status
@@ -139,26 +139,26 @@ public interface RawIssueMatchInfoMapper {
     int getMatchInfoCount(@Param("repoUuid") String repoUuid);
 
     /**
-     * 根据ID 批量 更新 solve way
+     * update solved way
      *
      * @param updateSolveList key RawIssueMatchInfoId value solve_way
      */
     void batchUpdateSolveWay(@Param("list") List<TwoValue<Integer, String>> updateSolveList);
 
     /**
-     * 根据uuid 和  status 获取
+     * get the rawIssueMatchInfos by repoUuid and status
      *
      * @param repoUuid repoUuid
-     * @param type     {@link RawIssueStatus#type}
+     * @param statuses status
      * @return list
      */
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatuses(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);
 
     /**
-     * 根据uuid 和  status 获取
+     *  get the rawIssueMatchInfos by repoUuid and status
      *
      * @param repoUuid repoUuid
-     * @param type     {@link RawIssueStatus#type}
+     * @param statuses
      * @return list
      */
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);

@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * description: 记录缺陷扫描工具对repo每个commit扫描情况。
+ * description: Record the violation scanning status for each commit of the repo
  *
  * @author lsw
  * @blame lsw

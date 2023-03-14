@@ -69,7 +69,7 @@ public class ScanResultDao {
     }
 
     /**
-     * 所有成功扫描的 commit，不等于所有 commit
+     * All successfully scanned commits, which are not equal to all commits
      *
      * @param repoUuid
      * @return

@@ -39,9 +39,6 @@ public class IssueServiceApplication implements ApplicationRunner, ApplicationCo
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-//        System.out.println("start..");
-//
-//        System.out.println("end..");
     }
 
     @Override
@@ -49,14 +46,6 @@ public class IssueServiceApplication implements ApplicationRunner, ApplicationCo
         this.applicationContext = applicationContext;
     }
 
-//        @Autowired
-//    ViolationAnalysis vs;
-//    @Override
-//    public void run(ApplicationArguments args) throws Exception {
-//
-//       vs.init();
-//
-//    }
 
 
 }

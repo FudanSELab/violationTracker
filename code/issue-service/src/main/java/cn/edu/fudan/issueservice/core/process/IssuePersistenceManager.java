@@ -15,9 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 需要入库的内容包括
  * <p>
- * 将数据持久化
+ * Persist data
  *
  * @author fancying
  */

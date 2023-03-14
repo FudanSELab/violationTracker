@@ -40,10 +40,10 @@ public interface IssueMapper {
     void batchUpdateIssue(@Param("issueInfo") Issue issue);
 
     /**
-     * 返回开发者参与并且有引入过issue的项目的repoUuid
+     * Returns the repoUuid of a project in which the developer participated and had an issue introduced
      *
-     * @param developer 开发者
-     * @return 返回开发者参与并且有引入过issue的项目的repo_uuid
+     * @param developer developer name
+     * @return repo uuids
      */
     List<String> getRepoWithIssues(@Param("developer") String developer);
 
@@ -82,44 +82,44 @@ public interface IssueMapper {
     List<Issue> getNotSolvedIssueAllListByToolAndRepoUuid(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool);
 
     /**
-     * 获取指定缺陷id列表的缺陷集
+     * Obtain the corresponding issue set from the issue id list
      *
      * @param issueIdList repoUuidList
-     * @return 获取指定缺陷id列表的缺陷集
+     * @return List<Issue>
      */
     List<Issue> getIssuesByIds(@Param("issueId_list") List<String> issueIdList);
 
     /**
-     * 返回筛选后issues数量
+     * Return the number of filtered issues
      *
-     * @param query 条件
-     * @return 筛选后issues数量
+     * @param query conditions
+     * @return The number of filtered issues
      */
     int getIssueFilterListCount(Map<String, Object> query);
 
     /**
-     * 返回解决issues数量
+     * Return the number of solved issues
      *
-     * @param query 条件
-     * @return 返回解决issues数量
+     * @param query conditions
+     * @return The number of solved issues
      */
     int getSolvedIssueFilterListCount(Map<String, Object> query);
 
     /**
      * update issue manual status
      *
-     * @param repoUuid     所在repo库
+     * @param repoUuid     repoUuid
      * @param issueUuid    issueUuid
-     * @param manualStatus 要改成的 目标状态 Ignore, Misinformation, To review, Default
-     * @param issueType    要忽略的issue 类型
-     * @param tool         issue 的检测工具
-     * @param currentTime  当前更新记录的时间
+     * @param manualStatus Ignore, Misinformation, To review, Default
+     * @param issueType    The type of issue need be ignored
+     * @param tool         tool name
+     * @param currentTime  update time
      */
     void updateIssueManualStatus(@Param("repoUuid") String repoUuid, @Param("issueUuid") String issueUuid, @Param("manualStatus") String manualStatus,
                                  @Param("issueType") String issueType, @Param("tool") String tool, @Param("currentTime") String currentTime);
 
     /**
-     * 获取自己引入自己解决的issue
+     * Self introduce and self solved
      *
      * @param query condition
      * @return issue date list
@@ -127,7 +127,7 @@ public interface IssueMapper {
     List<Integer> getSelfIntroduceSelfSolvedIssueInfo(Map<String, Object> query);
 
     /**
-     * 获取他人引入自己解决的issue
+     * Other introduce and self solved
      *
      * @param query condition
      * @return issue date list
@@ -135,7 +135,7 @@ public interface IssueMapper {
     List<Integer> getOtherIntroduceSelfSolvedIssueInfo(Map<String, Object> query);
 
     /**
-     * 获取自己引入未解决的issue
+     * Self introduce and living now
      *
      * @param query condition
      * @return issue date list
@@ -143,7 +143,7 @@ public interface IssueMapper {
     List<Integer> getSelfIntroduceLivingIssueInfo(Map<String, Object> query);
 
     /**
-     * 获取自己引入他人解决的issue
+     * Self introduce and other solved
      *
      * @param query condition
      * @return issue date list
@@ -151,7 +151,7 @@ public interface IssueMapper {
     List<Integer> getSelfIntroduceOtherSolvedIssueInfo(Map<String, Object> query);
 
     /**
-     * 获取自己引入自己解决的issue detail
+     * Self introduce and self solved(detail)
      *
      * @param query condition
      * @return issue detail list
@@ -159,7 +159,7 @@ public interface IssueMapper {
     List<JSONObject> getSelfIntroduceSelfSolvedIssueDetail(Map<String, Object> query);
 
     /**
-     * 获取他人引入自己解决的issue detail
+     * Other introduce and self solved(detail)
      *
      * @param query condition
      * @return issue detail list
@@ -167,7 +167,7 @@ public interface IssueMapper {
     List<JSONObject> getOtherIntroduceSelfSolvedIssueDetail(Map<String, Object> query);
 
     /**
-     * 获取自己引入未解决的issue detail
+     * Self introduce and living(detail)
      *
      * @param query condition
      * @return issue detail list
@@ -175,7 +175,7 @@ public interface IssueMapper {
     List<JSONObject> getSelfIntroduceLivingIssueDetail(Map<String, Object> query);
 
     /**
-     * 获取自己引入他人解决的issue detail
+     * Self introduce and other solved(detail)
      *
      * @param query condition
      * @return issue detail list
@@ -199,10 +199,10 @@ public interface IssueMapper {
     int getRemainingIssueCount(String repoUuid);
 
     /**
-     * 获取自己引入未解决的issue 数量
+     * Self introduce and living now
      *
      * @param query condition
-     * @return 按照人员group by的 producer, livingCount
+     * @return group by producer, livingCount
      */
     List<JSONObject> getSelfIntroduceLivingIssueCount(Map<String, Object> query);
 
@@ -231,37 +231,37 @@ public interface IssueMapper {
     List<Map<String, Object>> getIssueCountByCategoryAndType(Map<String, Object> query);
 
     /**
-     * 获取趋势图数据
+     * living issue tendency data
      *
      * @param until     until
      * @param projectId projectId
-     * @return 获取趋势图数据
+     * @return living issue tendency data
      */
     Map<String, Object> getLivingIssueTendency(@Param("until") String until, @Param("projectId") String projectId);
 
     /**
-     * 获取趋势图数据
+     * living issue tendency data
      *
      * @param until     until
      * @param projectId projectId
-     * @return 获取趋势图数据
+     * @return living issue tendency data
      */
     List<Map<String, Object>> getLivingIssueTendencyDetail(@Param("until") String until, @Param("projectId") String projectId);
 
 
     /**
-     * 根据条件筛选issue
+     * filter issues
      *
-     * @param query 条件
-     * @return issue列表
+     * @param query conditions
+     * @return issue list
      */
     List<Map<String, Object>> getIssueFilterList(Map<String, Object> query);
 
     /**
-     * 返回解决issues列表
+     * solved issues
      *
-     * @param query 条件
-     * @return 返回解决issues列表
+     * @param query conditions
+     * @return solved issue list
      */
     List<Map<String, Object>> getSolvedIssueFilterList(Map<String, Object> query);
 
@@ -306,7 +306,7 @@ public interface IssueMapper {
     List<Map<String, Object>> getDeveloperListLivingIssue(String since, String until, String repoUuid, List<String> developers);
 
     /**
-     * 根据 issue uuid 获取 issue 状态
+     * obtain issue status by issue uuid
      *
      * @param repoUuid repoUuid
      * @return issue uuids
@@ -314,36 +314,34 @@ public interface IssueMapper {
     Set<String> getSolvedIssueUuidsByRepoUuid(String repoUuid);
 
     /**
-     * @description: 获得最近引入缺陷的时间
+     * @description: recent issue time
      * @return: java.util.Date
-     * @time: 2022/1/18 4:33 下午
      */
 
     Date getLatestIntroduceTime(@Param("developer") String developer);
 
     /**
-     * @description: 获得当前issue为open的数量
+     * @description: living number of current repo
      * @return: Integer
-     * @time: 2022/2/22 4:33 下午
      */
     Integer getOpenIssueCount(@Param("repoUuid") String repoUuid);
 
     /**
-     * @param issueId         issue的uuid
-     * @param status          要修改的状态
-     * @param solveCommit     解决的Commit
-     * @param solver          解决者
-     * @param solveCommitDate 解决Commit日期
+     * @param issueId         issue uuid
+     * @param status          new status
+     * @param solveCommit     solved commit
+     * @param solver          solver
+     * @param solveCommitDate solved commit time
      */
     void updateOneIssueAfterMerged(@Param("issueId") String issueId, @Param("status") String status, @Param("solveCommit") String solveCommit, @Param("solver") String solver, @Param("solveCommitDate") Date solveCommitDate);
 
     List<Issue> getIssuesByRepos(@Param("repos") List<String> repos);
 
     /**
-     * @param repoUuid   项目uuid
-     * @param issueTypes 缺陷类型
-     * @param file       缺陷所在文件
-     * @return 符合条件的缺陷
+     * @param repoUuid   repo uuid
+     * @param issueTypes issue type
+     * @param file       file path
+     * @return issue uuid list
      */
     List<String> getSolvedIssuesByTypeAndFile(@Param("repoUuid") String repoUuid, @Param("issueTypes") List<String> issueTypes, @Param("file") String file);
 
@@ -354,7 +352,7 @@ public interface IssueMapper {
     List<Issue> getIssuesByRepo(@Param("repoUuid") String repo);
 
     /**
-     * 获取项目/分支截止until时存活的issue数量
+     * living issues of the repos
      *
      * @param repoUuids
      * @param until
@@ -363,7 +361,7 @@ public interface IssueMapper {
     Map<String, Integer> getLiveIssueCount(@Param("repoUuids") List<String> repoUuids, @Param("until") String until);
 
     /**
-     * 获取开发人员截止until时存活的issue数量
+     * living issues of the developers
      *
      * @param repoUuid
      * @param developers
@@ -385,40 +383,7 @@ public interface IssueMapper {
 
     List<Map<String, Object>> getDeveloperSolveIssueByCommit(Map<String, Object> query);
 
-//    /**
-//     * 获取项目/分支截止until时存活的issue数量
-//     *
-//     * @param repoUuids
-//     * @param until
-//     * @return map<repoUuid, live count>
-//     */
-//    Map<String, Integer> getLiveIssueCount(@Param("repoUuids") List<String> repoUuids, @Param("until") String until);
-//
-//    /**
-//     * 获取开发人员截止until时存活的issue数量
-//     *
-//     * @param repoUuid
-//     * @param developers
-//     * @param until
-//     * @return map<developer, live count>
-//     */
-//    Map<String, Integer> getLiveIssueCountInDeveloper(@Param("repoUuid") String repoUuid, @Param("developers") List<String> developers, @Param("until") String until);
 
-    /**
-     * 获取项目的issue uuid（分类统计）
-     *
-     * @param repoUuids
-     * @param tool
-     * @param developers
-     * @param categories
-     * @param types
-     * @param priorities
-     * @param since
-     * @param until
-     * @return
-     */
-    List<Map<String, Object>> getIssuesInListBoundariesWithUTC(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool, @Param("developers") List<String> developers, @Param("categories") List<String> categories,
-                                                               @Param("types") List<String> types, @Param("priorities") List<Integer> priorities, @Param("since") String since, @Param("until") String until);
 
     /**
      * 获取项目引入的缺陷类型

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * description: commit view 表对应关系
+ * description: commit view
  *
  * @author fancying
  * create: 2020-08-18 17:17

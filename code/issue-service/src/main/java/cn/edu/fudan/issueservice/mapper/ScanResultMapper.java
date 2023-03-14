@@ -16,14 +16,14 @@ import java.util.Map;
 public interface ScanResultMapper {
 
     /**
-     * 插入scanResult
+     * insert one scanResult
      *
      * @param scanResult scanResult
      */
     void addOneScanResult(ScanResult scanResult);
 
     /**
-     * 删除scanResult
+     * delete scanResults
      *
      * @param repoId   repoUuid
      * @param category category
@@ -31,7 +31,7 @@ public interface ScanResultMapper {
     void deleteScanResultsByRepoIdAndCategory(@Param("repo_uuid") String repoId, @Param("category") String category);
 
     /**
-     * 获取scanResult
+     * get scanResults
      *
      * @param repoUuids repoUuids
      * @param since     since
@@ -43,7 +43,7 @@ public interface ScanResultMapper {
     List<Map<String, Object>> getRepoIssueCounts(@Param("repoUuids") List<String> repoUuids, @Param("since") String since, @Param("until") String until, @Param("category") String category, @Param("developer") String developer);
 
     /**
-     * 获取firstDate
+     * get the first date
      *
      * @param repoUuids repoUuids
      * @return firstDate
@@ -51,7 +51,7 @@ public interface ScanResultMapper {
     String findFirstDateByRepo(@Param("repoUuids") List<String> repoUuids);
 
     /**
-     * 插入scanResult
+     * insert scanResults
      *
      * @param scanResults scanResults
      */
@@ -60,7 +60,7 @@ public interface ScanResultMapper {
     void deleteScanResultsByRepoUuid(@Param("repoUuid") String repoUuid);
 
     /**
-     * 获取扫描的起止commit日期
+     * get the min and max scanned commit dates
      *
      * @param repoUuid
      * @param tool
@@ -70,14 +70,14 @@ public interface ScanResultMapper {
     Timestamp getMinMaxScannedCommitDate(@Param("repoUuid") String repoUuid, @Param("tool") String tool, @Param("isMin") Boolean isMin);
 
     /**
-     * 获取所有扫描的 commit 信息
+     * get all commits that have scanned
      * @param repoUuid
      * @return
      */
     List<Commit> getScannedCommits(@Param("repoUuid") String repoUuid);
 
     /**
-     * 包含 parent_commit 信息
+     * get all commits with parent commits that have scanned
      * @param repoUuid
      * @return
      */

@@ -13,7 +13,7 @@ public class DeveloperUniqueNameUtil {
 
 
     /**
-     * fixme 从人员服务统一获取
+     * fixme obtain the data from project service
      */
     @SneakyThrows
     public static String getDeveloperUniqueName(String repoPath, String commit, String repoUuid) {

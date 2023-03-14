@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class RawIssueMatcher {
 
     /**
-     * todo 后续抽取成接口
+     * todo This method should be extracted as an interface
      */
     public static Set<String> getAnchors(String absoluteFilePath) throws IOException {
         Set<String> methodsAndFields = new HashSet<>();
@@ -56,16 +56,14 @@ public class RawIssueMatcher {
 
 
     /**
-     * fixme raw issue 匹配上之后 如果不是在同一个方法中 还需要考虑 是否存在含有相同名字的方法
-     * 匹配两个列表中的 RawIssue
-     *  @param preRawIssues  pre file 中
+     * Match RawIssues in two lists
+     *  @param preRawIssues  raw issues in pre file
      *
-     * @param curRawIssues  cur file 中
-     * @param curParentName cur file 中所有的 field name 和 method signature
+     * @param curRawIssues raw issues in cur file
+     * @param curParentName fields and method signatures in cur file
      * @param issueTypeMap
      */
     public static void match(List<RawIssue> preRawIssues, List<RawIssue> curRawIssues, Set<String> curParentName, Map<String, IssueType> issueTypeMap) {
-        // 根据type分类 key {type}
         Map<String, List<RawIssue>> typePreRawIssues = preRawIssues.stream().collect(Collectors.groupingBy(RawIssue::getType));
         Map<String, List<RawIssue>> typeCurRawIssues = curRawIssues.stream().collect(Collectors.groupingBy(RawIssue::getType));
         Set<String> curIssueTypes = typeCurRawIssues.keySet();
@@ -76,10 +74,11 @@ public class RawIssueMatcher {
             }
             List<RawIssue> preRawIssuesT1 = preEntry.getValue();
             List<RawIssue> curRawIssuesT2 = typeCurRawIssues.get(preEntry.getKey());
-            // 根据 type 进行循环匹配
+            // Loop matching is made according to type
             preRawIssuesT1.forEach(r1 -> curRawIssuesT2.forEach(r2 -> matcherContext.match(r1, r2, curParentName)));
 
-            //  匹配完成后找到最佳的匹配 key  RawIssueMatchPair    value matchScore
+            // Find the best matching pair after the match process is complete
+            // key: RawIssueMatchPair, value: matchScore
             Map<RawIssueMatchPair, Double> mappedRawIssue = new LinkedHashMap<>(preRawIssuesT1.size() << 1);
             for (RawIssue preRawIssue1 : preRawIssuesT1) {
                 for (RawIssueMatchResult r : preRawIssue1.getRawIssueMatchResults()) {
@@ -88,7 +87,7 @@ public class RawIssueMatcher {
                 }
             }
             mappedRawIssue = MapSortUtil.sortByValueDesc(mappedRawIssue);
-            // 排序 设置 最佳匹配
+            // Find the best matching pair
             for (RawIssueMatchPair map : mappedRawIssue.keySet()) {
                 RawIssue preRawIssue = map.getPreRawIssue();
                 RawIssue curRawIssue = map.getCurRawIssue();
@@ -104,7 +103,7 @@ public class RawIssueMatcher {
                     curRawIssue.getMatchInfos().add(curRawIssue.generateRawIssueMatchInfo(preRawIssue.getCommitId()));
                 }
             }
-            // 没匹配上的将mapped设置为false
+            // not matched
             preRawIssuesT1.stream().filter(r -> r.getMappedRawIssue() == null).forEach(r -> {
                 r.setMapped(false);
                 r.setStatus(RawIssueStatus.SOLVED.getType());

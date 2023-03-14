@@ -21,17 +21,17 @@ public class MethodVioInstanceMatcher extends BaseVioInstanceMatcher {
     @Override
     public boolean match(RawIssue preVioInstance, RawIssue curVioInstance, Set<String> curParentName) {
         log.debug("match scope is METHOD, issue type is {}", preVioInstance.getType());
-        // 方法签名相似，则相似
+        // If the method signatures are similar, the two raw issues are similar
         double matchDegree;
         List<Location> preLocations = preVioInstance.getLocations();
         List<Location> curLocations = curVioInstance.getLocations();
-        // location 的个数必不为0
+        // The number of locations must not be 0
         Location preLocation = preLocations.get(0);
         Location curLocation = curLocations.get(0);
         String preAnchorName = preLocation.getAnchorName();
         String curAnchorName = curLocation.getAnchorName();
 
-        // 区别测试用例 two issue match one
+        // two issue match one
         double detailScore = preVioInstance.getDetail().equals(curVioInstance.getDetail()) ? 0.1 : 0;
         double tokenSimilarityDegree = CosineUtil.cosineSimilarity(CosineUtil.lexer(preAnchorName, true),
                 CosineUtil.lexer(curAnchorName, true));

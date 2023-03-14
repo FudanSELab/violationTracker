@@ -57,7 +57,7 @@ public class IssueScanServiceImpl implements IssueScanService {
         boolean isScanning = false;
         boolean isFailed = false;
         for (RepoScan repoScan : issueReposOrderByEndScanTime) {
-            // 存在failed或者是interrupt状态表示扫描未完成
+            // failed or interrupt
             if (repoScan.getScanStatus().equals(ScanStatus.FAILED) || repoScan.getScanStatus().equals(ScanStatus.INTERRUPT)) {
                 isFailed = true;
                 break;

@@ -161,24 +161,6 @@
         <!--        LIMIT 1-->
     </select>
 
-    <select id="getRawIssueByUuids" resultType="java.util.Map">
-        SELECT a.uuid,
-        a.file_name AS fileName,
-        a.commit_id AS commitId,
-        a.repo_uuid AS repoUuid,
-        a.developer AS committer,
-        a.version,
-        b.commit_time AS commitTime,
-        a.detail AS detail
-        FROM raw_issue AS a
-        INNER JOIN commit AS b
-        ON a.commit_id = b.commit_id AND a.repo_uuid = b.repo_uuid
-        WHERE a.uuid IN
-        <foreach collection="uuids" separator="," open="(" close=")" item="uuid">
-            #{uuid}
-        </foreach>
-    </select>
-
     <select id="getRawIssuesByUuids" resultMap="rawIssueForScan">
         SELECT uuid,
         type,
@@ -434,6 +416,30 @@
         where issue_uuid = #{issueUuid}
     </select>
 
+    <select id="getRawIssueByIssueUuidList" resultMap="rawIssueForScan">
+        select uuid,
+        type,
+        tool,
+        detail,
+        file_name,
+        repo_uuid,
+        commit_id,
+        code_lines,
+        scan_uuid,
+        issue_uuid,
+        developer,
+        version,
+        raw_issue_hash
+        from raw_issue
+        where 1=1
+        <if test="issueUuidList != null and issueUuidList.size > 0">
+            and issue_uuid in
+            <foreach collection="issueUuidList" separator="," open="(" close=")" item="issueUuid">
+                #{issueUuid}
+            </foreach>
+        </if>
+    </select>
+
     <select id="getRawIssueByRawIssueHash" resultMap="rawIssue5">
         select id,
         issue_uuid,
@@ -442,6 +448,20 @@
         where repo_uuid = #{repoUuid}
         <if test="rawIssueHash != null">
             and raw_issue_hash = #{rawIssueHash}
+        </if>
+    </select>
+
+    <select id="getRawIssueByRawIssueHashList" resultMap="rawIssue5">
+        select id,
+        issue_uuid,
+        commit_id
+        from raw_issue
+        where repo_uuid = #{repoUuid}
+        <if test="rawIssueHashList != null and rawIssueHashList.size > 0">
+            and raw_issue_hash in
+            <foreach collection="rawIssueHashList" separator="," open="(" close=")" item="rawIssueHash">
+                #{rawIssueHash}
+            </foreach>
         </if>
     </select>
 

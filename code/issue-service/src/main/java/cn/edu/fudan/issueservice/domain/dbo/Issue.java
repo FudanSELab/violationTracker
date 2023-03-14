@@ -40,7 +40,7 @@ public class Issue {
     private String latestSolver;
 
     /**
-     * 根据 rawIssue 产生一个新的 Issue
+     * A new issue is generated based on rawIssue
      */
     public static Issue valueOf(RawIssue r) {
         Issue issue = new Issue();

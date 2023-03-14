@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * description: 遍历得到所有的文件
+ * description: Traverse the directory to get all the files
  *
  * @author fancying
  * create: 2019-05-24 11:52
@@ -69,7 +69,7 @@ public class DirExplorer {
     }
 
     /**
-     * 找到指定路径下具有某一后缀的所有文件
+     * Locate all files that have a suffix under the specified path
      */
     public static List<String> findSuffixFiles(String dir, String suffix) {
         File dirFile = new File(dir);
@@ -82,7 +82,7 @@ public class DirExplorer {
     }
 
     /**
-     * 删除多余的 class文件
+     * Delete redundant class files
      */
     public static boolean deleteExtraFile(String dir) {
         String compileDir = "/target/classes/";
@@ -104,7 +104,7 @@ public class DirExplorer {
         Set<String> jSet = jName2path.keySet();
         boolean deleteSuccess = true;
         for (String c : cName2path.keySet()) {
-            // 判断是否是同名文件
+            // Determine whether it is a file with the same name
             if (jSet.contains(c)) {
                 String cPath = cName2path.get(c).
                         replace(dir, EMPTY).
@@ -160,8 +160,4 @@ public class DirExplorer {
         void handle(int level, String path, File file);
     }
 
-///    public static void main(String[] args) {
-//        ///    String dir = "E:\\Lab\\t-repo\\code-scan";
-//        ///    System.out.println(deleteExtraFile(dir));
-//    }
 }

@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * description: 判断缺陷修复的类型
+ * description: Determine the solved ways
  *
  * @author fancying create: 2021/10/25
  */
@@ -75,7 +75,7 @@ public class IssueSolved {
     }
 
     /**
-     * @param needNotNullSolveWay true 需要 SolveWay 不为 null 的情况  false 只需要SolveWay为null的情况
+     * @param needNotNullSolveWay true: Cases where SolveWay is not null, false: Cases where SolveWay is null
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateSolvedWay(String repoUuid, String repoPath, boolean needNotNullSolveWay) {
@@ -88,9 +88,7 @@ public class IssueSolved {
             return;
         }
 
-        // 更新matchInfo表
-        // 没完成一次 commit 就进行更新
-        // 根据rawIssueUuid 以及 commit id 进行更新
+        // Update raw_issue_match_info table
         rawIssueMatchInfoMapper.batchUpdateSolveWay(
                 judgeSolvedType(rawIssueMatchInfos, repoPath)
         );
@@ -100,7 +98,7 @@ public class IssueSolved {
 
     /**
      * @param rawIssueMatchInfos r
-     * @param repoPath           绝对路径 不以 / 结尾 如 /home/A
+     * @param repoPath           Absolute path, which does not end with "/". Such as /home/A
      * @return TwoValue first rawIssueMatchInfoId second
      */
     public List<TwoValue<Integer, String>> judgeSolvedType(List<RawIssueMatchInfo> rawIssueMatchInfos, String repoPath) {
@@ -111,14 +109,13 @@ public class IssueSolved {
         JGitHelper jGitHelper = JGitHelper.getInstance(repoPath);
 
 
-        // 根据commit来区分
         // key TwoValue first preCommitId second curCommitId
         Map<TwoValue<String, String>, List<RawIssueMatchInfo>> rawIssueMatchInfoMap =
                 rawIssueMatchInfos.parallelStream()
                         .collect(
                                 Collectors.groupingBy(r -> new TwoValue<>(r.getPreCommitId(), r.getCurCommitId())));
 
-        // 遍历每一次有过关闭缺陷的匹配
+        // Iterate through each matching pair that has had a close violation
         for (Map.Entry<TwoValue<String, String>, List<RawIssueMatchInfo>> onePairCommits :
                 rawIssueMatchInfoMap.entrySet()) {
 
@@ -128,13 +125,13 @@ public class IssueSolved {
                             .toMap(RawIssueMatchInfo::getPreRawIssueUuid,
                                     RawIssueMatchInfo::getId));
 
-            // 用于更新的map first RawIssueMatchInfoId two solve_way
+            // update map first RawIssueMatchInfoId two solve_way
             List<TwoValue<Integer, String>> updateSolveList = new ArrayList<>(onePairCommits.getValue().size());
 
             String preCommit = onePairCommits.getKey().getFirst();
             String cruCommit = onePairCommits.getKey().getSecond();
 
-            // 1 准备文件资源
+            // 1 Prepare file resources
             DiffFile diffFile = jGitHelper.getDiffFilePair(preCommit, cruCommit);
             Map<String, String> changeFiles = diffFile.getChangeFiles();
             jGitHelper.checkout(preCommit);
@@ -145,7 +142,7 @@ public class IssueSolved {
             // kay relativeFilePath value absoluteFilePath
             Map<String, String> cruAbsoluteFilePathCache = copyFilesToTargetDir(fileDirPrefix + cruCommit, repoPath, new ArrayList<>(changeFiles.values()));
 
-            // 2 拿到preFile 与 关闭的缺陷列表 的对应关系
+            // 2 Get the correspondence between the preFile and the list of closed violations
             List<RawIssueMatchInfo> onePairOfRawIssueMatchInfo = onePairCommits.getValue();
             // key preRelativeFilePath
             // value  preClosedRawIssues in file
@@ -178,9 +175,9 @@ public class IssueSolved {
     }
 
     /**
-     * @param fileDirPrefix     不以 / 结尾
-     * @param repoPath          实际的路径 不以 / 结尾
-     * @param relativeFilePaths 文件的相对路径
+     * @param fileDirPrefix     Doesn't end with "/"
+     * @param repoPath          Real path, which doesn't end with "/"
+     * @param relativeFilePaths Relative path
      * @return kay relativeFilePath value absoluteFilePath
      */
     private Map<String, String> copyFilesToTargetDir(String fileDirPrefix, String repoPath, List<String> relativeFilePaths) {
@@ -188,7 +185,7 @@ public class IssueSolved {
         for (String relativePath : relativeFilePaths) {
             String targetDirAbsoluteFilePath = convertToPath(fileDirPrefix, relativePath);
             result.put(relativePath, targetDirAbsoluteFilePath);
-            // 创建文件
+            // Mkdir file
             File emptyFile = new File(targetDirAbsoluteFilePath);
             File parentFile = emptyFile.getParentFile();
 
@@ -209,9 +206,9 @@ public class IssueSolved {
     }
 
     /**
-     * @param preAbsoluteFilePath 前一个版本文件A的绝对路径
-     * @param curAbsoluteFilePath 后一个版本文件A的绝对路径,如果文件A不存在：为null 或者为空 那么这些缺陷都为 SolveWayEnum.FILE_DELETE
-     * @param preClosedRawIssues  文件A的上一个版本的文件A1中存在的缺陷，但在A中不存在的缺陷
+     * @param preAbsoluteFilePath The absolute path of file A in the previous version
+     * @param curAbsoluteFilePath The absolute path of file A in the current version
+     * @param preClosedRawIssues  The violation was present in the previous version of the file A1, but not in A
      * @return key rawIssueUuid value SolveWayEnum
      */
     public Map<String, SolveWayEnum> checkHowToSolved(
@@ -223,12 +220,12 @@ public class IssueSolved {
                     .collect(Collectors.toMap(RawIssue::getUuid, solvedWay -> SolveWayEnum.FILE_DELETE, (k1, k2) -> k2));
         }
 
-        // 解析文件获取所有的 anchorNode 名字 包括 类名，方法签名，属性名
+        // Parse the file to get all anchorNode names, including class names, method signatures, field names, etc
         List<String> anchorNodeIdentifier = JavaAstParserUtil.getAllMethodsInFile(curAbsoluteFilePath);
         anchorNodeIdentifier.addAll(JavaAstParserUtil.getAllFieldsInFile(curAbsoluteFilePath));
         anchorNodeIdentifier.addAll(JavaAstParserUtil.getAllClassNamesInFile(curAbsoluteFilePath));
 
-        // 识别 diff 内容
+        // Identify diff content
         DiffLines diffLines = DiffLines.analyzeDiffLines(preAbsoluteFilePath, curAbsoluteFilePath);
         List<Integer> deleteLineList = diffLines.getDeleteLines();
         List<Integer> preChangeLineList = diffLines.getPreChangeLines();
@@ -271,7 +268,7 @@ public class IssueSolved {
                 continue;
             }
 
-            // todo 数据流和控制流分析 后确定   SolveWayEnum.CODE_RELATED_CHANGE
+            // todo Analyze data flows and control flows => SolveWayEnum.CODE_RELATED_CHANGE
             solveWayEnumMap.put(
                     preRawIssue.getUuid(),
                     lineChanged ? SolveWayEnum.CODE_CHANGE : SolveWayEnum.CODE_UNRELATED_CHANGE);

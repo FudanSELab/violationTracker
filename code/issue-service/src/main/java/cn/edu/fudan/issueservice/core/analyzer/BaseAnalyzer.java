@@ -28,7 +28,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 /**
- * description: 工具具体的执行流程
+ * description: The specific execution process of static scanning tools
  *
  * @author fancying
  * create: 2020-05-20 15:53
@@ -109,24 +109,24 @@ public abstract class BaseAnalyzer {
     protected abstract List<RawIssue> analyze(String scanRepoPath, String repoUuid, String commit);
 
     /**
-     * 返回工具名
+     * Tool Name
      *
-     * @return 工具名
+     * @return Tool Name
      */
     public abstract String getToolName();
 
     /**
-     * 返回该缺陷的优先级
+     * Returns the priority of the violation
      *
      * @param rawIssue rawIssue
-     * @return 缺陷优先级
+     * @return The priority
      */
     public abstract Integer getPriorityByRawIssue(RawIssue rawIssue);
 
     /**
-     * 根据文件名获取文件中的方法 变量 以及 类名
+     * Gets the method, fields, and class names in the file based on the file name
      *
-     * @param absoluteFilePath 绝对文件路径
+     * @param absoluteFilePath The absolute file path
      * @return methods and fields
      */
     public abstract Set<String> getMethodsAndFieldsInFile(String absoluteFilePath) throws IOException;
@@ -169,11 +169,10 @@ public abstract class BaseAnalyzer {
 
         ScanStatusEnum scanStatusEnum = ScanStatusEnum.CHECKOUT_FAILED;
         List<RawIssue> rawIssues = Collections.emptyList();
-        //todo 并发情况下此处可能报NPE? https://fdse.atlassian.net/browse/FDSE-2556
         if (jGitHelper.checkout(commit)) {
             String scanRepoPath = jGitHelper.getRepoPath();
 
-            // 根据其parent是否被扫描过确定是全量扫描还是增量扫描
+            // Determine whether it is a total scan or an incremental scan based on whether its parent has been scanned
             try {
                 scanRepoPath = getScanRepoPath(repoUuid, commit, jGitHelper, rawIssueCacheDao, commitList);
                 log.info("scan repo path: {}", scanRepoPath);
@@ -184,16 +183,16 @@ public abstract class BaseAnalyzer {
             scanStatusEnum = scanResult.getFirst();
             rawIssues = scanResult.getSecond();
         }
-        // todo invoke tool failed 后是否继续扫描
         completeFlag.countDown();
         log.info("2: prepare resource result: {}! repoUuid:{} commit:{}", scanStatusEnum.getType(), repoUuid, commit);
 
-        // 存储资源在数据库中 缓解内存压力 但是会增加查询开销
+        // Storing resources in the database relieves memory pressure, but increases query overhead
         RawIssueCache rawIssueCache = RawIssueCache.init(repoUuid, commit, getToolName());
 
         log.info("init issueAnalyzer success, begin set status");
 
-        //编译失败的commit，用sonar仍旧可能会有数据得出，所以当编译失败的时候需要传入空数组
+        // If the compilation fails to compile the commit, there may still be data obtained with sonar
+        // So when the compilation fails, you need to pass in an empty array
         if (!ScanStatusEnum.DONE.equals(scanStatusEnum)) {
             rawIssueCache.updateIssueAnalyzeStatus(new ArrayList<>());
             rawIssueCache.setInvokeResult(RawIssueCache.InvokeResult.FAILED.getStatus());
@@ -208,13 +207,13 @@ public abstract class BaseAnalyzer {
         rawIssueCacheDao.insertIssueAnalyzer(rawIssueCache);
         log.info("3: insert done ! repoUuid:{} commit:{}", repoUuid, commit);
 
-        // 资源准备完成 改变状态
+        // Modify the status after the resource is prepared
         resourcesStatus.put(commit, scanStatusEnum);
         repoResource.put(jGitHelper, true);
         remainingNum.addAndGet(1);
         log.info("4: resource change Done! repoUuid:{} commit:{}", repoUuid, commit);
 
-        // 资源准备完成一个 通知其他等待线程
+        // Notify other waiting threads when resource preparation is complete
         lock.lock();
         try {
             hasResource.signal();
@@ -255,7 +254,7 @@ public abstract class BaseAnalyzer {
         log.info("analyze raw issues use {} s, analyze success!", (analyzeToolTime - invokeToolTime) / 1000);
 
 
-        // todo 解析完成后设置对应聚合人员  暂时耦合在 工具调用和解析中  应该放到追溯之后做
+        // todo After the resolution is completed, set the corresponding aggregator , temporarily coupled in the tool call and resolution, and then put it after the traceability
         Map<String, List<RawIssue>> commit2Issues = rawIssues.parallelStream().collect(Collectors.groupingBy(RawIssue::getCommitId));
         for (Map.Entry<String, List<RawIssue>> entry : commit2Issues.entrySet()) {
             String developerUniqueName = DeveloperUniqueNameUtil.getDeveloperUniqueName(repoPath, entry.getKey(), repoUuid);
@@ -263,7 +262,7 @@ public abstract class BaseAnalyzer {
         }
 
         String key = generateUniqueProjectKey(repoUuid, commit);
-        //增量扫描完成后删除复制的文件
+        // Delete the copied files after the incremental scan is complete
         if (!isTotalScan(key) && !debugMode) {
             //todo
             deleteCopyFiles(scanRepoPath);
@@ -274,9 +273,9 @@ public abstract class BaseAnalyzer {
     }
 
     /**
-     * 开启资源提前准备
+     * Enable advance resource preparation
      *
-     * @return 是否开启资源提前准备
+     * @return Whether to enable advance resource preparation
      */
     public boolean closeResourceLoader() {
         return false;
@@ -299,7 +298,8 @@ public abstract class BaseAnalyzer {
                 }
             }
             isTotalScan = commitParents.size() == 0;
-            // 如果扫描列表并且cache中不存在parent 才是全量扫描
+            // If the scan list is not empty and the scan information of the parent does not exist in the cache
+            // Total scan
             for (String commitParent : commitParents) {
                 if (!commitList.contains(commitParent) && !rawIssueCacheDao.cached(repoUuid, commitParent, getToolName())) {
                     isTotalScan = true;
@@ -310,7 +310,7 @@ public abstract class BaseAnalyzer {
             commitParents = Arrays.asList(jGitHelper.getCommitParents(curCommit));
         }
 
-        //只有第一个需要全量扫描
+        // Only the first commit requires a total scan
 //        boolean isTotalScan = curCommit.equals(commitList.get(0));
 
 
@@ -347,7 +347,7 @@ public abstract class BaseAnalyzer {
             parentFiles.addAll(deleteFiles);
             parentFiles.addAll(changeFiles.keySet());
             if (!jGitHelper.checkout(commitParent)) {
-                // 如果 checkout 失败则全量扫描
+                // If the checkout fails, the total scan is performed
                 IS_TOTAL_SCAN_MAP.replace(generateUniqueProjectKey(repoUuid, curCommit), true);
                 return jGitHelper.getRepoPath();
             }
@@ -360,7 +360,7 @@ public abstract class BaseAnalyzer {
             curFiles.addAll(changeFiles.values());
         }
         if (!jGitHelper.checkout(curCommit)) {
-            // 如果 checkout 失败则全量扫描
+            // If the checkout fails, the total scan is performed
             IS_TOTAL_SCAN_MAP.replace(generateUniqueProjectKey(repoUuid, curCommit), true);
             return jGitHelper.getRepoPath();
         }
@@ -394,9 +394,9 @@ public abstract class BaseAnalyzer {
     }
 
     /**
-     * 不同语言文件是否过滤
+     * Whether to filter files based on language
      *
-     * @return false:不过滤 true:过滤
+     * @return true / false
      */
     public abstract boolean filterFile(String fileName);
 

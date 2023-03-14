@@ -139,7 +139,12 @@ public class FileUtil {
         }
     }
 
-    //在获取等待结果时，为了加快获取结果的速度并且避免少等待，需要获取java文件的数量
+    /**
+     * When getting the waiting result,
+     * in order to speed up the result and avoid less waiting, you need to get the number of java files
+     * @param repoPath
+     * @return
+     */
     public static int getJavaFileNum(String repoPath){
         File queryFiles = new File(repoPath);
         int num = 0;

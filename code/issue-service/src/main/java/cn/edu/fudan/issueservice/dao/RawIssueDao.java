@@ -50,13 +50,14 @@ public class RawIssueDao {
             return new ArrayList<>();
         }
         List<RawIssue> rawIssues = new ArrayList<>();
-        for (String issueUuid : issueUuids) {
-            final List<RawIssue> rawIssueByIssueUuid = rawIssueMapper.getRawIssueByIssueUuid(issueUuid);
-            if (rawIssueByIssueUuid != null) {
-                rawIssueByIssueUuid.stream().filter(rawIssue -> preCommitsForParent.contains(rawIssue.getCommitId()))
+        Map<String, List<RawIssue>> issueUuid2RawIssuesMap = rawIssueMapper.getRawIssueByIssueUuidList(issueUuids).stream()
+                .collect(Collectors.groupingBy(RawIssue::getIssueId));
+        issueUuid2RawIssuesMap.forEach((issueUuid, rawIssuesList) -> {
+            if (rawIssuesList != null) {
+                rawIssuesList.stream().filter(rawIssue -> preCommitsForParent.contains(rawIssue.getCommitId()))
                         .max(Comparator.comparingInt(RawIssue::getVersion)).ifPresent(rawIssues::add);
             }
-        }
+        });
         rawIssues.forEach(rawIssue -> rawIssue.setVersion(rawIssueMapper.getMaxVersion(rawIssue.getIssueId())));
         return rawIssues;
     }
@@ -156,6 +157,24 @@ public class RawIssueDao {
         }
         return rawIssueByRawIssueHashOrIssueUuid.stream().filter(rawIssue -> parentCommits.contains(rawIssue.getCommitId()))
                 .max(Comparator.comparingInt(RawIssue::getId)).orElse(new RawIssue()).getIssueId();
+    }
+
+    public Map<String, String> getIssueUuidsByRawIssueHashsAndParentCommits(String repoUuid, List<String> rawIssueHashs, List<String> parentCommits) {
+        if (parentCommits == null || parentCommits.isEmpty() || rawIssueHashs == null || rawIssueHashs.isEmpty()) {
+            return null;
+        }
+        final List<RawIssue> rawIssueByRawIssueHashOrIssueUuid = rawIssueMapper.getRawIssueByRawIssueHashList(repoUuid, rawIssueHashs);
+
+        if (rawIssueByRawIssueHashOrIssueUuid == null) {
+            return null;
+        }
+        Map<String, List<RawIssue>> hash2RawIssuesMap = rawIssueByRawIssueHashOrIssueUuid.stream().collect(Collectors.groupingBy(RawIssue::getRawIssueHash));
+        Map<String, String> hash2IssueIdMap = new HashMap<>();
+        hash2RawIssuesMap.forEach((s, rawIssues) -> {
+            hash2IssueIdMap.put(s, rawIssues.stream().filter(rawIssue -> parentCommits.contains(rawIssue.getCommitId()))
+                    .max(Comparator.comparingInt(RawIssue::getId)).orElse(new RawIssue()).getIssueId());
+        });
+        return hash2IssueIdMap;
     }
 
     public void deleteRawIssuesByRepoUuid(String repoUuid) {

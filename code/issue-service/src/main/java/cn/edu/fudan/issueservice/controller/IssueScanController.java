@@ -22,12 +22,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * description: issue 工具调用
+ * description: Issue tool API management.
  *
  * @author fancying
  * create: 2020-05-19 21:03
  **/
-@Api(value = "issue scan", tags = {"用于控制issue扫描的相关接口"})
+@Api(value = "issue scan", tags = {"APIs for issue scanning."})
 @Slf4j
 @RestController
 public class IssueScanController {
@@ -108,9 +108,9 @@ public class IssueScanController {
      * "errorThreshold": "100" } ] }, "properties": { "sonar.analysis.detectedscm": "git",
      * "sonar.analysis.detectedci": "undetected" } } *
      *
-     * <p> 需要在 http://${SONAR_URL}/admin/webhooks 中配置webhooks
-     * <p> name 为 issue-service
-     * <p> url 为 http://{ip}:{port}/issue/webhook/sonarqube
+     * <p> Webhooks need to be configured in http://${SONAR_URL}/admin/webhooks.
+     * <p> name is issue-service
+     * <p> url is http://{ip}:{port}/issue/webhook/sonarqube
      */
     @PostMapping(value = {"/issue/webhook/sonarqube"})
     public ResponseBean<Object> acceptTheSonarQubeCallback(
@@ -135,7 +135,7 @@ public class IssueScanController {
     static final String KEY = "key";
 
     /**
-     * 暂时不做校验
+     * Temporarily not validate the HTTP request.
      */
 //    private static boolean isValidSignature(YourHttpRequest request) {
 //        // "x-sonar-webhook-hmac-sha256"
@@ -156,7 +156,8 @@ public class IssueScanController {
         }
     }
 
-    @ApiOperation(value = "根据工具和repoId返回当前扫描的状态", notes = "@return Map<String, Object>\n{\n" +
+    @ApiOperation(value = "Return the current scan status of the code repository based on the tool name and repoId.",
+            notes = "@return Map<String, Object>\n{\n" +
             "        \"uuid\": \"3f9aee42-ca85-415b-8e92-5a4257f87368\",\n" +
             "        \"repoId\": \"3ecf804e-0ad6-11eb-bb79-5b7ba969027e\",\n" +
             "        \"branch\": \"zhonghui20191012\",\n" +
@@ -172,7 +173,7 @@ public class IssueScanController {
             "        \"endScanTime\": \"2020-10-15 17:02:44\"\n" +
             "    }", httpMethod = "GET")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "repo_uuid", value = "代码库uuid", required = true)
+            @ApiImplicitParam(name = "repo_uuid", value = "repository uuid", required = true)
     })
     @GetMapping(value = {"/issue/scan-status"})
     public ResponseBean<RepoScan> scanStatus(@RequestParam("repo_uuid") String repoUuid) {
@@ -185,10 +186,11 @@ public class IssueScanController {
         }
     }
 
-    @ApiOperation(value = "根据工具和repoId停止相应的扫描", notes = "@return String", httpMethod = "GET")
+    @ApiOperation(value = "Stop the scan of the corresponding code repository based on the tool name and repoId.",
+            notes = "@return String", httpMethod = "GET")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "tool", value = "工具名", required = true, defaultValue = "sonarqube", allowableValues = "sonarqube"),
-            @ApiImplicitParam(name = "repo_uuid", value = "代码库uuid", required = true)
+            @ApiImplicitParam(name = "tool", value = "tool name", required = true, defaultValue = "sonarqube", allowableValues = "sonarqube"),
+            @ApiImplicitParam(name = "repo_uuid", value = "repository uuid", required = true)
     })
     @GetMapping(value = {"/issue/scan-stop"})
     public ResponseBean<String> stopScan(@RequestParam("repo_uuid") String repoUuid, @RequestParam("tool") String tool) {
@@ -207,17 +209,18 @@ public class IssueScanController {
         }
     }
 
-//    @ApiOperation(value = "根据工具和repoId 获取某个项目未扫描commit的信息", notes = "@return Map<String, Object>\n{\n" +
+//    @ApiOperation(value = "Get the un-scanned commits of a repository based on the tool name and repoId.",
+//    notes = "@return Map<String, Object>\n{\n" +
 //            "        \"totalCount\": 0,\n" +
 //            "        \"commitList\": [],\n" +
 //            "        \"pageCount\": 0\n" +
 //            "    }", httpMethod = "GET")
 //    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "tool", value = "工具名", required = true, defaultValue = "sonarqube", allowableValues = "sonarqube"),
-//            @ApiImplicitParam(name = "repo_uuid", value = "代码库uuid", required = true),
-//            @ApiImplicitParam(name = "page", value = "页号\n默认为第1页"),
-//            @ApiImplicitParam(name = "ps", value = "页大小\n默认一页10条"),
-//            @ApiImplicitParam(name = "is_whole", value = "是否需要全部\n默认false", allowableValues = "false , true")
+//            @ApiImplicitParam(name = "tool", value = "tool name", required = true, defaultValue = "sonarqube", allowableValues = "sonarqube"),
+//            @ApiImplicitParam(name = "repo_uuid", value = "repository uuid", required = true),
+//            @ApiImplicitParam(name = "page", value = "page number\nThe default is page 1."),
+//            @ApiImplicitParam(name = "ps", value = "page size\nThe default is 10 items per page."),
+//            @ApiImplicitParam(name = "is_whole", value = "all information\nThe default is false", allowableValues = "false , true")
 //    })
 //    @GetMapping(value = {"/issue/commit-list"})
 //    public ResponseBean<Map<String, Object>> getStockCommit(@RequestParam(name = "repo_uuids") String repoUuidsBefore,

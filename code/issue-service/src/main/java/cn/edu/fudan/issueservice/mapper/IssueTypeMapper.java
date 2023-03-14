@@ -14,7 +14,7 @@ import java.util.List;
 public interface IssueTypeMapper {
 
     /**
-     * 获取issueType
+     * get issueType
      *
      * @param type type
      * @return issueType
@@ -26,7 +26,7 @@ public interface IssueTypeMapper {
     List<IssueTypeJSON> getIssueTypeJsons();
 
     /**
-     * 根据 tool 获取 issue types
+     * get issue types by tool name
      * @param tool
      * @return
      */

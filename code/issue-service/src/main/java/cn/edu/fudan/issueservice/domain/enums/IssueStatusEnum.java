@@ -10,8 +10,8 @@ import lombok.Getter;
 public enum IssueStatusEnum {
 
     /**
-     * OPEN   代表该缺陷正待解决
-     * SOLVED  代表该缺陷已被解决
+     * OPEN, living
+     * SOLVED, dead
      */
     OPEN("Open"),
     SOLVED("Solved");

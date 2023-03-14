@@ -78,10 +78,11 @@ public class IssueScanProcess extends BaseScanProcess {
                     IssueScanProcess issueScanProcess = applicationContext.getBean(IssueScanProcess.class);
                     try {
                         handleBeforeStartScan(repoUuid);
-                        //由于调用方与被调用方在同一个类，导致scan()的@Async注解失效，所以通过此种方法启用异步
+                        // Since the caller is in the same class as the callee, the @Async annotation of scan() is invalidated
+                        // so async is enabled by this method
                         issueScanProcess.scan(repoScan.getRepoUuid(), repoScan.getBranch(), repoScan.getStartCommit(), repoScan.getEndCommit());
                     } catch (Exception e) {
-                        log.warn("add thead to pool failed");
+                        log.warn("add thread to pool failed");
                         issueRepoScanListDao.updateStatusByRepoUuid(repoUuid, ScanStatus.WAITING_FOR_SCAN);
                         break;
                     }
@@ -91,10 +92,10 @@ public class IssueScanProcess extends BaseScanProcess {
     }
 
     /**
-     * 根据不同的工具或者不同的策略生成不同的 beginCommit
-     * 首先从issue_scan中查询最新的扫描commit
-     * 如果没有，则尝试获取issue_repo中的beginCommit
-     * 最后，如果以上全都没有，则表示是第一次扫描，从scan尝试获取，没有获取到的话则用默认传入的beginCommit
+     * Generate different beginCommits depending on different tools or different strategies
+     * Start by querying the latest scan commit from the issue_scan
+     * Then try to get the beginCommit in the issue_repo
+     * Finally, try to get it from the scan service, and if it is not obtained, use the default beginCommit passed in
      */
     @Override
     protected @NonNull String generateToolBeginCommit(String repoUuid, String tool, String beginCommit) {
@@ -112,7 +113,7 @@ public class IssueScanProcess extends BaseScanProcess {
             log.info("get begin commit:{} from request", beginCommit);
             return beginCommit;
         }
-        //找不到该repo的beginCommit 触发全局扫描
+        // If the beginCommit for the repo cannot be found, total scan is enabled
         return "";
     }
 

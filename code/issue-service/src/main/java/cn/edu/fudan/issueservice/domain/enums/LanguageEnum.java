@@ -5,7 +5,7 @@ package cn.edu.fudan.issueservice.domain.enums;
  */
 public enum LanguageEnum {
     /**
-     * 扫描支持的语言
+     * Supported languages
      */
     JAVA("Java"),
     JAVA_SCRIPT("JavaScript"),

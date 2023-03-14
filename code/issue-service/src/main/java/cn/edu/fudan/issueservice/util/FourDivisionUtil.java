@@ -17,31 +17,31 @@ public class FourDivisionUtil {
             numParams.put("q2", BigDecimal.valueOf(param[(param.length - 1) / 2]));
             numParams.put("q3", BigDecimal.valueOf(param[param.length / 2]));
         } else {
-            // 转成BigDecimal类型，避免失去精度
+            // Convert to the BigDecimal type to avoid losing accuracy
             BigDecimal[] datas = new BigDecimal[param.length];
             for (int i = 0; i < param.length; i++) {
                 datas[i] = BigDecimal.valueOf(param[i]);
             }
-            int len = datas.length;// 数组长度
-            Arrays.sort(datas);    // 数组排序，从小到大
-            BigDecimal q1 = null;  // 第一四分位
-            BigDecimal q2 = null;  // 第二四分位
-            BigDecimal q3 = null;  // 第三四分位
-            int index = 0; // 记录下标
-            // n代表项数，因为下标是从0开始所以这里理解为：len = n+1
-            if (len % 2 == 0) { // 偶数
+            int len = datas.length;
+            Arrays.sort(datas);
+            BigDecimal q1 = null;
+            BigDecimal q2 = null;
+            BigDecimal q3 = null;
+            int index = 0;
+            // n represents the number of terms, because the subscript starts from 0, so it is understood here: len = n+1
+            if (len % 2 == 0) { // even
                 index = new BigDecimal(len + 1).divide(new BigDecimal("4")).intValue();
                 q1 = datas[index - 1].multiply(new BigDecimal("0.25")).add(datas[index].multiply(new BigDecimal("0.75")));
                 q2 = datas[len / 2].add(datas[len / 2 - 1]).divide(new BigDecimal("2"));
                 index = new BigDecimal(3 * (len + 1)).divide(new BigDecimal("4")).intValue();
                 q3 = datas[index - 1].multiply(new BigDecimal("0.75")).add(datas[index].multiply(new BigDecimal("0.25")));
-            } else { // 奇数
-                //不是整数时需要特殊处理
+            } else { // odd
+                // Special handling is required when the result is not an integer
                 q1 = dealOddNumber(datas, len, "0.25");
                 q2 = dealOddNumber(datas, len, "0.5");
                 q3 = dealOddNumber(datas, len, "0.75");
             }
-            // 保留两位小数（四舍五入）
+            // Results retain two decimal places (rounded)
             numParams.put("q1", q1);
             numParams.put("q2", q2);
             numParams.put("q3", q3);
@@ -63,6 +63,6 @@ public class FourDivisionUtil {
     }
 
     private static boolean checkNumberType(BigDecimal number) {
-        return new BigDecimal(number.intValue()).compareTo(number) == 0;//true 整数 false 小数
+        return new BigDecimal(number.intValue()).compareTo(number) == 0;//true: integer, false: decimal
     }
 }

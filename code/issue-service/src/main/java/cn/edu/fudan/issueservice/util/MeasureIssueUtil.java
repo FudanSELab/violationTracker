@@ -12,13 +12,12 @@ import static cn.edu.fudan.issueservice.domain.enums.RawIssueStatus.*;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 统计 issue 相关的数据
  * @date 2022-11-10 09:45
  */
 public class MeasureIssueUtil {
 
     /**
-     * 计算 issue 历史新增/重现次数
+     * Count the number of additions/reopen in the issue history
      *
      * @param beforeAddReopenIssueMap
      * @return
@@ -34,7 +33,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 计算solved issue 存活时间
+     * Calculate the solved day of the solved issues
      *
      * @param beforeAddReopenIssueMap
      * @param solvedIssues
@@ -61,7 +60,7 @@ public class MeasureIssueUtil {
                 } else {
                     days = DateTimeUtil.dateDiff(lastAddOrReopenIssue.getCommitTime(), issue.getCommitTime());
                 }
-                // 排除异常值，例如cherry-pick导致的解决时间早于引入时间
+                // cherry-pick
                 if (days >= 0) {
                     solvedDays.add(days);
                 }
@@ -70,7 +69,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 计算live issue 存活时间
+     * Calculate the live day of the live issues
      *
      * @param beforeAddReopenIssueMap
      * @param solvedIssues
@@ -96,8 +95,6 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 统计上下四分位数、平均值、最小值、最大值
-     *
      * @param days
      * @return
      */
@@ -119,7 +116,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 包含 issue
+     * contain the issue
      *
      * @param issueList
      * @param issueUuid
@@ -130,7 +127,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 文件修改，但 issue 相关 location 未改变
+     * The file has been modified, but the location related to the issue has not changed
      *
      * @param issue
      * @return
@@ -140,7 +137,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * issue 存在
+     * Issue still exists
      *
      * @param issue
      * @return
@@ -150,7 +147,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * issue 重新出现
+     * Issue reopens
      *
      * @param issue
      * @return
@@ -162,7 +159,6 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 筛选 issue 最近引入的数据
      *
      * @param issue
      * @param issueList
@@ -184,7 +180,6 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 筛选 issue 第一次引入数据
      *
      * @param issue
      * @param issueList
@@ -207,7 +202,7 @@ public class MeasureIssueUtil {
 
 
     /**
-     * 关闭——修复类型
+     * normal solved
      *
      * @param solveWay
      * @return
@@ -219,7 +214,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 关闭——code delete 类型
+     * code deletion
      *
      * @param solveWay
      * @return
@@ -229,7 +224,7 @@ public class MeasureIssueUtil {
     }
 
     /**
-     * 关闭——delete 类型
+     * delete
      *
      * @param solveWay
      * @return

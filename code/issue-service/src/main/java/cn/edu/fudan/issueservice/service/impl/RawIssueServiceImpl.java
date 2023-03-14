@@ -51,7 +51,7 @@ public class RawIssueServiceImpl implements RawIssueService {
             Map<String, String> rawIssueStatus = new HashMap<>(32);
             List<String> rawIssuesUuid = new ArrayList<>();
 
-            //change or add
+            // change or add
             rawIssueMatchInfos.stream()
                     .filter(rawIssueMatchInfo -> !RawIssueMatchInfo.EMPTY.equals(rawIssueMatchInfo.get(CUR_RAW_ISSUE_UUID)))
                     .forEach(rawIssueMatchInfo -> {
@@ -137,19 +137,19 @@ public class RawIssueServiceImpl implements RawIssueService {
     @Override
     public IssueTrackerMapVO getTrackerMap(String repoUuid, String issueUuid, Integer page, Integer ps, Boolean showAll) {
         IssueTrackerMapVO result = new IssueTrackerMapVO();
-        // 1. 根据 raw_issue_match_info 表，获取所有追溯数据
+        // 1. All traceability data is obtained according to the raw_issue_match_info table
         List<RawIssueMatchInfo> rawIssueMatchInfoList = rawIssueMatchInfoDao
                 .listRawIssueMatchInfoByRepoAndTime(repoUuid, null, issueUuid);
-        // 2. 获取 add 与 mapped（changed、default 等） 的 raw issue 数据
+        // 2. Get raw issue data for add and mapped (changed, default, etc.) status
         List<String> rawIssuesUuids = rawIssueMatchInfoList.stream().map(RawIssueMatchInfo::getCurRawIssueUuid).collect(Collectors.toList());
         List<RawIssue> rawIssueList = rawIssueDao.getRawIssueWithLocationByUuids(rawIssuesUuids);
-        // 3. 获取 solved 的上一次 raw issue 数据
+        // 3. Get raw issue data before solved
         List<String> preIssuesUuids = rawIssueMatchInfoList.stream().filter(rawIssueMatchInfo -> rawIssueMatchInfo.getStatus().contains("solve"))
                 .map(RawIssueMatchInfo::getPreRawIssueUuid).collect(Collectors.toList());
         List<RawIssue> solvedPreRawIssueList = rawIssueDao.getRawIssueWithLocationByUuids(preIssuesUuids);
-        // 4. 所有 commit 数据
+        // 4. All commits
         List<Commit> commitList = issueScanDao.getAllCommitsBetween(repoUuid, null, null);
-        // 5. 扫描失败的 commit
+        // 5. The commits that have scanned failed
         Set<String> failedCommitList = getFailedCommit(repoUuid);
         result.initTrackerMap(commitList, rawIssueMatchInfoList, rawIssueList, solvedPreRawIssueList, failedCommitList, showAll, page, ps);
         return result;

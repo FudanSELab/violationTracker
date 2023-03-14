@@ -10,8 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * fixme 修改RawIssue中不符合规范的field命名
- * scan_id detail 多余 重复 ？
+ * fixme Modify the non-compliant field naming in RawIssue, such as scan_id and detail
  *
  * @author fancying
  */
@@ -22,17 +21,16 @@ public class RawIssue {
 
     private int id;
     /**
-     * key:上一次本线程中产生的uuid value:第几个相似的
-     * 由于更改了uuid生成的规则，导致同一location uuid的rawIssue可能不是同一时刻出现
+     * key: the last UUID generated in this thread, value: count
      */
     private static ThreadLocal<HashMap<String, Integer>> generateUuidCaches = ThreadLocal.withInitial(HashMap::new);
     /**
-     * 表示 status 是 default情况  在任何一个匹配中该rawIssue没有改变的情况
+     * status=default
      * true: not change  false: change
      **/
     boolean notChange = false;
     /**
-     * 多分支匹配的情况下记录是否有分支匹配上过
+     * Multi-branch cases
      **/
     boolean onceMapped = false;
     private String uuid;
@@ -49,24 +47,18 @@ public class RawIssue {
     private List<Location> locations;
     private int version = 1;
     private int priority;
-    /**
-     * 开发者聚合后的唯一姓名
-     */
     private String developerName;
     private String rawIssueHash;
-    /**
-     * 下面为 raw issue 的 匹配信息
-     */
     private String status = RawIssueStatus.ADD.getType();
     private String issueId;
     private List<RawIssueMatchResult> rawIssueMatchResults = new ArrayList<>(0);
     private int matchResultDTOIndex = -1;
     /**
-     * 根据 mapped 来决定最后是否映射上一个issue
+     * Whether it maps to an issue
      **/
     private boolean mapped = false;
     /**
-     * 最后真正匹配上的RawIssue
+     * The rawIssue that it really matches
      */
     private RawIssue mappedRawIssue = null;
     private double matchDegree;
@@ -74,7 +66,7 @@ public class RawIssue {
 
     /**
      * location uuid + commitId
-     * rawIssue uuid 用于生成第一个issue uuid
+     * rawIssue uuid => first issue uuid
      */
     public static String generateRawIssueUUID(RawIssue rawIssue) {
         HashMap<String, Integer> latestUuids = generateUuidCaches.get();
@@ -98,7 +90,6 @@ public class RawIssue {
 
     /**
      * location uuid + type
-     * 用于区分rawIssue C++没有偏移量，所以信息应该就可能全
      */
     public static String generateRawIssueHash(RawIssue rawIssue) {
         List<String> locationBugLines = rawIssue.getLocations().stream()
@@ -184,9 +175,6 @@ public class RawIssue {
         return "{uuid=" + uuid + ",type=" + type + ",tool=" + tool + ",detail=" + detail + "}";
     }
 
-    /**
-     * 因为在bugMapping中被作为key，故不可以随意删除,且不可加入mapped
-     */
     @Override
     public int hashCode() {
         int result = 17;
@@ -198,9 +186,6 @@ public class RawIssue {
         return result;
     }
 
-    /**
-     * 因为在bugMapping中被作为key，故不可以随意删除，且不可加入mapped
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

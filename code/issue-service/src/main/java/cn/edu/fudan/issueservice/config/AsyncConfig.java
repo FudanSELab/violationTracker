@@ -41,7 +41,7 @@ public class AsyncConfig {
     private String threadNamePrefix;
 
     /**
-     * 最多支持多少个库的并行扫描
+     * Maximum number of parallel scans supported for multiple repositories.
      */
     @Bean("taskExecutor")
     public TaskExecutor repoScanTaskExecutor() {
@@ -49,8 +49,7 @@ public class AsyncConfig {
     }
 
     /**
-     * 最多支持多少个库的并行扫描
-     * 这个线程池用来监管  库 准备commit的状态
+     * Use this thread pool to monitor the commit readiness status of the code repository.
      */
     @Bean("prepare-resource")
     public TaskExecutor prepareResourceTaskExecutor() {
@@ -58,7 +57,8 @@ public class AsyncConfig {
     }
 
     /**
-     * 最多支持多少个commit并行准备资源 每个repo是3个commit并行
+     * Maximum number of parallel commit resources supported for preparation.
+     * The default number of parallel resources per repo is 3.
      */
     @Bean("produce-resource")
     public TaskExecutor produceResourceTaskExecutor() {
@@ -70,7 +70,7 @@ public class AsyncConfig {
     }
 
     /**
-     * 最多支持多少个库的同时删除
+     * Maximum number of code repositories supported for simultaneous deletion.
      */
     @Bean("delete-issue")
     public TaskExecutor deleteIssueTaskExecutor() {

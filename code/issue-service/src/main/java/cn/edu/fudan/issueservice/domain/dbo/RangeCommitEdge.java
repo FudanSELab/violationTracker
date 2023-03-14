@@ -14,7 +14,7 @@ import java.util.List;
 public class RangeCommitEdge {
     private Commit oldCommit;
     private Commit newCommit;
-    // 两个commit之间的commit数据
+    // All commits between two endpoint commits
     private List<Commit> commits;
 
     @Setter(AccessLevel.PRIVATE)

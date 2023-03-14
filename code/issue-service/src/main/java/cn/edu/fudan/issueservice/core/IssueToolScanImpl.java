@@ -81,7 +81,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         String repoUuid = scanData.getRepoUuid();
         BaseAnalyzer analyzer = analyzerFactory.createAnalyzer(scanData.getRepoScan().getTool());
 
-        // 初次扫描才启用并行资源准备 扫描之前就开始准备资源
+        // Start preparing resources before the scanning
         if (analyzer.closeResourceLoader()) {
             return;
         }
@@ -119,7 +119,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         lock.lock(); //NOSONAR
         try {
             for (String commit : commitList) {
-                // 先检擦数据库中是否含有缓存
+                // First check whether the database contains a cache
                 if (rawIssueCacheDao.cached(repoUuid, commit, toolName)) {
                     log.info("cached {}", commit);
                     completeFlag.countDown();
@@ -127,13 +127,13 @@ public class IssueToolScanImpl extends AbstractToolScan {
                     continue;
                 }
 
-                //todo pr 等待
+                //todo pr waiting
                 while (remainingNum.get() == 0) {
                     hasResource.await();
                 }
                 remainingNum.decrementAndGet();
                 resourcesStatus.put(commit, ScanStatusEnum.DOING);
-                // 不同的线程拿到不同的 ToolAnalyzer 实例 结果存储在实例的 resultRawIssues 中
+                // Different threads get different instances of ToolAnalyzer, and the results are stored in the resultRawIssues
                 WeakReference<BaseAnalyzer> weakSpecificAnalyzer = new WeakReference<>(analyzerFactory.createAnalyzer(scanData.getRepoScan().getTool()));
 
                 Objects.requireNonNull(weakSpecificAnalyzer.get()).
@@ -142,10 +142,9 @@ public class IssueToolScanImpl extends AbstractToolScan {
             }
             log.info("begin wait all resource done repoUuid:{}", repoUuid);
 
-            // 所有做完通知 资源准备完成 通知其他等待线程
+            // When the resource is ready, notify other waiting threads
             lock.unlock();
 
-            // 等待 produce 线程执行完毕
             completeFlag.await();
 
             lock.lock();
@@ -171,19 +170,18 @@ public class IssueToolScanImpl extends AbstractToolScan {
     @Override
     public void prepareForOneScan(String commit) {
         BaseAnalyzer analyzer = analyzerFactory.createAnalyzer(scanData.getRepoScan().getTool());
-        // 初次扫描才启用并行资源准备 扫描之前就开始准备资源
+        // Start preparing resources before the scanning
         if (analyzer.closeResourceLoader()) {
             return;
         }
         log.info("begin prepare {}", commit);
         lock.lock();
         try {
-            // 等待 prepare 线程产生资源
+            // Wait for the resources to be prepared
             while (!resourcesStatus.containsKey(commit) ||
                     resourcesStatus.get(commit).equals(ScanStatusEnum.DOING)) {
                 log.info("begin wait resource commit:{}", commit);
 
-                //todo tscancode waiting 发了请求但一直在等待
                 resourceReady.await();
 
                 log.info("end wait resource commit:{}", commit);
@@ -237,7 +235,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
                 scanPersistenceStatus = "failed";
             }
             log.info("issue scan result  persist {}! commit id --> {}", scanPersistenceStatus, commit);
-            // todo 由于 mongod 服务不可用导致持久化失败，则中止扫描
+            // todo If persistence fails due to the unavailability of the mongod service, the scan is aborted
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -271,30 +269,28 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
         //0 analyze before
 
-        // 总共四种情况
+        // 4 cases
 
         if (!cached) {
             if (!resourceLoadStatus(repoUuid, repoPath, commit, issueScan, analyzer, rawIssueCache)) {
-                // 跳过的情况 a 没有缓存并且现在资源准备(工具调用)失败
+                // a. There is no caching and preparing the resource (tool call) fails
                 return;
             }
-            // b 没有缓存，资源准备成功
+            // b. There is no cache, but the resource is successfully prepared
             rawIssues = rawIssueCache.getRawIssueList();
         } else if (analyzeCache != null) {
-            // c 有缓存且以前资源准备成功
+            // c. There is a cache and the resource was previously prepared successfully
             log.info("analyze raw issues in this commit:{} before, go ahead to mapping issue!", commit);
             rawIssues = RawIssueParseUtil.json2RawIssues(analyzeCache);
             rawIssueCache.updateIssueAnalyzeStatus(rawIssues);
         } else {
-            // 跳过的情况 d 有缓存但是以前资源准备失败
+            // d. There is a cache, but previously preparing resources failed
             return;
         }
         log.info("analyze raw issues success!");
 
-        // d 有缓存且现在资源准备成功
         rawIssueCache.updateIssueAnalyzeStatus(rawIssues);
 
-        // 这之后没有再判断isTotalScan，可以释放内存
         analyzer.getIsTotalScanMap().remove(analyzer.generateUniqueProjectKey(repoUuid, commit));
 
         //4 issue match
@@ -322,7 +318,6 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
         //6 issue merge
 //        long issueMergeTime = System.currentTimeMillis();
-//        // 全部扫描的commit才可能出现issue合并的情况
 //        if(rawIssueCacheDao.getIsTotalScan(repoUuid, commit, analyzer.getToolName()) == 1){
 //            boolean mergeResult = issueMergeManager.issueMerge(issueStatistics, repoUuid);
 //            if (!mergeResult) {
@@ -348,7 +343,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
 
     /**
-     * 加载资源 准备 rawIssue
+     * load resources
      */
     private boolean resourceLoadStatus(String repoUuid, String repoPath, String commit,
                                        IssueScan issueScan, BaseAnalyzer toolAnalyzer, RawIssueCache rawIssueCache) {
@@ -357,7 +352,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         if (!resourcesStatus.containsKey(commit)) {
             ScanStatusEnum scanStatusEnum = ScanStatusEnum.CHECKOUT_FAILED;
             if (jGitHelper.checkout(commit)) {
-                // 根据其parent是否被扫描过确定是全量扫描还是增量扫描
+                // Determine whether it is a total scan or an incremental scan based on whether its parent has been scanned
                 String scanRepoPath = repoPath;
                 try {
                     scanRepoPath = toolAnalyzer.getScanRepoPath(repoUuid, commit, jGitHelper, rawIssueCacheDao, scanData.getToScanCommitList());
@@ -404,7 +399,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         log.info("start to clean up buffer after one commit: {}", commit);
         issueMatcher.cleanParentRawIssueResult();
         issueStatistics.cleanRawIssueUuid2DataBaseUuid();
-        // 释放 JGit 资源
+        // release JGit resources
 //        JGitHelper.release(scanData.getRepoPath());
     }
 
@@ -415,12 +410,9 @@ public class IssueToolScanImpl extends AbstractToolScan {
             return;
         }
 
-        // 处理 solved 情况
         String repoUuid = scanData.getRepoUuid();
         String repoPath = scanData.getRepoPath();
         boolean needNotNullSolveWay = scanData.isInitialScan();
-        // 第一次扫描全部分析 solve way
-        // 第二次扫描 只检查solved way 为 null 的情况
         issueSolved.updateSolvedWay(repoUuid, repoPath, true);
 
         log.info("judgeSolvedType repo {} done", repoUuid);

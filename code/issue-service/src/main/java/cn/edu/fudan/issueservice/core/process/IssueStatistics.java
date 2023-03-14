@@ -21,14 +21,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * 单一职责  该类只计算匹配上后的新增 消除 剩余  ignore等其他操作放在其他类中
+ * Only counts the number of issues added, eliminated, and remaining after matching
  * <p>
- * 计算原则  在任一 匹配对中的 currentRawIssue中 只要有任一个匹配上了就算匹配上了
- * 新增： currentRawIssue中 在所有匹配对中的没有任何一个匹配上就算没有匹配上
- * 消除： 原有的oldIssue 中没有匹配上的 （需要扣除已经解决了的数量）
- * 剩余： 当前rawIssue的总数 （从 sonar 中拿到的数量）
+ * Added: None of the matching pairs contained curRawIssue
+ * Eliminated: None of the matching pairs contained preRawIssue(Quantities that have already been resolved need to be deducted)
+ * Remaining: The number of rawIssues currently available through sonar
  * <p>
- * todo 归总后基于ignore和误报的信息再次统计
+ * todo After summarization, it is counted again based on ignore and false positive information
  *
  * @author fancying
  */
@@ -52,19 +51,19 @@ public class IssueStatistics {
     private String developer;
 
     /**
-     * 当前 raw issues 中没匹配上的
+     * None of the matching pairs contained curRawIssue
      */
     private int newIssueCount = 0;
 
     private List<Issue> newIssues;
 
     /**
-     * pre issues 中没匹配上的 目前被解决的数量
+     * None of the matching pairs contained preRawIssue(Quantities that have already been resolved need to be deducted)
      */
     private int eliminate = 0;
 
     /**
-     * issues 中reopen的数量 reopen属于mappedIssues
+     * Number of reopen issues, which are a subset of mappedIssues
      */
     private int reopenIssuesCount = 0;
 
@@ -80,13 +79,10 @@ public class IssueStatistics {
     private List<Issue> mappedIssues;
 
     /**
-     * ignore 以及 misinformation 等需要忽略的信息
+     *  ignore and false positive information
      **/
     private int ignore = 0;
 
-    /**
-     * 用于更新使用过的ignore Record
-     */
     private List<String> usedIgnoreRecordsUuid = new ArrayList<>();
 
     private List<String> ignoreFiles = new ArrayList<>();
@@ -103,7 +99,7 @@ public class IssueStatistics {
     }
 
     /**
-     * 根据issueMatch中的信息做数据统计
+     * Make statistics based on the information in issueMatch
      **/
     public boolean doingStatisticalAnalysis(IssueMatcher issueMatcher, String repoUuid, String tool) {
         log.info("start statistical analysis process");
@@ -167,23 +163,24 @@ public class IssueStatistics {
             this.issueMatcher = issueMatcher;
             log.info("analysis process[{}], step 2: mapping issue uuid, step 1 uses {} s", repoUuid, (System.currentTimeMillis() - startProcess) / 1000);
             startProcess = System.currentTimeMillis();
-            // 增量扫描的时候，进行比较的是前后commit的同一文件，但是此时生成的preRawIssue的uuid并不一定是数据库中记录的，
-            // 所以需要进行查询以及映射，确保preRawIssue的uuid为数据库中记录的uuid
+            // When scanning incrementally, the same file before and after commits is compared,
+            // but the uuid of the preRawIssue generated at this time is not necessarily recorded in the database，
+            // Therefore, queries and mappings are required to ensure that the UUID of preRawIssue is the UUID recorded in the database
             Map<String, List<RawIssue>> parentRawIssuesResult = issueMatcher.getParentRawIssuesResult();
+            long matchProcess = System.currentTimeMillis();
             for (Map.Entry<String, List<RawIssue>> stringListEntry : parentRawIssuesResult.entrySet()) {
                 String parentCommit = stringListEntry.getKey();
                 List<RawIssue> preRawIssues = stringListEntry.getValue();
                 log.info("statistics parentCommit:{}  jgitRepoPath:{}", parentCommit, jGitHelper.getRepoPath());
+                log.info("analysis process[{}], step 2-1: get parent commits", repoUuid);
                 List<String> allParentCommits = jGitHelper.getAllCommitParents(parentCommit);
+                log.info("analysis process[{}], step 2-2: match rawIssue in database, step 2-1 uses {} s", repoUuid, (System.currentTimeMillis() - matchProcess) / 1000);
+                matchProcess = System.currentTimeMillis();
                 Map<String, String> uuid2Hash = preRawIssues.stream().collect(Collectors.toMap(RawIssue::getUuid, RawIssue::getRawIssueHash, (oldValue, newValue) -> newValue));
                 Map<String, String> hash2RecordedUuid = new HashMap<>();
                 List<String> hashes = new ArrayList<>(uuid2Hash.values());
-//                List<Map<String,Object>> rawIssueAndHash =  rawIssueDao.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid,hashes,allParentCommits);
-//                rawIssueAndHash.forEach(temp -> hash2RecordedUuid.put((String) temp.get("rawIssueHash"),(String) temp.get("uuid")));
-                // 此处由于是包含所有的parent commits，所以速度较慢
                 List<RawIssue> rawIssueList = rawIssueDao.getRawIssueUuidsByRawIssueHashAndParentCommits(repoUuid, hashes, allParentCommits);
                 Map<String, List<RawIssue>> hash2RawIssues = rawIssueList.stream().collect(Collectors.groupingBy(RawIssue::getRawIssueHash));
-                //todo 待验证
                 for (Map.Entry<String, List<RawIssue>> hash2RawIssue : hash2RawIssues.entrySet()) {
                     RawIssue rawIssue = hash2RawIssue.getValue().stream()
                             .sorted(Comparator.comparing(RawIssue::getId).reversed()).collect(Collectors.toList()).get(0);
@@ -192,6 +189,8 @@ public class IssueStatistics {
                 for (Map.Entry<String, String> temp : uuid2Hash.entrySet()) {
                     rawIssueUuid2DataBaseUuid.put(temp.getKey(), hash2RecordedUuid.get(temp.getValue()));
                 }
+                log.info("analysis process[{}], step 2-3: match success, step 2-2 uses {} s", repoUuid, (System.currentTimeMillis() - matchProcess) / 1000);
+                matchProcess = System.currentTimeMillis();
             }
             log.info("analysis process[{}] success!, step 2 uses {} s", repoUuid, (System.currentTimeMillis() - startProcess) / 1000);
 

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 缺陷类型启用状态
+ * @desc Enabled status of a violation rule
  * @date 2022-10-08 16:17
  */
 @Getter

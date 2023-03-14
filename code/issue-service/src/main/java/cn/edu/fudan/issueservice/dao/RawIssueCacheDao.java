@@ -45,7 +45,8 @@ public class RawIssueCacheDao {
         String commitId = rawIssueCache.getCommitId();
         String tool = rawIssueCache.getTool();
         if (!cached(repoUuid, commitId, tool)) {
-            //由于mongoDB有单个文档16MB的限制 所以当缺陷条数超过1000时，需要分割
+            // Since mongoDB has a limit of 16MB for a single document,
+            // when the number of violations exceeds 1000, we need to split them
             log.info("start insert analyzer");
             if(insertIssueAnalyzerPartition(rawIssueCache, 1000, 0) != -1){
                 log.info("repoUuid:{},commitId:{} issueAnalyzer insert success!", repoUuid, commitId);
@@ -87,10 +88,10 @@ public class RawIssueCacheDao {
                 log.info("repoUuid:{},commitId:{},partitionNum:{},beginSharding:{} over 16MB, begin next partition", repoUuid, commitId, partitionNum, beginSharding);
                 int insertNum = insertIssueAnalyzerPartition(temp, partitionNum/2, i + beginSharding);
                 if(insertNum < 0){
-                    //底层依旧插入失败
+                    // insert failed
                     return -1;
                 }
-                //-1是为了去掉原有的一个sharding
+                // -1 => Remove the original sharding
                 insertedNumInPartition += (insertNum - 1);
             } catch (Exception e){
                 log.error("insert issueAnalyzer failed" + e.getMessage());

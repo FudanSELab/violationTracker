@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * description: 来自于JDK11
+ * description: JDK11
  *
  * @author fancying
  * create: 2020-07-10 20:32

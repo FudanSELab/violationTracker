@@ -8,10 +8,10 @@ import lombok.Getter;
 @Getter
 public enum IgnoreTypeEnum {
     /**
-     * DEFAULT 代表缺陷默认状态
-     * IGNORE 代表忽略该缺陷
-     * MISINFORMATION   代表该缺陷属于误报，假阳性
-     * TO_REVIEW  代表该问题需要review是否真的是个缺陷
+     * DEFAULT, Default status
+     * IGNORE, Ignore this issue
+     * MISINFORMATION, False positive
+     * TO_REVIEW, The problem requires a review to see if it is really a violation
      */
     DEFAULT("Default"),
     IGNORE("Ignore"),
@@ -26,8 +26,6 @@ public enum IgnoreTypeEnum {
     }
 
     /**
-     * 检查状态name在不在枚举类中
-     *
      * @param name name
      * @return true or false
      */

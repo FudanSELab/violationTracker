@@ -18,16 +18,16 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "API返回的结构体", description = "所有API返回形式都以这个为准")
+@ApiModel(value = "The structure returned by the API", description = "This is the return format benchmark for all interfaces")
 public class ResponseBean<T> implements Serializable {
 
-    @ApiModelProperty(value = "自定义状态码", name = "code")
+    @ApiModelProperty(value = "Custom status code", name = "code")
     private int code;
 
-    @ApiModelProperty(value = "此次请求返回的消息描述", name = "msg")
+    @ApiModelProperty(value = "Description", name = "msg")
     private String msg;
 
-    @ApiModelProperty(value = "此次请求返回的具体数据", name = "data")
+    @ApiModelProperty(value = "Data", name = "data")
     private T data;
 
     public static final ResponseBean<Object> OK_RESPONSE_BEAN =

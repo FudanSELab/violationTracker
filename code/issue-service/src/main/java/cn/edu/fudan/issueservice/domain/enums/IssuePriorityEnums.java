@@ -23,7 +23,7 @@ public class IssuePriorityEnums {
     public enum JavaIssuePriorityEnum {
 
         /**
-         * 缺陷优先级
+         * violation priority
          */
         LOW("Low", 4, "Info"),
         NORMAL("Normal", 3,"Minor"),
@@ -63,7 +63,7 @@ public class IssuePriorityEnums {
     @Getter
     public enum JavaScriptIssuePriorityEnum {
         /**
-         * JS缺陷优先级
+         * violation priority in javascript
          */
         OFF("Off", 0),
         WARN("Warn", 1),
@@ -90,7 +90,7 @@ public class IssuePriorityEnums {
     @Getter
     public enum CppIssuePriorityEnum {
         /**
-         * c++缺陷优先级
+         * violaiton priority in c++
          */
         INFORMATION("Information", 0),
         WARNING("Warning", 1),

@@ -8,17 +8,17 @@ import java.util.List;
 /**
  * @author beethoven
  * @date 2021-09-23 18:46:07
- * @description merge 节点 match info 情况枚举
+ * @description The cases of merge nodes
  */
 public enum MatchInfoSituationEnum {
 
     /**
-     * 默认情况, 无需做特殊 merge 的处理
+     * default
      */
     DEFAULT,
 
     /**
-     * merge 节点含有 issue
+     * The merge node contains issues
      */
     ADD_ADD, ADD_CHANGED, CHANGED_CHANGED, ADD_DEFAULT;
 

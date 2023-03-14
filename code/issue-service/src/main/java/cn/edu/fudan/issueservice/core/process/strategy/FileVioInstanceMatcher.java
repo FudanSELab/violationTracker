@@ -22,17 +22,17 @@ public class FileVioInstanceMatcher extends BaseVioInstanceMatcher {
     @Override
     public boolean match(RawIssue preVioInstance, RawIssue curVioInstance, Set<String> curParentName) {
         log.debug("match scope is FILE, issue type is {}", preVioInstance.getType());
-        // 类名相似，则相似
+        // If the class names are similar, the two raw issues are similar
         double matchDegree;
         List<Location> preLocations = preVioInstance.getLocations();
         List<Location> curLocations = curVioInstance.getLocations();
-        // location 的个数必不为0
+        // The number of locations must not be 0
         Location preLocation = preLocations.get(0);
         Location curLocation = curLocations.get(0);
         String preClassName = preLocation.getClassName();
         String curClassName = curLocation.getClassName();
 
-        // 区别测试用例 two issue match one
+        // two issue match one
         double detailScore = preVioInstance.getDetail().equals(curVioInstance.getDetail()) ? 0.1 : 0;
         double tokenSimilarityDegree = CosineUtil.cosineSimilarity(CosineUtil.lexer(preClassName, true),
                 CosineUtil.lexer(curClassName, true));

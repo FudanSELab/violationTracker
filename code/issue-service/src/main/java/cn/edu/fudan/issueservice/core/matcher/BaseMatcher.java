@@ -73,15 +73,15 @@ public abstract class BaseMatcher implements Matcher {
         for (Map.Entry<String, List<RawIssue>> entry : parentRawIssuesMap.entrySet()) {
             String parentCommit = entry.getKey();
 
-            // 获取匹配准备所需数据
+            // Get the data we need for the matching process
             List<String> files = commitFileMap.get(parentCommit);
             Map<String, String> preFile2CurFile = preFile2CurFileMap.get(parentCommit);
             Map<String, String> curFile2PreFile = curFile2PreFileMap.get(parentCommit);
 
-            // 获取需要匹配的 raw issues 并标记其他 raw issues 为 not change
+            // Get the raw issues that need to be matched and mark the other raw issues as not change
             List<RawIssue> curRawIssues = currentRawIssues.stream().filter(r -> files.contains(r.getFileName())).collect(Collectors.toList());
 
-            // 匹配 raw issues
+            // Match raw issues
             List<RawIssue> preRawIssues = parentRawIssuesMap.get(parentCommit).stream().
                     filter(rawIssue -> {
                         String issueId = rawIssue.getIssueId();
@@ -100,22 +100,21 @@ public abstract class BaseMatcher implements Matcher {
 
             renameHandle(preRawIssues, curFile2PreFile);
 
-            // 为 current raw issues 生成 raw issue match info,没有匹配上的默认状态设置为ADD
+            // Generate a raw issue match info for current raw issues, and the default status setting for raw issues is ADD
             curRawIssues.stream().filter(rawIssue -> !rawIssue.isMapped())
                     .forEach(curRawIssue -> curRawIssue.getMatchInfos().add(curRawIssue.generateRawIssueMatchInfo(parentCommit)));
 
-            // 获取 pre raw issues 关联的 issues
+            // Gets the issues associated with pre raw issues
             List<String> oldIssuesUuid = preRawIssues.stream().map(RawIssue::getIssueId).collect(Collectors.toList());
             Map<String, Issue> oldIssuesMap = oldIssuesUuid.isEmpty() ? new HashMap<>(16) :
                     issueDao.getIssuesByUuidAndRepoUuid(oldIssuesUuid, repoUuid).stream().collect(Collectors.toMap(Issue::getUuid, Function.identity(), (oldValue, newValue) -> newValue));
 
-            // 归总结果集, 更新 issues 的 end commit 以及 status
+            // Aggregate the result set, update the end commit and status of the issues
             sumUpRawIssues(parentCommit, preRawIssues, curRawIssues, oldIssuesMap);
 
-            // 为 merge 情况清空 current raw issues 的匹配状态以便下一个 parent commit 匹配
+            // Clear the matching status of current raw issues for the merge case so that the next parent commit matches correctly
             cleanUpRawIssueMatchInfo(curRawIssues, preRawIssues, parentCommit, isFirst);
         }
-        // merge情况 最终归总 raw issue match info
         sumUpAll();
 
         return matcherResult;

@@ -6,17 +6,18 @@ import java.util.List;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 逻辑行
+ * @desc logical statements
  * @date 2022-09-26 16:12
  */
 public class LogicalStatementUtil {
 
     /**
+     * get one logical statement
      * @param filePath
-     * @param beginLine 起始行号，从1开始
-     * @param endLine   结束行号
-     * @param offset    偏移量，从1开始
-     * @return
+     * @param beginLine start line number, starting with 1
+     * @param endLine   end line number
+     * @param offset    offset, starting with 1
+     * @return LogicalStatement
      */
     public static LogicalStatement getLogicalStatement(String filePath, int beginLine, int endLine, int offset) {
         LogicalStatementRule logicalStatementRule = new LogicalStatementRule(filePath, beginLine, endLine, offset);
@@ -24,13 +25,13 @@ public class LogicalStatementUtil {
     }
 
     /**
-     * 获取逻辑语句
+     * get logical statements
      *
-     * @param filePath   文件路径
-     * @param beginLines 起始行号s
-     * @param endLines   结束行号s
-     * @param offsets    位置偏移量
-     * @return List<逻辑语句>
+     * @param filePath   file path
+     * @param beginLines start line numbers, starting with 1
+     * @param endLines   end line numbers
+     * @param offsets    offsets, starting with 1
+     * @return List<LogicalStatement>
      */
     public static List<LogicalStatement> getLogicalStatements(String filePath, List<Integer> beginLines, List<Integer> endLines, List<Integer> offsets) {
         LogicalStatementRule logicalStatementRule = new LogicalStatementRule(filePath, beginLines, endLines, offsets);

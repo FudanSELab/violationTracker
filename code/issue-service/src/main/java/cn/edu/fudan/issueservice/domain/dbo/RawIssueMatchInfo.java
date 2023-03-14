@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * description: 用于记录raw issue的匹配信息
+ * description: Record matching information for raw issues
  *
  * @author fancying
  * create: 2021-01-06 21:53
@@ -19,12 +19,9 @@ public class RawIssueMatchInfo {
 
     public static final String EMPTY = "empty";
     /**
-     * 当同一个rawIssue 在与不同的commit匹配 遇到不同的 Issue 时用到
+     * Similarity
      */
     double matchDegree;
-    /**
-     * 这个rawIssue是与哪一个版本的rawIssue进行的比较
-     */
     private int id;
     private String curRawIssueUuid;
     private String curCommitId;

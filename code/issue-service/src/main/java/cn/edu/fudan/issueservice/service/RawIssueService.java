@@ -14,7 +14,7 @@ import java.util.Map;
 public interface RawIssueService {
 
     /**
-     * 根据issueId返回rawIssueList
+     * get rawIssueList by uuid
      *
      * @param issueId issue_uuid
      * @return rawIssueList
@@ -27,7 +27,6 @@ public interface RawIssueService {
      * @description:
      * @return:java.lang.String
      * @author:keyon
-     * @time:2021/11/29 7:56 下午
      */
     String getRawIssueDetailByIssueUuid(String issueId);
 
@@ -36,14 +35,14 @@ public interface RawIssueService {
 
 
     /**
-     * 文件级别issue追溯图
+     * tracker map
      *
-     * @param repoUuid  项目uuid
+     * @param repoUuid  repo uuid
      * @param issueUuid issue uuid
-     * @param page      页码
-     * @param ps        每页条数
-     * @param showAll   是否显示全部数据
-     * @return issue历史追溯图
+     * @param page      page number
+     * @param ps        page size
+     * @param showAll   Whether to display all revisions data
+     * @return issue tracker map
      */
     IssueTrackerMapVO getTrackerMap(String repoUuid, String issueUuid, Integer page, Integer ps, Boolean showAll);
 

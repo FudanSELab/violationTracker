@@ -16,14 +16,14 @@ import java.util.Map;
 public interface IssueScanMapper {
 
     /**
-     * 插入issueScan
+     * insert one issueScan
      *
      * @param scan issueScan
      */
     void insertOneScan(IssueScan scan);
 
     /**
-     * 删除issueScan
+     * delete issueScans by condition
      *
      * @param repoId repoUuid
      * @param tool   tool
@@ -31,30 +31,30 @@ public interface IssueScanMapper {
     void deleteIssueScanByRepoIdAndTool(@Param("repo_uuid") String repoId, @Param("tool") String tool);
 
     /**
-     * 获取issueScan
+     * get issueScans by condition
      *
      * @param repoId     repoUuid
      * @param statusList statusList
      * @param tool       tool
-     * @return issueScan
+     * @return issueScan list
      */
     List<IssueScan> getIssueScanByRepoIdAndStatusAndTool(@Param("repo_uuid") String repoId, @Param("statusList") List<String> statusList, @Param("tool") String tool);
 
     /**
-     * 获取issueScan
+     * get issueScans by condition
      *
      * @param repoId   repoUuid
      * @param commitId commitId
      * @param tool     tool
      * @param since    since
      * @param until    until
-     * @return issueScan
+     * @return issueScan list
      */
     List<IssueScan> getIssueScanByRepoIdAndCommitIdAndTool(@Param("repo_uuid") String repoId, @Param("commit_id") String commitId, @Param("tool") String tool,
                                                            @Param("since") String since, @Param("until") String until);
 
     /**
-     * 获取issueScan
+     * get the issueScan by repo uuid and tool name
      *
      * @param repoId repoUuid
      * @param tool   tool
@@ -63,11 +63,11 @@ public interface IssueScanMapper {
     IssueScan getLatestIssueScanByRepoIdAndTool(@Param("repo_uuid") String repoId, @Param("tool") String tool);
 
     /**
-     * 获取扫描过的issueScan记录
+     * get scanned commit list
      *
      * @param repoUuid repoUuid
      * @param tool     tool
-     * @return 扫描过的issueScan记录
+     * @return the scanned commit list
      */
     List<String> getScannedCommitList(String repoUuid, String tool);
 
@@ -80,7 +80,7 @@ public interface IssueScanMapper {
     Map<String, Object> getRangeCommitDate(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
-     * 包含 parent_commit 信息
+     * get commit list with their parent commits
      *
      * @param repoUuid
      * @return
@@ -88,7 +88,7 @@ public interface IssueScanMapper {
     List<Commit> getAllCommitsWithParents(@Param("repoUuid") String repoUuid, @Param("since") String since, @Param("until") String until);
 
     /**
-     * 获取扫描失败的commit list
+     * get the commits that have failed scan
      *
      * @param repoUuid
      * @return first commit_id  second commit_time
@@ -96,7 +96,7 @@ public interface IssueScanMapper {
     List<TwoValue<String, String>> getScanFailedCommitList(String repoUuid);
 
     /**
-     * 获取扫描状态
+     * get scan status
      *
      * @param repoUuid repoUuid
      * @return commit_id, status

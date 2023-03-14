@@ -14,13 +14,6 @@ import java.util.List;
  */
 @Data
 public class PagedGridResult<T> {
-    /**
-     * page:页
-     * ps: 每页数量
-     * total:总页数
-     * records:总记录数
-     * rows:每行显示内容
-     */
     private int page;
 
     private int ps;
@@ -68,7 +61,7 @@ public class PagedGridResult<T> {
 
 
     /**
-     * 将PageHelper分页后的list转为分页信息
+     * Turn the paged list of PageHelper into pagination information
      */
     public static <T> PagedGridResult<T> restPage(List<T> list) {
         PagedGridResult<T> result = new PagedGridResult<>();
@@ -82,7 +75,7 @@ public class PagedGridResult<T> {
     }
 
     /**
-     * 从pageList获取pageInfo信息，返回resList数据
+     * Gets the pageInfo information from the pageList and returns the resList data
      *
      * @param pageList
      * @param resList
@@ -102,7 +95,7 @@ public class PagedGridResult<T> {
     }
 
     /**
-     * 将未分页的list转为分页信息
+     * Convert an unpaged list into paginated information
      */
     public static <T> PagedGridResult<T> restPage(List<T> list, Integer page, Integer ps) {
         PagedGridResult<T> result = new PagedGridResult<>();
@@ -142,16 +135,16 @@ public class PagedGridResult<T> {
             return new ArrayList<T>();
         }
 
-        Integer count = list.size(); // 记录总数
-        Integer pageCount = 0; // 页数
+        Integer count = list.size(); // records
+        Integer pageCount = 0; // page num
         if (count % ps == 0) {
             pageCount = count / ps;
         } else {
             pageCount = count / ps + 1;
         }
 
-        int fromIndex = 0; // 开始索引
-        int toIndex = 0; // 结束索引
+        int fromIndex = 0;
+        int toIndex = 0;
 
         if (page < pageCount) {
             fromIndex = (page - 1) * ps;

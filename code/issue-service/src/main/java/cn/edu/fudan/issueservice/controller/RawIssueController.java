@@ -23,14 +23,14 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@Api(value = "rawIssue", tags = {"用于统计rawIssue的相关接口"})
+@Api(value = "rawIssue", tags = {"APIs for counting rawIssue."})
 public class RawIssueController {
 
     private static final String SUCCESS = "success";
     private static final String FAILED = "failed ";
     private RawIssueService rawIssueService;
 
-    @ApiOperation(value = "根据issue_uuid筛选rawIssue", notes = "@return List<RawIssue>", httpMethod = "GET")
+    @ApiOperation(value = "Filter rawIssue based on issue_uuid.", notes = "@return List<RawIssue>", httpMethod = "GET")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "issue_uuid", value = "issue的uuid", required = true)
     })
@@ -44,7 +44,7 @@ public class RawIssueController {
         }
     }
 
-    @ApiOperation(value = "根据issue_uuid获取raw_issue的detail信息", notes = "@return String", httpMethod = "GET")
+    @ApiOperation(value = "Get detailed information of raw_issue based on issue_uuid.", notes = "@return String", httpMethod = "GET")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "issue_uuid", value = "issue的uuid", required = true)
     })
@@ -66,12 +66,13 @@ public class RawIssueController {
         return new ResponseBean<>(200, SUCCESS, rawIssueService.getRawIssuesInCommit(repoUuid, commit, tool));
     }
 
-    @ApiOperation(value = "根据issue信息或node信息整合完整追溯链（图）信息", notes = "@return  IssueTrackerMapVO", httpMethod = "GET")
+    @ApiOperation(value = "Get the complete trace chain (graph) information based on issue information or node information.",
+            notes = "@return  IssueTrackerMapVO", httpMethod = "GET")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "repo_uuid", value = "repo_uuid", dataType = "String"),
             @ApiImplicitParam(name = "issue_uuid", value = "issue_uuid", dataType = "String"),
-            @ApiImplicitParam(name = "page", value = "页码", dataType = "Integer", defaultValue = "1"),
-            @ApiImplicitParam(name = "ps", value = "每页条数（默认20个）"),
+            @ApiImplicitParam(name = "page", value = "page number", dataType = "Integer", defaultValue = "1"),
+            @ApiImplicitParam(name = "ps", value = "page size, the default is 20 per page."),
             @ApiImplicitParam(name = "show_all", value = "是否展示所有commit，若为否,则只展示部分commit和间接父子关系", dataType = "String", defaultValue = "false")
     })
     @GetMapping(value = {"/issue/tracker-map"})

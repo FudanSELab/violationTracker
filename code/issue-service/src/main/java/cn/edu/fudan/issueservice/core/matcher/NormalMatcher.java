@@ -48,11 +48,11 @@ public class NormalMatcher extends BaseMatcher {
         preCommitsForParent.remove(parentCommit);
         List<RawIssue> newCurRawIssues = new ArrayList<>();
 
-        //匹配上了是changed 没有匹配上是new 或者 reopen
+        // Changed if rawIssue is mapped, or new
         for (RawIssue curRawIssue : curRawIssues) {
-            if(curRawIssue.isMapped()){
+            if (curRawIssue.isMapped()) {
                 curRawIssue.getMatchInfos().forEach(rawIssueMatchInfo -> rawIssueMatchInfo.setStatus(RawIssueStatus.CHANGED.getType()));
-            }else{
+            } else {
                 newCurRawIssues.add(curRawIssue);
             }
         }
@@ -60,12 +60,13 @@ public class NormalMatcher extends BaseMatcher {
         newCurRawIssues.forEach(rawIssue -> rawIssue.getMatchInfos().clear());
         List<RawIssue> preRawIssueList = matchNewIssuesWithParentIssues(newCurRawIssues, curFile2PreFileMap.get(parentCommit), preCommitsForParent, repoUuid, analyzer, jGitHelper.getRepoPath());
         preRawIssues.addAll(preRawIssueList);
-        // 为 current raw issues 生成 raw issue match info,没有匹配上的默认状态设置为ADD
+        // Generate raw issue match info for current raw issues
+        // For raw issues that do not match, set their statuses to ADD
         curRawIssues.stream().filter(rawIssue -> !rawIssue.isMapped())
                 .forEach(curRawIssue -> curRawIssue.getMatchInfos().add(curRawIssue.generateRawIssueMatchInfo(parentCommit)));
 
         for (RawIssue newCurRawIssue : newCurRawIssues) {
-            if(!newCurRawIssue.isMapped()){
+            if (!newCurRawIssue.isMapped()) {
                 Issue issue = generateOneIssue(newCurRawIssue);
                 newIssues.put(issue.getUuid(), issue);
             } else {
@@ -74,13 +75,13 @@ public class NormalMatcher extends BaseMatcher {
             }
         }
 
-        Map<String,Issue> reopenUuid2Issue = reopenCurIssues.isEmpty()?new HashMap<>(16):
-                issueDao.getIssuesByUuid(reopenCurIssues).stream().collect(Collectors.toMap(Issue::getUuid, Function.identity(),(oldValue,newValue) -> newValue));
+        Map<String, Issue> reopenUuid2Issue = reopenCurIssues.isEmpty() ? new HashMap<>(16) :
+                issueDao.getIssuesByUuid(reopenCurIssues).stream().collect(Collectors.toMap(Issue::getUuid, Function.identity(), (oldValue, newValue) -> newValue));
 
         reopenIssues.putAll(reopenUuid2Issue);
         oldIssuesMap.putAll(reopenUuid2Issue);
 
-        // 更新 mapped issues 和 solved issues
+        // Update mapped issues and solved issues
         for (RawIssue preRawIssue : preRawIssues) {
             Issue issue = oldIssuesMap.get(preRawIssue.getIssueId());
             if (preRawIssue.isMapped()) {
@@ -108,7 +109,7 @@ public class NormalMatcher extends BaseMatcher {
 
         updateDefaultRawIssues(preRawIssues, curRawIssues);
 
-        // 存入匹配后 parent rawIssues
+        // Update parent rawIssues of the match result
         matcherResult.getParentRawIssuesResult().put(parentCommit, preRawIssues);
     }
 
@@ -127,5 +128,6 @@ public class NormalMatcher extends BaseMatcher {
             }
         }
     }
+
 
 }

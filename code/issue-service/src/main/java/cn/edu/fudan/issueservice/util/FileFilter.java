@@ -10,7 +10,7 @@ import cn.edu.fudan.issueservice.domain.enums.ToolEnum;
  **/
 public final class FileFilter {
     /**
-     * JPMS 模块
+     * JPMS module
      */
     private static final String JPMS = "module-info.java";
 
@@ -38,8 +38,8 @@ public final class FileFilter {
     }
 
     /**
-     * true: 过滤
-     * false： 不过滤
+     * true: filter
+     * false： don't filter
      */
     public static boolean javaFilenameFilter(String path) {
         if (path == null || path.isEmpty()) {

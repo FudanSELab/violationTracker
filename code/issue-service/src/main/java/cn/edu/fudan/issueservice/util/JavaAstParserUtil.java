@@ -23,10 +23,10 @@ public class JavaAstParserUtil {
 
     private static final Map<String, CompilationUnit> COMPILATION_UNIT_CACHE = new WeakHashMap<>(8);
 
-    //批量获取缺陷所在方法名和偏移量
+    // Batch get the method name and offset where the violation is located
     public static List<Object[]> findMethodNameAndOffsetList(CompilationUnit compilationUnit, List<Integer> beginLines, List<Integer> endLines) {
         try {
-            //当结束行为空 说明并不需要获取方法名以及偏移量
+            // When endLines is empty, you do not need to get the method name and offset
             if (endLines.isEmpty()) {
                 return new ArrayList<>();
             }
@@ -44,7 +44,7 @@ public class JavaAstParserUtil {
     }
 
     private static Object[] findMethodNameAndOffset(CompilationUnit compilationUnit, Integer beginLine, Integer endLine) {
-        // 函数
+        // Method
         List<MethodDeclaration> methodDeclarations = compilationUnit.findAll(MethodDeclaration.class);
         for (MethodDeclaration methodDeclaration : methodDeclarations) {
             if (methodDeclaration.getRange().isPresent()) {
@@ -56,7 +56,7 @@ public class JavaAstParserUtil {
             }
         }
         List<ClassOrInterfaceDeclaration> classOrInterfaceDeclarationList = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
-        //判断是否是enum
+        // Enum
         if (classOrInterfaceDeclarationList.isEmpty()) {
             List<EnumConstantDeclaration> enumConstantDeclarationList = compilationUnit.findAll(EnumConstantDeclaration.class);
             for (EnumConstantDeclaration enumConstantDeclaration : enumConstantDeclarationList) {
@@ -70,7 +70,7 @@ public class JavaAstParserUtil {
             }
         } else {
             for (ClassOrInterfaceDeclaration classOrInterfaceDeclaration : classOrInterfaceDeclarationList) {
-                //构造函数
+                // Constructor
                 List<ConstructorDeclaration> constructorDeclarations = classOrInterfaceDeclaration.findAll(ConstructorDeclaration.class);
                 for (ConstructorDeclaration constructorDeclaration : constructorDeclarations) {
                     if (constructorDeclaration.getRange().isPresent()) {
@@ -81,7 +81,7 @@ public class JavaAstParserUtil {
                         }
                     }
                 }
-                //字段
+                // Field
                 List<FieldDeclaration> fieldDeclarations = classOrInterfaceDeclaration.findAll(FieldDeclaration.class);
                 for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
                     if (fieldDeclaration.getRange().isPresent()) {
@@ -98,7 +98,7 @@ public class JavaAstParserUtil {
                     }
                 }
             }
-            // 类名
+            // Class
             for (ClassOrInterfaceDeclaration classOrInterfaceDeclaration : classOrInterfaceDeclarationList) {
                 if (classOrInterfaceDeclaration.getRange().isPresent()) {
                     int begin = classOrInterfaceDeclaration.getRange().get().begin.line;
@@ -147,16 +147,12 @@ public class JavaAstParserUtil {
         return  allClassNamesInFile;
     }
 
-//    String name = n.isInterface() ? "interface " : "class ";
-//    findHitStatement(n, name + n.getNameAsString(),
-//                n.getRange().isPresent() ? n.getRange().get().begin.line : 0, n.getNameAsString());
-//        super.visit(n, arg);
 
     /**
-     * 抽java文件中所有方法签名
+     * Get all method signatures in the java file
      *
-     * @param absoluteFilePath 绝对文件路径
-     * @return 所有方法签名
+     * @param absoluteFilePath absolute file path
+     * @return all method signatures
      */
     public static List<String> getAllMethodsInFile(String absoluteFilePath) throws IOException {
         CompilationUnit compileUtil = analyzeFileToCompilationUnit(absoluteFilePath);
@@ -176,10 +172,10 @@ public class JavaAstParserUtil {
     }
 
     /**
-     * 抽一个java文件中所有成员变量名
+     * Gets the names of all fields in a Java file
      *
-     * @param absoluteFilePath 文件路径
-     * @return 成员变量list列表
+     * @param absoluteFilePath absolute file path
+     * @return field list
      */
     public static List<String> getAllFieldsInFile(String absoluteFilePath) throws IOException{
         CompilationUnit compileUtil = analyzeFileToCompilationUnit(absoluteFilePath);

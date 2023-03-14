@@ -41,7 +41,7 @@ public class IssueMergeManager {
             List<RawIssue> rawIssueList = rawIssueDao.getRawIssuesByRawIssueHashes(repoUuid, hashes);
             Map<String, List<RawIssue>> hash2RawIssues = rawIssueList.stream().collect(Collectors.groupingBy(RawIssue::getRawIssueHash));
             for (Map.Entry<String, List<RawIssue>> hash2RawIssue : hash2RawIssues.entrySet()) {
-                //同一个hash可能会对应多个rawIssue
+                // The same hash may correspond to multiple rawIssues
                 RawIssue rawIssue = hash2RawIssue.getValue().stream()
                         .sorted(Comparator.comparing(RawIssue::getVersion).reversed()).collect(Collectors.toList()).get(0);
                 hash2RecordedIssueUuid.put(hash2RawIssue.getKey(),rawIssue.getIssueId());
@@ -50,14 +50,14 @@ public class IssueMergeManager {
                 issueUuid2DataBaseUuid.put(hash2IssueUuid.get(temp.getKey()), temp.getValue());
             }
 
-            //数据库中有的hash对应的new issue不再入库
+            // New issues corresponding to the same hash in the database are no longer stored
             newIssues.forEach(issue -> {
                 if(issueUuid2DataBaseUuid.containsKey(issue.getUuid())){
                     issue.setUuid(issueUuid2DataBaseUuid.get(issue.getUuid()));
                 }
             });
 
-            //更新rawIssue以及matchInfo的issue为数据库中记录的issue uuid
+            // Update the issue uuid of rawIssue and matchInfo to the issue uuid recorded in the database
             curAllRawIssues.forEach(rawIssue -> {
                 if(issueUuid2DataBaseUuid.containsKey(rawIssue.getIssueId())){
                     String issueUuid = issueUuid2DataBaseUuid.get(rawIssue.getIssueId());

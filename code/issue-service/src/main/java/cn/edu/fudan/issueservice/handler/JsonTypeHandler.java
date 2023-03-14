@@ -10,14 +10,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * mapper里json型字段到类的映射。 用法一: 入库：#{jsonDataField,
- * typeHandler=cn.edu.fudan.issueservice.handler.JsonTypeHandler} 出库： <resultMap> <result
+ * Map the json-type fields in the mapper file to instances of the class.
+ * 1. Insert data: #{jsonDataField,
+ * typeHandler=cn.edu.fudan.issueservice.handler.JsonTypeHandler}
+ * 2. Select data: <resultMap> <result
  * property="jsonDataField" column="json_data_field" javaType="com.xxx.MyClass"
  * typeHandler=cn.edu.fudan.issueservice.handler.JsonTypeHandler"/> </resultMap>
  *
- * <p>用法二： 1）在mybatis-config.xml中指定handler: <typeHandlers> <typeHandler
+ * <p> 1）mybatis-config.xml: <typeHandlers> <typeHandler
  * handler="cn.edu.fudan.issueservice.handler.JsonTypeHandler" javaType="com.xxx.MyClass"/>
- * </typeHandlers> 2)在MyClassMapper.xml里直接select/update/insert。
+ * </typeHandlers>
+ * 2) MyClassMapper.xml: select/update/insert。
  *
  * @author zjf
  * @author fancying
@@ -25,12 +28,12 @@ import java.sql.SQLException;
 public class JsonTypeHandler extends BaseTypeHandler<JSONObject> {
 
     /**
-     * 用于定义在Mybatis设置参数时该如何把Java类型的参数转换为对应的数据库类型
+     * Used to define how to convert Java type parameters to the corresponding database type when setting parameters in Mybatis
      *
-     * @param preparedStatement 当前的PreparedStatement对象
-     * @param i                 当前参数的位置
-     * @param objects           当前参数的Java对象
-     * @param jdbcType          当前参数的数据库类型
+     * @param preparedStatement The current PreparedStatement object
+     * @param i                 The position of the current parameter
+     * @param objects           The Java object for the current parameter
+     * @param jdbcType          The database type of the current parameter
      */
     @Override
     public void setNonNullParameter(PreparedStatement preparedStatement, int i, JSONObject objects, JdbcType jdbcType) throws SQLException {
@@ -38,11 +41,11 @@ public class JsonTypeHandler extends BaseTypeHandler<JSONObject> {
     }
 
     /**
-     * 用于在Mybatis获取数据结果集时如何把数据库类型转换为对应的Java类型
+     * Used to convert the database type to the corresponding Java type when Mybatis retrieves the data result set
      *
-     * @param resultSet  当前的结果集
-     * @param columnName 当前的字段名称
-     * @return 转换后的Java对象
+     * @param resultSet  result set
+     * @param columnName column name
+     * @return Java Object
      */
     @Override
     public JSONObject getNullableResult(ResultSet resultSet, String columnName) throws SQLException {
@@ -54,11 +57,11 @@ public class JsonTypeHandler extends BaseTypeHandler<JSONObject> {
     }
 
     /**
-     * 用于在Mybatis通过字段位置获取字段数据时把数据库类型转换为对应的Java类型
+     * Used to convert the database type to the corresponding Java type when Mybatis gets field data through the field location
      *
-     * @param resultSet   当前的结果集
-     * @param columnIndex 当前字段的位置
-     * @return 转换后的Java对象
+     * @param resultSet   result set
+     * @param columnIndex column index
+     * @return Java Object
      */
     @Override
     public JSONObject getNullableResult(ResultSet resultSet, int columnIndex) throws SQLException {
@@ -70,10 +73,10 @@ public class JsonTypeHandler extends BaseTypeHandler<JSONObject> {
     }
 
     /**
-     * 用于Mybatis在调用存储过程后把数据库类型的数据转换为对应的Java类型
+     * Used to convert database type data to the corresponding Java type after calling a stored procedure
      *
-     * @param callableStatement 当前的CallableStatement执行后的CallableStatement
-     * @param columnIndex       当前输出参数的位置
+     * @param callableStatement CallableStatement
+     * @param columnIndex       column index
      * @return null
      */
     @Override

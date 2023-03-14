@@ -61,28 +61,28 @@ public class Swagger2 {
     private String userToken;
 
     /**
-     * 配置swagger2核心配置 docket
+     * Configure the core configuration for swagger2, Docket.
      */
     @Bean
     public Docket createRestApi() {
 
-        //添加header信息
+        // Add Header
         ParameterBuilder ticketPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        ticketPar.name("token").description("Http headers token字段")
+        ticketPar.name("token").description("Http headers token")
                 .modelRef(new ModelRef("string")).parameterType("header")
-                //header中的ticket参数非必填，传空也可以
+                // The ticket parameter in the header is optional and can also be passed as empty.
                 .defaultValue(userToken).required(false).build();
         pars.add(ticketPar.build());
 
-        // 指定api类型为swagger2
+        // Specify the api type as swagger2.
         return new Docket(DocumentationType.SWAGGER_2)
-                // 用于定义api文档汇总信息
+                // Define the information for the api document.
                 .apiInfo(apiInfo())
                 .select()
-                // 指定controller包
+                // Specify the controller package.
                 .apis(RequestHandlerSelectors.basePackage(CONTROLLER_PACKAGE))
-                // 所有controller
+                // Specify all controllers.
                 .paths(PathSelectors.any())
                 .build()
                 .globalOperationParameters(pars);
@@ -90,24 +90,24 @@ public class Swagger2 {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                // 文档页标题
+                // Document page title.
                 .title(TITLE)
-                // 联系人信息
+                // Contact information.
                 .contact(new Contact("CODE WISDOM",
                         "http://10.176.34.85:8888/",
                         EMAIL))
-                // 详细信息
+                // Description
                 .description(DOC_DES)
-                // 文档版本号
+                // Version
                 .version("1.0.1")
-                // 网站地址
+                // HTTP URL
                 .termsOfServiceUrl(VISIT_URL)
                 .build();
     }
 
 
     /**
-     * SwaggerUI资源访问
+     * Swagger UI
      *
      * @param servletContext
      * @param order
@@ -143,17 +143,17 @@ public class Swagger2 {
             resourceHttpRequestHandler.setResourceResolvers(Collections.singletonList(pathResourceResolver));
             resourceHttpRequestHandler.setServletContext(servletContext);
             resourceHttpRequestHandler.afterPropertiesSet();
-            //设置新的路径
+            // Set a new path.
             urlMap.put(DEFAULT_PATH + "/**", resourceHttpRequestHandler);
         }
         urlHandlerMapping.setUrlMap(urlMap);
-        //调整DispatcherServlet关于SimpleUrlHandlerMapping的排序
+        // Adjust the sorting of DispatcherServlet about SimpleUrlHandlerMapping.
         urlHandlerMapping.setOrder(order);
         return urlHandlerMapping;
     }
 
     /**
-     * SwaggerUI接口访问
+     * Swagger UI Gate
      */
     @Controller
     @ApiIgnore
@@ -182,7 +182,7 @@ public class Swagger2 {
         }
 
         /**
-         * 首页
+         * Homepage
          *
          * @return
          */

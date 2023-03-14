@@ -13,28 +13,18 @@ import lombok.NoArgsConstructor;
 @Data
 public class RawIssueMatchResult {
 
-//    /**
-//     * 匹配到的IssueId
-//     */
-//    String matchedIssueId;
-//
-//    /**
-//     * 匹配到的RawIssue Id
-//     */
-//    String matchedRawIssueId;
-
     /**
-     * 两个raw issue 是否完全一样
+     * Whether the two raw issues are exactly the same
      */
     boolean isBestMatch = false;
 
     /**
-     * 两个rawIssue的匹配度
+     * The degree of matching between the two rawIssues
      */
     double matchingDegree;
 
     /**
-     * 匹配到的RawIssue
+     * Matched rawIssue
      */
     RawIssue rawIssue;
 

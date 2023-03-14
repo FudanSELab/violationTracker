@@ -265,12 +265,12 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
                         component = sonarIssue.getString(COMPONENT);
                     }
 
-                    //仅解析java文件且非test文件夹
+                    // Only Java files in non-test folders are parsed
                     if (filterFile(component)) {
                         continue;
                     }
 
-                    //解析location
+                    // Parse locations
                     List<Location> locations = isSecurityHotspot ? analyzeSecurityHotspotLocations(sonarIssue, repoUuid, commit) : analyzeLocations(sonarIssue, repoUuid, commit);
 
                     // The issue with no line number is not filtered. The default value of star_line and end_line is 0
@@ -280,21 +280,17 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
                         continue;
                     }
 
-                    //解析rawIssue
+                    // Parse rawIssue
                     RawIssue rawIssue = getRawIssue(repoUuid, commit, ToolEnum.SONAR.getType(), sonarIssue, isSecurityHotspot);
-                    // 该类型缺陷无 location 信息
+                    // This type of violation has no location information
                     if (rawIssue.getType().equals("Source files should not have any duplicated blocks")) {
                         continue;
                     }
                     String sonarRelativeFilePath = rawIssue.getFileName();
-                    // 增量扫描对rawIssue 做补充
-                    // 增量扫描重新设置  rawIssue 的 commit ID和 filePath
+                    // Resets rawIssue's commit id and filePath during incremental scans
                     if (!isTotalScan(componentKey)) {
                         resetRawIssueCommitAndFilePath4Incremental(rawIssue, sonarRelativeFilePath);
                     }
-                    // todo 当未清除前一次增量扫描文件，并且尝试创建增量文件夹失败时，采用全量扫描路径
-                    //  此时也存在 filepath = commit id + 实际路径的情况（未定位到原因，暂时在创建增量文件夹前删除旧文件夹）
-                    //  pjh：复现出一种情况，与sonarqube之前有数据未删除有关系，若再次出现此种情况，可以将deleteSonarProject置为true，重扫
                     completeRawIssue(rawIssue, locations);
                     rawIssues.add(rawIssue);
                 }
@@ -332,7 +328,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     private int getNumberOfSonarIssue(String componentKeys, boolean isSecurityHotspots, String directories, String fileUuids) {
 
         JSONObject sonarIssueResult;
-        //获取issue数量
+        // Get the number of issues
         if (isSecurityHotspots) {
             sonarIssueResult = rest.getSonarSecurityHotspotList(componentKeys, 1, 0);
             return sonarIssueResult.getJSONObject("paging").getIntValue(TOTAL);
@@ -399,8 +395,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     }
 
     /**
-     * todo 改成POST请求Sonar API处理
-     *  不用脚本 删除失败的逻辑
+     * todo Request the Sonar POST API
      */
     private boolean deleteSonarProject(String projectKey) {
         final String deleteScript = "deleteSonarProject.sh";
@@ -476,7 +471,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         int endOffset = 0;
         JSONArray flows = issue.getJSONArray("flows");
         if (flows == null || flows.isEmpty()) {
-            //第一种针对issue中的textRange存储location
+            // For the location stored in the textRange in the issue
             JSONObject textRange = issue.getJSONObject("textRange");
             if (textRange != null) {
                 startLine = textRange.getIntValue("startLine");
@@ -496,11 +491,11 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         }
 
         List<Location> locations = new ArrayList<>();
-        //第二种针对issue中的flows中的所有location存储  多个location
+        // For multiple locations stored by flows in an issue
         for (int i = 0; i < flows.size(); i++) {
             JSONObject flow = flows.getJSONObject(i);
             JSONArray flowLocations = flow.getJSONArray("locations");
-            //一个flows里面有多个locations， locations是一个数组，目前看sonar的结果每个locations都是一个location，但是不排除有多个。
+            // There are multiple locations in a flows
             for (int j = 0; j < flowLocations.size(); j++) {
                 JSONObject flowLocation = flowLocations.getJSONObject(j);
                 String flowComponent = flowLocation.getString(COMPONENT);
@@ -535,7 +530,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
 
         Location location = new Location();
         location.setFilePath(relativePath);
-        //不是全量扫描的时候需要去掉开头的commit
+        // If it is not a total scan, we need to remove the first commit
 
         String locationUuid = Location.generateLocationUUID(repoUuid, relativePath, startLine, endLine, startToken, endToken, wholeProcessTest);
 
@@ -558,7 +553,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
 
     private RawIssue getRawIssue(String repoUuid, String commit, String category, JSONObject issue, boolean isSecurityHotspots) {
 
-        //根据ruleId获取rule的name
+        // Get the name of the rule based on the ruleId
         String issueName = null;
         String issueType = isSecurityHotspots ? issue.getJSONObject(RULE).getString(KEY) : issue.getString(RULE);
 
@@ -572,7 +567,7 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         // 3d54bdb3-6ead-3611-b5ab-dd776554b2cf_76aa4cd93590bcd41efe5c5b7858b2e5cf0d8355:76aa4cd93590bcd41efe5c5b7858b2e5cf0d8355/dx/src/com/android/dx/command/dexer/Main.java
         String sonarPath = isSecurityHotspots ? issue.getJSONObject(COMPONENT).getString(KEY) : issue.getString(COMPONENT);
 
-        //获取文件路径
+        // Gets the file path
         String sonarRelativeFilePath = splitSonarPath(sonarPath);
 
         RawIssue rawIssue = new RawIssue();

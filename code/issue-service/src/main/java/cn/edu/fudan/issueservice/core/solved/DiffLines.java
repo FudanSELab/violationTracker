@@ -29,7 +29,7 @@ public class DiffLines {
     List<Integer> cruChangeLines;
 
     /**
-     * 可暂时不填
+     * empty
      */
     Map<List<Integer>, List<Integer>> changeLineMap;
 
@@ -40,7 +40,7 @@ public class DiffLines {
         List<Integer> curChangeLines = new ArrayList<>();
         Map<List<Integer>, List<Integer>> changeLineMap = new HashMap<>(32);
 
-        // 从第 0行 开始读取 第1行识别为第0行
+        // Read the file from line 0, recognizing line 1 as line 0
         List<String> original = FileUtils.readLines(new File(preAbsoluteFilePath), String.valueOf(Charset.defaultCharset()));
         List<String> revised = FileUtils.readLines(new File(curAbsoluteFilePath), String.valueOf(Charset.defaultCharset()));
 
@@ -78,7 +78,6 @@ public class DiffLines {
                 }
                 continue;
             }
-            // 下面的代码应该运行不到
             log.error("unknown Delta.TYPE {}", delta.getType());
         }
 

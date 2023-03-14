@@ -8,19 +8,18 @@ import static cn.edu.fudan.issueservice.util.StringsUtil.parseParentCommits;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 统计 commit 的各种数据
  * @date 2022-11-10 09:28
  */
 public class MeasureCommitUtil {
     /**
-     * @param fromCommitId    起始子节点
-     * @param toCommitId      目标父节点
-     * @param untilCommitTime 最多查找至 untilCommitTime
-     * @param commitMap       commit 节点数据
+     * @param fromCommitId    from
+     * @param toCommitId      to
+     * @param untilCommitTime untilCommitTime
+     * @param commitMap       commits
      * @return
      */
     public static Integer shortestPathBetweenTwoCommits(String fromCommitId, String toCommitId, String untilCommitTime, Map<String, Commit> commitMap) {
-        // 从 from commit 开始已访问的节点数据
+        // Accessed node data starting from fromCommitId
         Deque<Commit> children = new ArrayDeque<>();
         int minNum = Integer.MAX_VALUE;
         Commit childCommit = commitMap.get(fromCommitId);
@@ -58,8 +57,7 @@ public class MeasureCommitUtil {
 
 
     /**
-     * 旧版根据提交时间是否呈递减关系判断 curCommit 是否属于 cherry pick 数据
-     * 新版数据库中已存入 author time 与 commit time，比较两个时间是否一致
+     * Determine whether curCommit is a cherry pick commit
      *
      * @param curCommit
      * @param commitMap
@@ -68,7 +66,7 @@ public class MeasureCommitUtil {
     public static boolean isCherryPick(Commit curCommit, Map<String, Commit> commitMap) {
         if (curCommit.getAuthorTime() == null) {
             Set<String> parentCommitIds = new HashSet<>(parseParentCommits(curCommit.getParentCommits()));
-            // 分析至多三个相邻 commit 的时间是否呈线性
+            // Linearly incremental
             for (String pId : parentCommitIds) {
                 Commit pCommit = commitMap.get(pId);
                 if (pCommit != null) {

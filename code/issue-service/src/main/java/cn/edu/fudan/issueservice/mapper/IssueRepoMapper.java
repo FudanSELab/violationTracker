@@ -14,21 +14,21 @@ import java.util.List;
 public interface IssueRepoMapper {
 
     /**
-     * 插入issueRepo
+     * insert one issueRepo
      *
      * @param issueRepo issueRepo
      */
     void insertOneIssueRepo(@Param("issueRepo") RepoScan issueRepo);
 
     /**
-     * 更新issueRepo
+     * update one issueRepo
      *
      * @param issueRepo issueRepo
      */
     void updateIssueRepo(@Param("issueRepo") RepoScan issueRepo);
 
     /**
-     * 获取issueRepo
+     * get issueRepos by condition
      *
      * @param repoId repoUuid
      * @param tool   tool
@@ -37,7 +37,7 @@ public interface IssueRepoMapper {
     List<RepoScan> getIssueRepoByCondition(@Param("repoUuid") String repoId, @Param("tool") String tool);
 
     /**
-     * 删除issueRepo
+     * delete issueRepos by condition
      *
      * @param repoId repoUuid
      * @param tool   tool
@@ -45,16 +45,16 @@ public interface IssueRepoMapper {
     void deleteIssueRepoByCondition(@Param("repo_uuid") String repoId, @Param("tool") String tool, @Param("status") String status);
 
     /**
-     * 返回没扫描commit数
+     * returns the number of commits that have not scanned
      *
      * @param repoUuid repoUuid
      * @param tool     tool
-     * @return 没扫描commit数
+     * @return key: repo uuid, value: the number of commits
      */
     List<HashMap<String, Integer>> getNotScanCommitsCount(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
-     * 获取main issueRepo
+     * get main issueRepo
      *
      * @param repoUuid repoUuid
      * @param tool     tool
@@ -72,7 +72,7 @@ public interface IssueRepoMapper {
     RepoScan getRepoScan(String repoUuid, String tool);
 
     /**
-     * 获取开始扫描的commit 时间
+     * get start commit time
      *
      * @param repoUuid
      * @param tool
@@ -81,7 +81,7 @@ public interface IssueRepoMapper {
     String getStartCommitTime(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
-     * 获取开始扫描的 commit id
+     * get start commit
      *
      * @param repoUuid
      * @param tool
@@ -90,17 +90,17 @@ public interface IssueRepoMapper {
     String getStartCommit(@Param("repoUuid") String repoUuid, @Param("tool") String tool);
 
     /**
-     * 获取开始扫描的 commit ids
+     * get start commits
      *
      * @param repoUuids
      * @param tool
-     * @return
+     * @return key: repo uuid, value: start commit
      */
 
     List<String> getStartCommits(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool);
 
     /**
-     * 获取正在扫描的 repo 数据
+     * get repoScan by condition
      *
      * @return
      */

@@ -134,7 +134,7 @@ public class DateTimeUtil {
 
         calendar.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
 
-        /** 取得的时间就是UTC标准时间 */
+        /** The time obtained is UTC standard time */
 
         Date utcDate = new Date(calendar.getTimeInMillis());
 

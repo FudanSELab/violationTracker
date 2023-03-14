@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * fixme 修改不符合规范的field命名 已修改
  *
  * @author fancying
  */
@@ -26,9 +25,9 @@ import java.util.UUID;
 public class Location {
 
     /**
-     * location表主键是id，uuid为非唯一索引
-     * uuid生成策略 文件名、startLine、endLine、startToken、endToken、repoUuid
-     * uuid 用于生成rawIssueUuid、benchmark数据校验
+     * The primary key of the location table is id, and the uuid is a non-unique index
+     * The uuid generation strategy includes file name, startLine, endLine, startToken, endToken, and repoUuid
+     * The uuid is used to generate rawIssueUuid and benchmark data validation
      */
     private String uuid;
     private int startLine;
@@ -40,22 +39,22 @@ public class Location {
     private String filePath;
     private String className;
     /**
-     * 如果缺陷存在于方法内或方法签名上，则返回方法签名
-     * 如果缺陷存在于成员变量，则返回成员变量名
-     * 如果缺陷存在于（内部）类或静态代码块，则返回（内部）类名
-     * 如果缺陷存在于类声明语句外，如 import、package 语句，则返回空
+     * If the violation exists within the method or on the method signature, the method signature is returned
+     * If the violation exists in a member variable, the member variable name is returned
+     * If the violation exists in an (inner) class or static code block, the (inner) class name is returned
+     * If the violation exists outside the class declaration statement, such as import, package statements, null is returned
      */
     private String anchorName;
     private String rawIssueUuid;
     /**
-     * 选取startLine endLine startToken endToken 指定的逻辑行代码
+     * Select the logical line code specified by startLine, endLine, startToken and endToken
      */
     private String code;
 
     private String repoUuid;
 
     /**
-     * location 起始位置相对于 所在方法或者属性起始位置的偏移量
+     * It is the offset of the location start position relative to the method or property start position
      */
     private int offset = 0;
 
@@ -66,7 +65,7 @@ public class Location {
     private List<Byte> tokens = null;
 
     /**
-     * 扫描时采用的路径，仅便于解析，不入库
+     * It is the path used during scanning, which is only convenient for parsing and does not enter the warehouse
      */
     private String sonarRelativeFilePath;
 
@@ -91,7 +90,8 @@ public class Location {
     }
 
     /**
-     * wholeProcessTest 模式去掉 repo uuid，便于根据 uuid 查找测试库与基准库之间的对应关系
+     * The repo uuid is removed in wholeProcessTest mode,
+     * making it easier to find the correspondence between the test library and the benchmark library based on the uuid
      * @param repoUuid
      * @param filePath
      * @param startLine
@@ -131,9 +131,6 @@ public class Location {
 
     public List<Byte> getTokens() {
         if (tokens == null) {
-
-//            tokens = CosineUtil.lexer(CosineUtil.removeComment(code), true);
-            // 去掉注释的token对于匹配准确性影响不大，只在特定条件下改变，提高了准确性，并且避免了正则表达式匹配过程中可能产生的栈溢出问题
             tokens = CosineUtil.lexer(code, true);
         }
         return tokens;

@@ -5,39 +5,20 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 
 /**
- * description:代码比较工具（基于余弦相似度）
+ * description: Code comparison tool (based on cosine similarity)
  *
  * @author fancying
  * create: 2020-06-06 15:48
  **/
 public class CosineUtil {
 
-//    /**
-//     * 判断两段代码是否相似
-//     *
-//     * @param code1    代码段1
-//     * @param code2    代码段2
-//     * @param tokenize 是否token化
-//     * @return threshold 相似阈值
-//     */
-//    public static double isSimilarCode(String code1, String code2, boolean tokenize) {
-//        try {
-//            List<Object> tokens1 = lexer(code1, tokenize);
-//            List<Object> tokens2 = lexer(code2, tokenize);
-//            return cosineSimilarity(tokens1, tokens2);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return 0;
-//    }
-
 
     /**
-     * 计算token串的余弦相似度
+     * Calculate the cosine similarity of the token string
      *
      * @param tokensX tokensX
      * @param tokensY tokensY
-     * @return token串的余弦相似度
+     * @return The cosine similarity of the token string
      */
     public static double cosineSimilarity(List<Byte> tokensX, List<Byte> tokensY) {
         List<Object> allTokens = new ArrayList<>();
@@ -73,7 +54,7 @@ public class CosineUtil {
     }
 
     /**
-     * 代码token化方法
+     * Tokenize a string of code
      *
      * @param stat
      * @return
@@ -91,7 +72,7 @@ public class CosineUtil {
                 index++;
                 continue;
             }
-            //数字形式的字符
+            // Numeric char
             if (Character.isDigit(c)) {
                 while (Character.isDigit(c)) {
                     token += c;
@@ -109,7 +90,6 @@ public class CosineUtil {
                 token = "";
                 continue;
             }
-            //判断是否为字母
             if (Character.isLetter(c) || c == '_') {
                 while (Character.isLetterOrDigit(c) || c == '_') {
                     token += c;
@@ -133,7 +113,7 @@ public class CosineUtil {
     }
 
     /**
-     * 哈希函数，将字符串映射到[-128,-3]u[125,127]字节空间
+     * A hash function that maps a string to a [-128,-3]u[125,127]
      *
      * @param str
      * @return
@@ -151,16 +131,6 @@ public class CosineUtil {
             int h = h1 ^ h2;
             return (byte) (-3 - (h & 0x7f));
         }
-    }
-
-    /**
-     * * 处理注释
-     *
-     * @param code
-     * @return String
-     */
-    public static String removeComment(String code) {
-        return code.replaceAll("//.*|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")|(?s)/\\*.*?\\*/", "$1");
     }
 
 }

@@ -10,7 +10,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 下一个子节点
+ * @desc Next AST node
  * @date 2022-09-26 15:09
  */
 public class NextNodeRule extends VoidVisitorAdapter<Object> {

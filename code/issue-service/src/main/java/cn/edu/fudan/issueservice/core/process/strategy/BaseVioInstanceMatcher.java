@@ -38,18 +38,19 @@ public abstract class BaseVioInstanceMatcher implements MatcherStrategy {
 
         int max = Math.max(preLocations.size(), curLocations.size());
         int min = Math.min(preLocations.size(), curLocations.size());
-        // locations 的个数不一样 快速判断是不是同一个 raw issue  先设置一半
-        // location 的个数必不为0
+        // When the number of locations of two raw issues is different,
+        // quickly determine whether they are the same raw issue
         if (max >= min + min) {
             return false;
         }
 
-        // 区别测试用例 two issue match one
+        // two issue match one
         double detailScore = preVioInstance.getDetail().equals(curVioInstance.getDetail()) ? 0.1 : 0;
 
-        // 单个location的匹配情况  只有在一个location的情况下 考虑方法重载的情况
-        // TODO: 2021/1/5 单个location不在同一个方法内不能匹配上 除非方法是changeSignature （这里应该与追溯方法的匹配阈值一致）
-        //  在前面有编译失败的情况下 有两个相似度高的方法情况下可能会匹配不准确
+        // Only one location
+        // TODO: 2021/1/5 A single location cannot be matched if it is not in the same method,
+        //  unless the method signature is modified (which should be consistent with the matching threshold of the retrospective method)
+        //  In the case of commit compilation failures earlier, there are two highly similar methods that may match inaccurately
         if (max == 1) {
             Location preLocation = preLocations.get(0);
             Location curLocation = curLocations.get(0);
@@ -84,7 +85,7 @@ public abstract class BaseVioInstanceMatcher implements MatcherStrategy {
 
         preLocations.forEach(l1 -> curLocations.forEach(l2 -> matchTwoLocation(l1, l2, curParentName)));
 
-        //  匹配完成后计算 匹配到的location个数
+        // After the match is completed, calculate the number of matched locations
         Set<Location> mappedLocations = new HashSet<>(8);
 
         int mappedNum = 0;
@@ -101,7 +102,7 @@ public abstract class BaseVioInstanceMatcher implements MatcherStrategy {
             matchDegree += score;
         }
 
-        // 必须 75% 的location相同才认为是同一个raw issue
+        // Two raw issues must have the same location 75% to be considered the same raw issue
         min = Math.min(mappedNum, mappedLocations.size());
         double overlap = (double) min / max;
         if (overlap >= similarityLocationLimit) {
@@ -125,8 +126,9 @@ public abstract class BaseVioInstanceMatcher implements MatcherStrategy {
         if (!method1Empty && methodName1.equals(methodName2)) {
             result = 0.2 + result;
         } else if (!method1Empty) {
-            // 给予一个较小的值 方法名不相同的情况下 边界值是 0.7 + 0.1 = 0.8
-            // fixme 方法名不同的情况下是否能匹配上 待定
+            // Give a smaller value
+            // In the case of different method names, the default boundary value is 0.7 + 0.1 = 0.8
+            // fixme If the method names are different, can the two raw issues match?
             if (curParentName == null) {
                 result = moderateMatchDegree;
             } else if (curParentName.contains(methodName1)) {

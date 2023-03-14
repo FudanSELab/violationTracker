@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public interface Matcher {
 
     /**
-     * 匹配两个 raw issue list
+     * Matches two raw issue lists
      *
      * @param preRawIssues preRawIssues
      * @param curRawIssues curRawIssues
@@ -55,7 +55,7 @@ public interface Matcher {
     }
 
     /**
-     * 为匹配文件重命名预处理
+     * Preprocessing for the renaming of matching files
      *
      * @param preRawIssues preRawIssues
      * @param map          map
@@ -70,14 +70,14 @@ public interface Matcher {
     }
 
     /**
-     * 匹配 current commit raw issues 和 parent commit raw issues
+     * Match current commit raw issues and parent commit raw issues
      *
      * @return matcher result
      */
     MatcherResult matchRawIssues();
 
     /**
-     * 统计 raw issues 匹配情况
+     * Count matches data for raw issues
      *
      * @param parentCommit parentCommit
      * @param preRawIssues preRawIssues
@@ -87,7 +87,7 @@ public interface Matcher {
     void sumUpRawIssues(String parentCommit, List<RawIssue> preRawIssues, List<RawIssue> curRawIssues, Map<String, Issue> oldIssuesMap);
 
     /**
-     * 初始化 dao
+     * Initialize the DAO
      *
      * @param logHome              logHome
      * @param issueDao             issueDao

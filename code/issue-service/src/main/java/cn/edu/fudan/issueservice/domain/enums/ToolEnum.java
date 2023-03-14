@@ -11,7 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ToolEnum {
     /**
-     * 工具枚举
+     * Tools
      */
     SONAR("sonarqube"),
     ESLINT("ESLint"),

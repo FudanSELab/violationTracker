@@ -218,11 +218,6 @@ public class IssueDao {
     }
 
 
-    public List<Map<String, Object>> getIssuesInListBoundariesWithUTC(List<String> repoUuids, String tool, List<String> developers,
-                                                                      List<String> categories, List<String> types, List<Integer> severities, String since, String until) {
-        return issueMapper.getIssuesInListBoundariesWithUTC(repoUuids, tool, developers, categories, types, severities, since, until);
-    }
-
     public List<Map<String, Object>> getDeveloperImportIssue(Map<String, Object> query) {
         return issueMapper.getDeveloperImportIssue(query);
     }

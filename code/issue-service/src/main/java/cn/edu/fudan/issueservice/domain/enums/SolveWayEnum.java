@@ -20,12 +20,12 @@ public enum SolveWayEnum {
      */
     CODE_CHANGE("code_change"),
     /**
-     * 数据流与控制流相关
-     * todo 后续实现
+     * Related to data flow and control flow
+     * todo
      */
     CODE_RELATED_CHANGE("code_related_change"),
     /**
-     * 数据留与控制流无关
+     * Independent of data flow and control flow
      */
     CODE_UNRELATED_CHANGE("code_unrelated_change"),
 

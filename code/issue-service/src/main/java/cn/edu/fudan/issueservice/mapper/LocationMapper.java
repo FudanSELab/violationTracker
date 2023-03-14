@@ -21,7 +21,7 @@ public interface LocationMapper {
     void insertLocationList(List<Location> list);
 
     /**
-     * 获取locations
+     * get locations by raw issue uuid
      *
      * @param rawIssueId rawIssueUuid
      * @return locations
@@ -29,14 +29,14 @@ public interface LocationMapper {
     List<Location> getLocations(@Param("uuid") String rawIssueId);
 
     /**
-     * 通过repo_uuid 删除location
+     * delete locations by repo uuid
      *
      * @param repoUuid repo_uuid
      */
     void deleteLocationsByRepoUuid(@Param("repo_uuid") String repoUuid);
 
     /**
-     * 获取locations
+     * get locations by raw issue uuid
      *
      * @param uuid rawIssueUuid
      * @return locations
@@ -44,11 +44,11 @@ public interface LocationMapper {
     List<Map<String, Object>> getLocationsByRawIssueUuid(String uuid);
 
     /**
-     * 获取某个方法的rawIssueUuids
+     * get rawIssueUuids by anchor name
      *
      * @param anchorName anchorName
      * @param filePath   filePath
-     * @return 某个方法的rawIssueUuids
+     * @return rawIssueUuids
      */
     List<String> getRawIssueUuidsByMethodName(String anchorName, String filePath);
 
@@ -61,15 +61,15 @@ public interface LocationMapper {
     List<Map<String, Object>> getIssueFilterDetailList(@Param("rawIssueUuids") List<String> rawIssueUuids);
 
     /**
-     * 根据rawIssues 获取locations
+     * get locations by raw issue uuids
      *
-     * @param rawIssueUuids location 表中的 rawIssue_uuid
+     * @param rawIssueUuids rawIssue_uuid
      * @return
      */
     List<Location> getLocationsByRawIssues(@Param("rawIssueUuids") List<String> rawIssueUuids);
 
     /**
-     * 获取文件的rawIssueUuids
+     * get rawIssueUuids of the file
      *
      * @param repoUuid
      * @param filePath

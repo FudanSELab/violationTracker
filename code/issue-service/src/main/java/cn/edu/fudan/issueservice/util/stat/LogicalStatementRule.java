@@ -28,21 +28,21 @@ import java.util.stream.IntStream;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 获取逻辑行
+ * @desc logical statements
  * @date 2022-09-26 14:20
  */
 @Slf4j
 public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
-    // 物理行
+    // Physical statements
     private Map<Integer, String> lineMap;
-    // 文件路径
+    // File path
     private String filePath;
-    // 逻辑行
+    // Logical statements
     private List<LogicalStatement> logicalStatements;
     private CompilationUnit cu;
-    // 最大 begin line
+    // The max begin line
     private int maxLine;
-    // 包名
+    // Package name
     private String pkgName;
 
     private final int MAX_CONTENT_SIZE = 1024;
@@ -94,7 +94,8 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
     }
 
     /**
-     * 空行、token 错位等情况拿不到正确逻辑行，使用物理行
+     * If you encounter empty lines, token misalignment, etc.,
+     * you cannot get the correct logical line, and use the physical line
      */
     private void checkContent() {
         for (LogicalStatement stat : logicalStatements) {
@@ -117,7 +118,8 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
     }
 
     /**
-     * 空行、注释行等可能拿不到 anchor node 信息，单独处理
+     * If you encounter empty lines, comment lines, etc.,
+     * you cannot get the correct anchor name
      */
     private void checkAnchor() {
         List<Integer> idxs = new ArrayList<>();
@@ -137,7 +139,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
     }
 
     /**
-     * 初始化物理行信息
+     * Initialize physical statements
      */
     private void initLineMap() {
         // fixme 单独处理 0 行为 空
@@ -155,7 +157,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
     }
 
     /**
-     * 初始化逻辑行位置信息
+     * Initialize logical statements
      *
      * @param filePath
      * @param beginLines
@@ -174,7 +176,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
                     .endLine(endLines.get(i))
                     .offset(offsets.get(i) + 1)
                     .build();
-            // 单独处理注释行、to do行
+            // comment lines and todo lines
             if (lineMap.get(statement.getBeginLine()).trim().startsWith("//")) {
                 statement.setContent(lineMap.get(statement.getBeginLine()));
                 statement.setHit(true);
@@ -183,7 +185,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
             this.logicalStatements.add(statement);
         }
         if (cu != null) {
-            // 不能体现在ast中的注释（无代码上下文），单独处理
+            // Some comments cannot be embodied in AST (no-code context) and need to be handled separately
             List<Comment> commentList = cu.findAll(Comment.class);
             for (Comment comment : commentList) {
                 if (comment.getRange().isPresent()) {
@@ -204,7 +206,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
 
 
     /**
-     * 匹配包含起始行 beginLines 的逻辑语句
+     * Matches a logical statement that contains the starting row beginLines
      *
      * @param node
      */
@@ -224,12 +226,12 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
             for (LogicalStatement stat : logicalStatements) {
                 if (stat.getContent() == null || !stat.getHit()) {
                     if (stat.getBeginLine().equals(begin) && stat.getOffset() >= node.getRange().get().begin.column) {
-                        // 起始行相同
+                        // The starting line is the same
                         int endIdx = line.length();
                         if (nextNodeRule.isCurrentIsBlock()) {
                             Node next = nextNodeRule.getNext();
                             if (next != null && next.getRange().isPresent()) {
-                                // 格式不规范，双语句并行，只取当前语句
+                                // The format is not standardized
                                 endIdx = next.getRange().get().begin.line == begin ? next.getRange().get().begin.column : endIdx;
                                 String nextFullCode = next.getTokenRange().isPresent() ? next.getTokenRange().get().toString() : "";
                                 String truncateCode = nextFullCode.startsWith("{") ?
@@ -245,7 +247,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
                             stat.setIsBlock(true);
                         } else {
                             if (begin == end) {
-                                // 存在格式不规范，双语句并行，只取当前语句
+                                // The format is not standardized
                                 endIdx = node.getRange().get().end.column;
                             }
                             content = fullCode;
@@ -263,7 +265,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
                             stat.setClassName(className);
                         }
                     } else if (stat.getBeginLine() > begin && stat.getBeginLine() <= end) {
-                        // line包含在逻辑语句内
+                        // The beginLine is contained within a logical statement
                         stat.setNode(node);
                         stat.setHit(false);
                         stat.setContent(node.getTokenRange().isPresent() ? node.getTokenRange().get().toString() : "");
@@ -298,7 +300,7 @@ public class LogicalStatementRule extends VoidVisitorAdapter<Object> {
     }
 
     /**
-     * 最大 begin line
+     * the max begin line
      *
      * @param statements
      * @return

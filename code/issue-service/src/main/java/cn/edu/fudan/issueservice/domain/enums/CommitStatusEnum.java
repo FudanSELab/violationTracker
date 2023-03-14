@@ -6,7 +6,7 @@ package cn.edu.fudan.issueservice.domain.enums;
  */
 public enum CommitStatusEnum {
     /**
-     * commit 是否为 merge 节点
+     * Whether a commit is a merge node
      */
     NORMAL, MERGE, FIRST
 }

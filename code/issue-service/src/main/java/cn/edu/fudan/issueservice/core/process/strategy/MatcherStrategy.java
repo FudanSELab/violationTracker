@@ -12,7 +12,8 @@ import java.util.Set;
  */
 public interface MatcherStrategy {
     /**
-     * raw issue 匹配上之后 如果不是在同一个方法中 还需要考虑 是否存在含有相同名字的方法
+     * After two raw issues are matched
+     * If they are not in the same method, we also need to consider whether there are two methods with the same name
      * <p>
      */
     boolean match(RawIssue preVioInstance, RawIssue curVioInstance, Set<String> curParentName);
