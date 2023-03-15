@@ -1,0 +1,39 @@
+HELP.md
+target/
+.mvn
+!**/src/main/**
+!**/src/test/**
+log/
+/src/test/dependency/repo/**
+.java-version
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+.idea/workspace.xml
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+
+### DS_Store ###
+.DS_Store
+*/.DS_Store

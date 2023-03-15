@@ -19,3 +19,27 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+*/target/
+
+!**/src/main/**
+!**/src/test/**
+
+
+# Numerous always-ignore extensions
+*/.git
+*/.idea
+# .gitignore
+*/node_modules/
+# package-lock.json
+*/build/
+*/debug.log
+
+# cache
+*/.eslintcache
+
+# Mac
+*/.DS_Store
+
+# jest
+*/test-report.html
+

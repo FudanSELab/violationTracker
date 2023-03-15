@@ -1,0 +1,33 @@
+package cn.edu.fudan.domain.dbo;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @description:
+ * @author: keyon
+ * @time: 2022/7/19 14:59
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class IssueNum {
+
+    int importNum;
+    Map<String, Integer> solvedNum;
+
+
+    public void initSolvedNum(int overall, int solved, int delete){
+        this.solvedNum = new HashMap<>();
+        this.solvedNum.put("allSolvedNum", overall);
+        this.solvedNum.put("solvedNum", solved);
+        this.solvedNum.put("deleteNum", delete);
+    }
+}

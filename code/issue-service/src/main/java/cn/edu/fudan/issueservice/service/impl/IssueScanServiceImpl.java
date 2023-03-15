@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IssueScanServiceImpl implements IssueScanService {
 
-    private static final String TOTAL = "total";
     private IssueScanDao issueScanDao;
     private IssueRepoDao issueRepoDao;
     private RawIssueCacheDao rawIssueCacheDao;
@@ -33,7 +32,6 @@ public class IssueScanServiceImpl implements IssueScanService {
     private RawIssueMatchInfoDao rawIssueMatchInfoDao;
     private LocationDao locationDao;
     private IssueRepoScanListDao issueRepoScanListDao;
-    private SonarRest restInterfaceManager;
 
 
     @Override
@@ -150,11 +148,6 @@ public class IssueScanServiceImpl implements IssueScanService {
     @Autowired
     public void setLocationDao(LocationDao locationDao) {
         this.locationDao = locationDao;
-    }
-
-    @Autowired
-    public void setRestInterfaceManager(SonarRest restInterfaceManager) {
-        this.restInterfaceManager = restInterfaceManager;
     }
 
     @Autowired

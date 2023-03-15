@@ -206,12 +206,8 @@ public class IssueToolScanImpl extends AbstractToolScan {
             //1 init IssueScan
             Date commitTime = jGitHelper.getCommitDateTime(commit);
             Date authorTime = jGitHelper.getAuthorDate(commit);
-            List<String> parentCommits = new ArrayList<>();
-            for (String commitParent : jGitHelper.getCommitParents(commit)) {
-                if (scanData.getToScanCommitList().contains(commitParent)) {
-                    parentCommits.add(commitParent);
-                }
-            }
+            List<String> parentCommits = new ArrayList<>(Arrays.asList(jGitHelper.getCommitParents(commit)));
+            log.info("current commit: {}, parent commits: {}", commit, parentCommits);
             String developer = jGitHelper.getAuthorName(commit);
             IssueScan issueScan = IssueScan.initIssueScan(scanData.getRepoUuid(), commit, scanData.getRepoScan().getTool(),
                     commitTime, authorTime, Arrays.toString(parentCommits.toArray()), developer);
@@ -263,7 +259,6 @@ public class IssueToolScanImpl extends AbstractToolScan {
 
         JSONObject analyzeCache = rawIssueCacheDao.getAnalyzeResultByRepoUuidCommitIdTool(repoUuid, commit, analyzer.getToolName());
         boolean cached = rawIssueCacheDao.cached(repoUuid, commit, analyzer.getToolName());
-//        boolean prepareSuccess = resourceLoadStatus(repoUuid, repoPath, commit, issueScan, analyzer, rawIssueCache);
 
         List<RawIssue> rawIssues;
 
@@ -413,7 +408,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
         String repoUuid = scanData.getRepoUuid();
         String repoPath = scanData.getRepoPath();
         boolean needNotNullSolveWay = scanData.isInitialScan();
-        issueSolved.updateSolvedWay(repoUuid, repoPath, true);
+        issueSolved.updateSolvedWay(repoUuid, repoPath, needNotNullSolveWay);
 
         log.info("judgeSolvedType repo {} done", repoUuid);
     }

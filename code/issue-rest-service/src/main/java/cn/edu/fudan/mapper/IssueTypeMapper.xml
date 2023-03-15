@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.mapper.IssueTypeMapper">
+    <resultMap id="issueTypeWithoutDescription" type="cn.edu.fudan.domain.dbo.IssueType">
+        <id property="uuid" column="uuid"/>
+        <result property="type" column="type"/>
+        <result property="specificationSource" column="specification_source"/>
+        <result property="category" column="category"/>
+        <result property="language" column="language"/>
+        <result property="severity" column="severity"/>
+        <result property="status" column="status"/>
+        <result property="scope" column="scope"/>
+    </resultMap>
+    <resultMap id="issueTypeJsons" type="cn.edu.fudan.domain.dbo.IssueTypeJSON">
+        <id property="uuid" column="uuid"/>
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <select id="getIssueTypeByTypeName" parameterType="String" resultMap="issueTypeWithoutDescription">
+        select uuid, type, specification_source, category, language
+        from issue_type
+        where type = #{type}
+            limit 1
+    </select>
+
+    <insert id="insertIssueTypes" parameterType="java.util.List">
+        insert into issueTracker.issue_type(uuid, type, specification_source, category, language, severity, description)
+        values
+        <foreach collection="issueTypes" item="item" index="index" separator=",">
+            (
+            #{item.uuid},
+            #{item.type},
+            #{item.specificationSource},
+            #{item.category},
+            #{item.lang},
+            #{item.severity},
+            #{item.description}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getIssueTypeJsons" resultMap="issueTypeJsons">
+        select uuid, type
+        from issueTracker.issue_type;
+    </select>
+    <select id="getIssueTypesByTool" resultMap="issueTypeWithoutDescription">
+        select * from issue_type
+        <where> status='READY'
+            <if test="tool != null">
+                AND specification_source=#{tool}
+            </if>
+        </where>
+    </select>
+</mapper>
+

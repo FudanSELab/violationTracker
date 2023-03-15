@@ -1,7 +1,8 @@
-package cn.edu.fudan.issueservice.mapper;
+package cn.edu.fudan.mapper;
 
 import cn.edu.fudan.common.util.pojo.TwoValue;
-import cn.edu.fudan.issueservice.domain.dbo.RawIssueMatchInfo;
+import cn.edu.fudan.domain.dbo.RawIssueMatchInfo;
+import cn.edu.fudan.domain.dto.AnalysisIssue;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -121,6 +122,16 @@ public interface RawIssueMatchInfoMapper {
     List<RawIssueMatchInfo> listRawIssueMatchInfoByRepoAndTime(@Param("repoUuid") String repoUuid,
                                                                @Param("commitTime") String commitTime,
                                                                @Param("issueUuid") String issueUuid);
+
+    /**
+     * get issues by repoUuid
+     *
+     * @param repoUuid
+     * @param status
+     * @return
+     */
+    List<AnalysisIssue> getAnalysisIssueInfo(@Param("repoUuid") String repoUuid, @Param("commits") List<String> commits, @Param("status") String status);
+
 
     void deleteRawIssueMatchInfoByRepoUuid(String repoUuid);
 

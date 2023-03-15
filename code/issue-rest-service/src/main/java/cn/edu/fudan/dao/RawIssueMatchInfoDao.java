@@ -1,7 +1,8 @@
-package cn.edu.fudan.issueservice.dao;
+package cn.edu.fudan.dao;
 
-import cn.edu.fudan.issueservice.domain.dbo.RawIssueMatchInfo;
-import cn.edu.fudan.issueservice.mapper.RawIssueMatchInfoMapper;
+import cn.edu.fudan.domain.dbo.RawIssueMatchInfo;
+import cn.edu.fudan.domain.dto.AnalysisIssue;
+import cn.edu.fudan.mapper.RawIssueMatchInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -110,6 +111,10 @@ public class RawIssueMatchInfoDao {
 
     public void deleteMatchInfosByRepoUuid(String repoUuid) {
         rawIssueMatchInfoMapper.deleteRawIssueMatchInfoByRepoUuid(repoUuid);
+    }
+
+    public List<AnalysisIssue> getAnalysisIssueInfo(String repoUuid, List<String> commits, String status) {
+        return rawIssueMatchInfoMapper.getAnalysisIssueInfo(repoUuid, commits, status);
     }
 
     public int getMatchInfoCount(String repoUuid) {

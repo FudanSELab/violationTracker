@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.fudan.mapper.IssueScanMapper">
+
+    <resultMap id="issueScan" type="cn.edu.fudan.domain.dbo.IssueScan">
+        <id property="uuid" column="uuid"/>
+        <result property="tool" column="tool"/>
+        <result property="repoUuid" column="repo_uuid"/>
+        <result property="commitId" column="commit_id"/>
+        <result property="status" column="status"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="commitTime" column="commit_time"/>
+        <result property="resultSummary" column="result_summary"/>
+    </resultMap>
+
+    <resultMap id="commit" type="cn.edu.fudan.domain.dbo.Commit">
+        <id property="commitId" column="commit_id"/>
+        <result property="developer" column="developer"/>
+        <result property="commitTime" column="commit_time"/>
+        <result property="authorTime" column="author_time"/>
+        <result property="repoId" column="repo_uuid"/>
+        <result property="parentCommits" column="parent_commit"/>
+    </resultMap>
+
+    <insert id="insertOneScan" parameterType="cn.edu.fudan.domain.dbo.IssueScan">
+        insert into issue_scan
+        (uuid,
+        tool,
+        start_time,
+        end_time,
+        repo_uuid,
+        status,
+        commit_id,
+        commit_time,
+        result_summary,
+        author_time,
+        parent_commit,
+        developer)
+        VALUES (#{uuid},
+        #{tool},
+        #{startTime},
+        #{endTime},
+        #{repoUuid},
+        #{status},
+        #{commitId},
+        #{commitTime},
+        #{resultSummary},
+        #{authorTime},
+        #{parentCommit},
+        #{developer})
+
+    </insert>
+
+    <delete id="deleteIssueScanByRepoIdAndTool" parameterType="String">
+        delete
+        from issue_scan
+        where repo_uuid = #{repo_uuid}
+        <if test="tool != null and tool != ''">
+            and tool = #{tool}
+        </if>
+    </delete>
+
+    <select id="getIssueScanByRepoIdAndStatusAndTool" resultMap="issueScan">
+        select * from issue_scan
+        <where>
+            repo_uuid=#{repo_uuid}
+            <if test="statusList != null and statusList.size > 0">
+                and status in
+                <foreach collection="statusList" separator="," open="(" close=")" item="status">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="tool != null and tool != ''">
+                and tool=#{tool}
+            </if>
+        </where>
+        order by commit_id collate utf8mb4_bin
+    </select>
+
+    <select id="getIssueScanByRepoIdAndCommitIdAndTool" parameterType="String" resultMap="issueScan">
+        select * from issue_scan
+        <where>
+            repo_uuid=#{repo_uuid}
+            <if test="commit_id != null and commit_id != ''">
+                and commit_id=#{commit_id}
+            </if>
+            <if test="tool != null and tool != ''">
+                and tool=#{tool}
+            </if>
+            <if test="since != null">
+                and <![CDATA[ commit_time >= #{since} ]]>
+            </if>
+            <if test="until != null">
+                and <![CDATA[ commit_time < #{until} ]]>
+            </if>
+        </where>
+        order by commit_time
+    </select>
+
+    <select id="getLatestIssueScanByRepoIdAndTool" parameterType="String" resultMap="issueScan">
+        select * from issue_scan
+        <where>
+            repo_uuid=#{repo_uuid}
+            <if test="tool != null and tool != ''">
+                and tool=#{tool}
+            </if>
+        </where>
+        order by commit_time desc
+        limit 1
+    </select>
+
+    <select id="getScannedCommitList" resultType="String">
+        SELECT commit_id FROM issue_scan
+        <trim prefix="where" prefixOverrides="and">
+            <if test="repoUuid != null and repoUuid != ''">
+                and repo_uuid = #{repoUuid}
+            </if>
+            <if test="tool != null and tool != ''">
+                and tool = #{tool}
+            </if>
+        </trim>
+    </select>
+
+
+    <resultMap id="commit2Status" type="cn.edu.fudan.common.util.pojo.TwoValue">
+        <result property="first" column="commit_id"/>
+        <result property="second" column="status"/>
+    </resultMap>
+
+    <select id="getScanStatusInRepo" resultMap="commit2Status">
+        SELECT commit_id, status
+        FROM issue_scan
+        WHERE repo_uuid = #{repoUuid}
+    </select>
+
+    <resultMap id="commit2Time" type="cn.edu.fudan.common.util.pojo.TwoValue">
+        <result property="first" column="commit_id"/>
+        <result property="second" column="c_time"/>
+    </resultMap>
+
+    <select id="getScanFailedCommitList" resultMap="commit2Time">
+        SELECT commit_id, DATE_FORMAT(commit_time, '%Y-%m-%d %H:%i:%s') as c_time
+        FROM issue_scan
+        WHERE repo_uuid = #{repoUuid}
+        AND status &lt;&gt; 'done'
+    </select>
+
+    <select id="getRangeCommitDate" resultType="java.util.Map">
+        SELECT MAX(commit_time) endCommitDate, MIN(author_time) startCommitDate
+        FROM issue_scan
+        WHERE repo_uuid = #{repoUuid}
+        AND tool = #{tool} limit 1
+    </select>
+
+    <select id="getAllCommitsWithParents" resultMap="commit">
+        SELECT repo_uuid, commit_id, commit_time, author_time, developer, parent_commit
+        FROM issue_scan
+        <where>repo_uuid = #{repoUuid}
+            <if test="since != null">
+                and <![CDATA[ commit_time >= #{since} ]]>
+            </if>
+            <if test="until != null">
+                and <![CDATA[ commit_time <= #{until} ]]>
+            </if>
+        </where>
+    </select>
+    <select id="getAllDevelopers" resultType="java.lang.String">
+        SELECT developer FROM issue_scan
+        <where> 1=1
+            <if test="repoUuids != null and repoUuids.size > 0">
+                AND repo_uuid IN
+                <foreach collection="repoUuids" separator="," open="(" close=")" item="repoUuid">
+                    #{repoUuid}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY developer
+    </select>
+</mapper>

@@ -37,7 +37,6 @@ public class IssueScanController {
     private static final String INVOKE_TOOL_FAILED_MESSAGE = "invoke tool:[{}] failed! message is {}";
     private IssueScanService issueScanService;
     private ApplicationContext applicationContext;
-    private SonarRest sonarRest;
     private IssueSolved issueSolved;
 
     @PostMapping(value = {"/issue/scan"})
@@ -52,42 +51,8 @@ public class IssueScanController {
         SonarRest.cacheRepoPath(repoUuid, repoPath);
         IssueScanProcess issueScanProcess = applicationContext.getBean(IssueScanProcess.class);
         issueScanProcess.scan(repoUuid, branch, beginCommit, endCommit);
-        return new ResponseBean<>(200, "success!", null);
+        return new ResponseBean<>(200, SUCCESS, null);
     }
-
-//    @ApiOperation(value = "Clear the database according to repoUuid and rescan a database", httpMethod = "POST")
-//    @ApiImplicitParam(name = "repo_uuid", value = "repo uuid", required = true)
-//    @PostMapping(value = {"/issue/re-scan"})
-//    public ResponseBean<String> reScan(@RequestBody ScanRequestDTO scanRequestDTO) {
-//        log.info("process re scan request, repoUuid: {}", scanRequestDTO.getRepoUuid());
-//        String repoUuid = scanRequestDTO.getRepoUuid();
-//        String branch = scanRequestDTO.getBranch();
-//        String beginCommit = scanRequestDTO.getBeginCommit();
-//        IssueScanProcess issueScanProcess = applicationContext.getBean(IssueScanProcess.class);
-//        try {
-//            if (beginCommit == null) {
-//                final List<RepoScan> issueReposByRepoUuid = issueScanService.getIssueReposByRepoUuid(repoUuid);
-//                if (!issueReposByRepoUuid.isEmpty()) {
-//                    final Map<String, String> repoUuid2ToolWithBeginCommit = issueReposByRepoUuid.stream()
-//                            .collect(Collectors.toMap(RepoScan::getTool, RepoScan::getStartCommit));
-//                    issueScanProcess.getRepoUuid2ToolWithBeginCommit().put(repoUuid, repoUuid2ToolWithBeginCommit);
-//                } else {
-//                    issueScanProcess.getRepoUuid2ToolWithBeginCommit().remove(repoUuid);
-//                }
-//            }
-//            issueScanProcess.deleteRepo(repoUuid);
-//            if (branch == null) {
-//                if ((branch = sonarRest.getBranchByRepoUuid(repoUuid)) == null) {
-//                    return new ResponseBean<>(500, "failed!", "can not get branch from code service");
-//                }
-//            }
-//        } catch (Exception e) {
-//            log.error("repoUuid:{} error occurs before rescanning, message:{}", repoUuid, e.getMessage());
-//            return new ResponseBean<>(500, "failed!", e.getMessage());
-//        }
-//        issueScanProcess.scan(repoUuid, branch, null, null);
-//        return new ResponseBean<>(200, "success!", null);
-//    }
 
     /**
      * { "serverUrl": "http://localhost:9010", "taskId": "AYRm3ait2vWUWN6i5Ci0", "status": "SUCCESS",
@@ -149,7 +114,7 @@ public class IssueScanController {
     public ResponseBean<String> updateSolveWay(@RequestParam("repo_uuid") String repoUuid) {
         try {
             issueSolved.updateSolvedWay(Arrays.asList(repoUuid.split(",")));
-            return new ResponseBean<>(200, "success!", null);
+            return new ResponseBean<>(200, SUCCESS, null);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseBean<>(500, "update repo failed!", e.getMessage());
@@ -179,7 +144,7 @@ public class IssueScanController {
     public ResponseBean<RepoScan> scanStatus(@RequestParam("repo_uuid") String repoUuid) {
         try {
             RepoScan issueRepo = issueScanService.getScanStatusByRepoUuid(repoUuid);
-            return new ResponseBean<>(200, "success!", issueRepo);
+            return new ResponseBean<>(200, SUCCESS, issueRepo);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseBean<>(500, e.getMessage(), null);
@@ -194,7 +159,6 @@ public class IssueScanController {
     })
     @GetMapping(value = {"/issue/scan-stop"})
     public ResponseBean<String> stopScan(@RequestParam("repo_uuid") String repoUuid, @RequestParam("tool") String tool) {
-//        String tool = restInterfaceManager.getToolByRepoUuid(repoUuid);
         if (tool == null) {
             return new ResponseBean<>(400, FAILED, "stop failed!");
         }
@@ -208,42 +172,6 @@ public class IssueScanController {
             return new ResponseBean<>(500, FAILED, e.getMessage());
         }
     }
-
-//    @ApiOperation(value = "Get the un-scanned commits of a repository based on the tool name and repoId.",
-//    notes = "@return Map<String, Object>\n{\n" +
-//            "        \"totalCount\": 0,\n" +
-//            "        \"commitList\": [],\n" +
-//            "        \"pageCount\": 0\n" +
-//            "    }", httpMethod = "GET")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(name = "tool", value = "tool name", required = true, defaultValue = "sonarqube", allowableValues = "sonarqube"),
-//            @ApiImplicitParam(name = "repo_uuid", value = "repository uuid", required = true),
-//            @ApiImplicitParam(name = "page", value = "page number\nThe default is page 1."),
-//            @ApiImplicitParam(name = "ps", value = "page size\nThe default is 10 items per page."),
-//            @ApiImplicitParam(name = "is_whole", value = "all information\nThe default is false", allowableValues = "false , true")
-//    })
-//    @GetMapping(value = {"/issue/commit-list"})
-//    public ResponseBean<Map<String, Object>> getStockCommit(@RequestParam(name = "repo_uuids") String repoUuidsBefore,
-//                                                            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
-//                                                            @RequestParam(name = "ps", required = false, defaultValue = "10") Integer size,
-//                                                            @RequestParam(name = "is_whole", required = false, defaultValue = "false") Boolean isWhole) {
-//        if (repoUuidsBefore == null) {
-//            return new ResponseBean<>(200, SUCCESS, new ArrayMap<>());
-//        }
-//        List<String> repoUuids = Arrays.asList(repoUuidsBefore.split(","));
-//        if (repoUuids.get(0) == null || "".equals(repoUuids.get(0))) {
-//            return new ResponseBean<>(200, SUCCESS, new ArrayMap<>());
-//        }
-//        Map<String, String> temp = new HashMap<>() {{
-//            repoUuids.forEach(repoUuid -> put(repoUuid, sonarRest.getToolByRepoUuid(repoUuid)));
-//        }};
-//        try {
-//            return new ResponseBean<>(200, SUCCESS, size == 0 ? issueScanService.getCommitsCount(temp) : issueScanService.getCommits(repoUuids.get(0), page, size, isWhole, temp.get(repoUuids.get(0))));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return new ResponseBean<>(500, e.getMessage(), null);
-//        }
-//    }
 
     @GetMapping(value = "/issue/scan/failed")
     public ResponseBean<Map<String, String>> getScanFailedCommitList(@RequestParam(name = "repo_uuid") String repoUuid) {
@@ -263,11 +191,6 @@ public class IssueScanController {
     @Autowired
     public void setIssueScanService(IssueScanService issueScanService) {
         this.issueScanService = issueScanService;
-    }
-
-    @Autowired
-    public void setRestInterfaceManager(SonarRest sonarRest) {
-        this.sonarRest = sonarRest;
     }
 
     @Autowired
