@@ -1,0 +1,9 @@
+#query-changed-files .list-clickable {
+  cursor: pointer;
+}
+#query-changed-files .list-clickable:hover {
+  background-color: azure;
+}
+#query-changed-files .list-clickable:hover * {
+  font-weight: bold;
+}

@@ -1,0 +1,30 @@
+.login-form {
+  max-width: 300px;
+}
+.login-form > div {
+  margin: 15px 0;
+}
+.login-form-forgot {
+  float: right;
+}
+.login-form-button {
+  width: 100%;
+  /*color: red;*/
+}
+
+#loginFormTitle {
+  width: 90%;
+  margin-bottom: 13px;
+  font-weight: bold;
+  font-size: 1.23em;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.formItemTitle {
+  font-weight: 550;
+}
+
+.login-form .ant-form-item {
+  margin-bottom: 0 !important;
+}

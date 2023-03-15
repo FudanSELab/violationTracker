@@ -1,0 +1,234 @@
+#dashboard{
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: rgba(255,255,255, 0);
+    /*box-shadow: 1px 2px 1px rgba(0,0,0,.15);*/
+    min-height: 400px;
+}
+
+#options .ant-radio-group{
+    width: 15vw !important;
+}
+
+#developmentTrace #left,
+#developmentTrace #right{
+    margin:0 auto;
+    box-shadow: 0 6px 10px -4px rgba(0,0,0,.15);
+    border-radius: 6px;
+    background-color: #fff;
+    padding: 20px 10px 20px 20px;
+    /*min-height: 700px;*/
+}
+
+#developmentTrace #left{
+    /*height: 95vh;*/
+    width: 17%;
+    float: left;
+    margin-right: 1%;
+}
+
+#developmentTrace #right{
+    width: 82%;
+    float: right;
+}
+
+#blockMenu{
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+#menuButton{
+    float: left;
+}
+
+#Block{
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+#developmentTrace .blocks{
+    margin: 0 10px 70px 0;
+    width: 290px;
+}
+
+#developmentTrace .fileBlock{
+    float: left;
+    display: inline-block;
+    /*width: 12vw;*/
+    width: 160px;
+    word-wrap: break-word;
+    word-break: normal;
+    border: 1px lightgray solid;
+    font-size: 1.1vw;
+    border-radius: 5px;
+    opacity: 0.8;
+    z-index: 0;
+}
+
+.fileName{
+    font-weight: bold;
+    padding: 5px;
+    border-bottom: 1px lightgray solid;
+    cursor: pointer;
+}
+
+.methodName{
+    border-bottom: 1px lightgray solid;
+    cursor: pointer;
+    padding: 5px;
+    font-weight: normal;
+}
+
+#per_commit .methodName a:hover{
+    color: white;
+}
+
+.statements{
+    cursor: pointer;
+    border-bottom: 0.3px white solid;
+    padding: 0 1px;
+}
+
+.not_changed_link{
+    color: gray;
+}
+
+.changed_link{
+    color: white;
+}
+
+#traceTimeline{
+    /*margin-top: 15px;*/
+    width: 100%;
+    float: left;
+}
+
+#commit{
+    width: 72vw;
+    float: left;
+    margin-top: 20px;
+    display: inline;
+    height: 10000px;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+#developmentTrace #commitMessage{
+    width: 100%;
+    float: left;
+}
+
+#commitMessage span{
+    /*font-weight: 500;*/
+    right: 5px;
+}
+
+.hideChart{
+    display: none;
+}
+
+.showBarChart{
+    float: right;
+    display: inline-block;
+    z-index: 99;
+    width: 130px;
+    height: 100px;
+    overflow: visible;
+}
+
+.legends_color{
+    display: inline;
+    width: 25px;
+    height: 20px;
+}
+
+#statementsLegends .legends_text{
+    height: 20px;
+    vertical-align: top;
+    font-size: 0.8em;
+}
+
+#statementsLegends .legends_text>div{
+    line-height: 20px;
+    margin-top: -5px;
+}
+
+#statementsLegends>.legends{
+    display: inline;
+    float: right;
+    margin-right: 20px;
+    width: 120px;
+}
+
+#statementsLegends{
+    margin-top: 15px;
+    display: inline-block;
+    float: right;
+}
+
+#showLinksOrNot{
+    margin-left: 30px;
+}
+
+.playIcons{
+    width: 30px;
+    border-radius: 15px;
+    background-color: white;
+    cursor: pointer;
+    z-index: 999;
+}
+
+.iconStatic{
+    float: right;
+}
+
+.iconFixedTop{
+    overflow: hidden;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+#thumbnail{
+    margin-top: 20px;
+    width: 60px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999;
+    border: 0.4px lightgrey solid;
+    padding: 2px;
+}
+
+.thumbnailFloat{
+    float: right;
+}
+
+.thumbnailFixed{
+    position: fixed;
+    top: 50px;
+    right: 20px;
+}
+
+.commit_tooltip{
+    word-break: break-word;
+}
+
+#timeTip{
+    display: block;
+    margin-bottom: 10px;
+}
+
+.sourceName{
+    background-color: white;
+    border-radius: 5px;
+    padding: 3px;
+    /*opacity: 0.9;*/
+}
+
+.calledLinks:hover{
+    cursor: pointer;
+}
+

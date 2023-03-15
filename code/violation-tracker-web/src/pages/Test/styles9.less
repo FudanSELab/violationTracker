@@ -1,0 +1,50 @@
+#_line_tip_ {
+  position: absolute;
+  top: 0px;
+  z-index: 1;
+  margin-left: 8px;
+  .summary-line {
+    display: flex;
+    // width: 100%;
+    align-items: center;
+  }
+  & > .line-tips-arrow-bottom,
+  & > .line-tips-arrow-top {
+    position: absolute;
+    display: inline-block;
+    content: '';
+    border: 8px solid transparent;
+  }
+  & > .line-tips-arrow-bottom {
+    top: 6px;
+    left: -16px;
+    border-right-color: #d0d7de;
+  }
+  & > .line-tips-arrow-top {
+    top: 6px;
+    left: -15px;
+    border-right-color: #ffffff;
+  }
+  & > menu {
+    margin: 0;
+    position: absolute;
+    top: -7px;
+    left: 0;
+    padding: 10px 13px 12px 13px;
+    min-height: 100px;
+    min-width: 200px;
+    background-color: #ffffff;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    box-shadow: 0 4px 24px rgba(140, 149, 159, 0.2);
+    text-align: initial;
+    cursor: initial;
+    user-select: text;
+    & pre {
+      opacity: 1;
+    }
+    & p {
+      margin-bottom: 4px;
+    }
+  }
+}

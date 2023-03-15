@@ -1,0 +1,9 @@
+#query-retrospect .list-clickable {
+  cursor: pointer;
+}
+#query-retrospect .list-clickable:hover {
+  background-color: azure;
+}
+#query-retrospect .list-clickable:hover * {
+  font-weight: bold;
+}

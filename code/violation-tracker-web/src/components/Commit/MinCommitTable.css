@@ -1,0 +1,66 @@
+#mincommitTable {
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+}
+#mincommitTable td.ant-table-column-has-filters {
+  height: 35px;
+}
+#minCommitList .ant-pagination {
+  right: 0px;
+  bottom: -5px;
+  position: absolute;
+  /*display: none;*/
+}
+
+.highlight {
+  background-color: yellow;
+}
+.blue {
+  background-color: lightgrey;
+}
+.red {
+  background-color: darkgrey;
+}
+
+#mincommit .ant-spin-container {
+  height: 300px !important;
+}
+
+#location {
+  position: relative;
+  display: table;
+}
+
+#mincommit .tooltip {
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: -10px;
+  width: 242px;
+  font-size: 14px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 2;
+  padding-left: 6px;
+  padding-right: 10px;
+  border-radius: 6px;
+}
+
+#mincommit .ant-table-tbody tr td:nth-child(3) #location,
+#mincommit .ant-table-tbody tr td:nth-child(2) #location {
+  height: 100%;
+}
+
+#mincommit .typeFiles,
+#mincommit .locationFiles {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+#location:hover .tooltip {
+  transition-duration: 1s;
+  visibility: visible;
+  top: 100%;
+  background-color: rgba(0, 0, 0, 0.77);
+}

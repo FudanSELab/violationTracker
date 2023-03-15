@@ -1,0 +1,48 @@
+h2.loading-tips {
+  animation: colors 4s linear infinite;
+  background-color: #66adeb;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 50px;
+  box-sizing: content-box;
+  height: 110px;
+  width: 110px;
+  padding: 20px;
+  border: 4px solid #333333;
+  p {
+    // animation: colors 4s linear infinite;
+    // background-color: #66adeb;
+    // background-clip: text;
+    // -webkit-background-clip: text;
+    // color: white;
+    color: #66adeb;
+    font-size: small;
+    text-align: right;
+    margin: 0;
+    position: relative;
+    bottom: -15px;
+  }
+  p::after {
+    content: '';
+    display: inline-block;
+    width: 61px;
+    height: 5px;
+    background-color: #333333;
+    position: relative;
+    bottom: 7px;
+  }
+}
+h2.loading-tips::first-letter {
+  // font-size: 20pt;
+  color: #333333;
+}
+
+@keyframes colors {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}

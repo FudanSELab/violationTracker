@@ -1,0 +1,207 @@
+.ant-radio-button-wrapper-checked {
+  color: #ffffff;
+}
+/* .text .ant-radio-button-wrapper-checked {
+    background: #A1A1A1;
+    border-color: #797979;
+    color: #FFFFFF!important;
+} */
+.chartoption .ant-radio-button-wrapper-checked {
+  background: #a1a1a1;
+  border-color: #797979;
+  color: #ffffff !important;
+}
+/* .text .ant-radio-button-wrapper  {
+    height: 50px;
+    width: 100%;
+    line-height: 38px;
+    font-family:Arial;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333333;
+    padding: 7px;
+} */
+.loc {
+  display: inline-block;
+  text-align: left;
+}
+.chartoption .ant-radio-button-wrapper {
+  height: 50px;
+  width: 90px;
+  line-height: 20px;
+  font-family: Arial;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333333;
+  padding: 8px;
+}
+/* .text .ant-radio-group {
+    width: 100% !important;
+} */
+.chartoption .ant-radio-group {
+  width: 100% !important;
+}
+#homemodule {
+  margin-top: 10px;
+  min-width: 1280px;
+  height: 100%;
+}
+#proname {
+  font-family: Arial;
+  font-size: 13px;
+  font-weight: bold;
+}
+#pronamediv {
+  margin-left: 90px;
+  margin-bottom: 10px;
+}
+#homeissloca {
+  font-family: Arial;
+  font-size: 18px;
+  color: #aeaeae;
+  background-color: #fff;
+  position: relative;
+  padding-left: 130px;
+  padding-top: 10px;
+  margin-top: 30px;
+}
+/* .text{
+    font-weight: bold;
+    font-family: Arial;
+    font-size: 15px;
+    display: flex!important;
+    flex-direction: row;
+    flex-wrap: nowrap;
+} */
+.issuenum1 .issuenum2 .issuenum3 {
+  font-family: Arial;
+  font-size: 20px;
+}
+.issuenum1 {
+  position: relative;
+  top: 10px;
+}
+.issuenum2 {
+  position: relative;
+  top: 20px;
+}
+.issuenum3 {
+  position: relative;
+  top: 30px;
+}
+.datenum {
+  position: relative;
+  left: 40%;
+  top: -120%;
+  font-weight: bold;
+  font-family: Arial;
+  font-size: 48px;
+}
+/* .ant-card-body{
+    height: 570px !important;
+} */
+#pronamediv .a {
+  color: black;
+}
+#projectOption {
+  float: right;
+  white-space: nowrap;
+}
+#projectOption .ant-input {
+  width: 140px;
+  margin-right: 10px;
+}
+
+#homedetail {
+  margin: 0 auto;
+}
+.ant-card-extra {
+  float: right;
+  padding: 0;
+}
+.shadow {
+  /*box-shadow:10px 10px 5px #888888;*/
+  box-shadow: 2px 2px 2px #a1a1a1;
+  font-family: Arial;
+  font-size: 15px;
+}
+.shadow1 {
+  box-shadow: 2px 2px 2px #a1a1a1;
+  margin-bottom: 30px;
+}
+#home {
+  width: 100%;
+  height: 100%;
+}
+#chart .ant-card-head {
+  background: #fff;
+  border-bottom: 0px solid #fff;
+}
+.chartoption {
+  position: relative;
+  padding-right: 0px;
+  font-size: 13px;
+  font-family: Arial;
+  font-weight: bold;
+  /*width: 240px;*/
+}
+.chartoption .ant-card-body {
+  padding-left: 1%;
+  padding-top: 1%;
+  zoom: 1;
+}
+/* .text .ant-card-body{
+    padding-top: 3%;
+    padding-left: 18%;
+} */
+#issposition {
+  margin-top: -15px;
+}
+
+#projectTableHeaderOption span {
+  display: inline-block;
+}
+
+#projectTableHeaderOption span:nth-child(2) {
+  float: right;
+}
+
+.optionsIcons {
+  width: 18px;
+  margin-right: 10px;
+}
+
+#ignore_control,
+#ignore_title,
+#ignore_search {
+  display: inline !important;
+}
+
+#ignore_title {
+  float: left;
+  width: 100px;
+}
+
+#ignore_control {
+  float: left;
+  margin-left: calc(50% - 100px - 70px);
+  white-space: nowrap;
+}
+
+#ignore_search {
+  float: right;
+  max-width: 200px;
+  margin-right: 25px;
+}
+
+.activeIgnoreButtons {
+  /*width: 80px;*/
+  font-size: 0.9em;
+}
+.optionsIcons {
+  width: 18px;
+  margin-right: 10px;
+}
+#project-title {
+  font-weight: bold;
+}

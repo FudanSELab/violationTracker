@@ -1,0 +1,25 @@
+div .issloca {
+  height: 60px;
+  margin-bottom: 20px;
+  background-color: white;
+  width: 100%;
+  font-family: Arial;
+  font-size: 18px;
+  box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.05);
+}
+#isslistloc {
+  padding-left: 70px;
+  padding-top: 12px;
+  color: #000c17;
+  font-size: 18px;
+  font-family: Arial;
+}
+
+#isslistloc > div {
+  margin-top: 5px;
+}
+
+/* #issdet #measureDiv{
+    color: darkgrey;
+    font-size: large;
+} */

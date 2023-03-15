@@ -1,0 +1,9 @@
+#LoginPage {
+  background-image: url('~@img/BackgroundImage.jpg');
+  min-height: 100vh;
+  overflow: auto;
+}
+#LoginForm {
+  width: 350px;
+  margin: 17vh auto;
+}

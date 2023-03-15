@@ -1,0 +1,176 @@
+.highlight {
+  background-color: yellow !important;
+}
+
+#btncontrol {
+  position: relative;
+}
+#components-select-demo-search-box .code-box-demo .ant-select {
+  margin: 0;
+}
+.code-box-demo .ant-select {
+  margin: 0 8px 10px 0;
+}
+.btnopt {
+  position: relative;
+  top: -28px;
+}
+#project {
+  background-color: #f9f9f9;
+  min-height: 1000px;
+  padding-top: 70px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+#issue {
+  /*padding-top: 50px;*/
+  height: 100%;
+  width: 90%;
+  margin: 0 auto;
+}
+#rawIssue {
+  background-color: gainsboro;
+  min-height: 1000px;
+  padding-top: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+#projectList {
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background-color: #fff;
+  padding: 20px;
+}
+#issueList {
+  margin: 0 auto;
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background-color: #fff;
+  padding-top: 0px;
+  /* padding-left: 20px;
+    padding-right: 20px; */
+  min-width: 1000px;
+  height: 100%;
+}
+#rawIssueList {
+  width: 90%;
+  margin: 0 auto;
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background-color: #fff;
+  padding: 20px;
+}
+
+#projectOption .ant-input {
+  height: 26px;
+}
+#projectOption .ant-btn {
+  height: 26px;
+}
+#projectTable {
+  height: 42px;
+  min-width: 1000px;
+}
+#projectTable .ant-table-column-has-filters {
+  height: 50px;
+}
+#issueList .ant-table-header {
+  margin-right: -8px;
+}
+td #projectTable {
+  height: 60px;
+}
+/* #issueList .ant-pagination{
+    right: 20px;
+    bottom: 60px;
+    position:absolute;
+} */
+#issue .ant-spin-container {
+  height: 700px;
+}
+
+#addButton {
+  margin-bottom: 20px;
+  margin-left: 20px;
+  font-family: Arial;
+}
+#projectTable .ant-btn {
+  font-weight: 400;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 0 15px;
+  font-size: 12px;
+  border-radius: 4px;
+  height: 25px;
+  color: #ffffff;
+  background-color: #a1a1a1;
+  border-color: #797979;
+}
+/* #issueList .ant-pagination {
+    right: 10%;
+    bottom: 5%;
+    position: absolute;
+    font-size: 12px;
+} */
+#projectOption .ant-select-selection--single {
+  height: 26px;
+  position: relative;
+  top: 3px;
+  font-size: 12px;
+  width: 90%;
+}
+#projectOption .ant-select-selection-selected-value {
+  position: relative;
+  bottom: 3px;
+  color: #a1a1a1;
+}
+#projectOption .ant-select-selection:hover {
+  border-color: #a1a1a1;
+}
+
+.typeUUID {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 50px !important;
+  white-space: nowrap;
+}
+
+.typeCol {
+  /*max-width:300px!important;*/
+}
+
+.commitCol {
+  area: auto;
+  max-width: 300px !important;
+}
+
+.hideAlert {
+  /*display: none;*/
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.showAlert {
+  position: absolute;
+  top: 15px;
+  left: 43%;
+  padding: 5px 20px;
+  display: block;
+  color: #516359;
+  font-size: 12px;
+  text-align: center;
+  border: #b8f2d2 1px solid;
+  background-color: #edfff5;
+  opacity: 100%;
+  transition: opacity 1s;
+  z-index: 999;
+}
+
+#alertTip {
+  display: inline-block;
+}

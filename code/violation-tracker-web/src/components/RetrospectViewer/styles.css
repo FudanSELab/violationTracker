@@ -1,0 +1,76 @@
+/* 修复 react-diff-viewer 不对称问题 */
+.css-cncyp1-word-diff {
+  padding: 0 !important;
+}
+
+.retrospect-viewer {
+  padding-bottom: 4vh;
+  /* margin-bottom: 4vh; */
+}
+
+.retrospect-viewer .tools {
+  /* display: flex;
+  justify-content: space-between; */
+  text-align: right;
+  position: sticky;
+  top: 10px;
+  padding: 0 13px;
+  z-index: 1;
+}
+.retrospect-viewer .tools button {
+  margin-left: 10px;
+  /* margin-bottom: 10px; */
+}
+
+.retrospect-viewer .result {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  overflow-x: scroll;
+  border-bottom: #d8d8d8 1px solid;
+  padding-bottom: 2px;
+}
+
+.retrospect-viewer .result > div {
+  flex: none;
+}
+
+.retrospect-viewer .result .statementBlock {
+  margin: 10px 10px 7px 0;
+  padding: 20px;
+  border: 0.5px lightgrey solid;
+  border-radius: 3px;
+  background-color: white;
+  width: 27%;
+  display: inline-block;
+}
+
+.retrospect-viewer .result .statementBlock > .title {
+  display: inline-block;
+  font-weight: 550;
+  word-break: break-word;
+}
+
+.retrospect-viewer .linkToNewCommit:hover {
+  color: dodgerblue;
+}
+
+/* @keyframes slide-up-and-down {
+  0% {
+    transform: translateY(-55%) rotate(45deg);
+  }
+  30% {
+    transform: translateY(-135%) rotate(45deg);
+  }
+  50% {
+    transform: translateY(-155%) rotate(45deg);
+  }
+  70% {
+    transform: translateY(-135%) rotate(45deg);
+  }
+  100% {
+    transform: translateY(-55%) rotate(45deg);
+  }
+} */

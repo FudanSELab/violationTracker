@@ -1,0 +1,40 @@
+/*.testbik{*/
+/*    border: solid 1px greenyellow;*/
+/*    float: bottom;*/
+/*    height: 100px;*/
+/*    width: 50%;*/
+/*    padding-top: 300px;*/
+/*}*/
+.dbright {
+  /*border: solid 1px red;*/
+  padding-left: 20px;
+  float: left;
+  width: 39%;
+  height: 400px;
+  margin-left: 10px;
+}
+.dbmid {
+  /*border: solid 1px red;*/
+  padding-left: 20px;
+  float: left;
+  width: 30%;
+}
+.dbleft {
+  /*border: solid 1px black;*/
+  float: left;
+  width: 30%;
+}
+.cdbtitle {
+  color: black;
+  text-align: center;
+  color: #2f54eb;
+}
+.tdrr {
+  float: left;
+  /*border: solid 1px grey;*/
+}
+.tdrl {
+  float: left;
+  /*border: solid 1px grey;*/
+  margin-right: 10px;
+}

@@ -1,0 +1,259 @@
+#settingsPage {
+  margin: 15px 60px;
+}
+
+#settingsTitle {
+  padding-top: 13px;
+  margin-left: 60px;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.evaluate-standard-card {
+  margin-bottom: 15px;
+}
+
+#settingsUserName {
+  font-size: 1.2em;
+  margin-left: 15px;
+}
+
+#settingsType {
+  color: #40a9ff;
+  margin-bottom: 15px;
+}
+
+#userInfo div span:first-child {
+  margin-right: 20px;
+}
+
+#userTitle {
+  margin-bottom: 15px;
+}
+
+#blockTab {
+  margin-right: 3%;
+  float: left;
+  width: 100%;
+  background-color: #f3f3f3;
+  padding-top: 0px;
+}
+
+#blockUser {
+  float: left;
+  width: 100%;
+  padding-top: 0px;
+}
+
+#blockOthers {
+  width: 100%;
+  float: left;
+  padding-top: 0px;
+}
+
+#blockPerson {
+  width: 100%;
+  float: left;
+  padding-top: 0px;
+}
+
+#blockProject {
+  width: 100%;
+  float: left;
+  padding-top: 0px;
+}
+
+#blockRule {
+  width: 100%;
+  float: left;
+  padding-top: 0px;
+}
+
+.block2 {
+  background-color: white;
+  border-radius: 2px;
+  padding: 15px 20px;
+  margin-bottom: 25px;
+}
+
+.title {
+  /* margin-bottom: 25px; */
+  font-weight: bold;
+}
+
+#checkList {
+  margin-bottom: 5px;
+}
+
+#memberList {
+  margin-bottom: 30px;
+}
+
+#selectedTitle,
+#saveButton {
+  display: inline;
+}
+
+#saveButton {
+  margin-left: 82%;
+}
+
+#personTitle {
+  display: inline;
+}
+
+#changeButton {
+  text-align: right;
+  /* margin-left: 80%; */
+}
+
+#project-title,
+#add-button {
+  display: inline;
+}
+
+#rule-title {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+#user-title {
+  display: inline-block;
+  margin-top: 5px;
+}
+
+#add-button {
+  margin-left: 80%;
+}
+
+.checkedItem {
+  margin-right: 25px;
+}
+
+.checkedItem span {
+  margin-right: 5px;
+}
+
+#toolsTable {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* #toolsTable tr,
+#toolsTable .ant-table-thead tr th {
+  text-align: center;
+} */
+
+#personTable {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* #personTable tr,
+#personTable .ant-table-thead tr th {
+  text-align: center;
+} */
+
+#project-table {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* #project-table tr,
+#project-table .ant-table-thead tr th {
+  text-align: center;
+} */
+
+.demo--label {
+  display: inline-block;
+}
+
+.lineCheckBox {
+  display: none;
+  cursor: pointer;
+}
+
+.demo--radioInput {
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  height: 14px;
+  vertical-align: middle;
+  width: 14px;
+  line-height: 1;
+}
+
+.lineCheckBox:checked + .demo--radioInput:after {
+  background-color: dodgerblue;
+  content: '\2714';
+  text-align: center;
+  color: #fff !important;
+  font-size: 13px;
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+}
+
+.demo--checkbox.demo--radioInput,
+.lineCheckBox:checked + .demo--checkbox.demo--radioInput:after {
+  margin-top: -3px;
+  margin-left: -0.5px;
+}
+
+.ant-table-column-title {
+  font-weight: bold;
+}
+
+#settingsTab {
+  width: 100%;
+  float: left;
+  background-color: #f3f3f3;
+}
+
+.tabPanes {
+  background-color: #f3f3f3;
+  width: 100%;
+}
+
+/* #blockTab
+  .ant-tabs-vertical.ant-tabs-card.ant-tabs-left
+  .ant-tabs-card-bar.ant-tabs-left-bar
+  .ant-tabs-tab {
+  text-align: center;
+} */
+
+#settingsAlertTip {
+  display: inline-block;
+}
+
+.settingsHideAlert {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.projectNameColumn,
+.repoNameColumn {
+  display: inline;
+  color: dodgerblue;
+  cursor: pointer;
+}
+
+.changeProjectNameDiv {
+  margin-bottom: 22px;
+}
+
+.changeProjectNameDiv span:first-child {
+  font-weight: bold;
+}
+
+.changeProjectNameDiv span:nth-child(2) {
+  margin-left: 20px;
+  display: inline-block;
+}
+
+.oldNameText {
+  font-style: italic;
+  color: grey;
+}

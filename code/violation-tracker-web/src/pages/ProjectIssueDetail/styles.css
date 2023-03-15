@@ -1,0 +1,291 @@
+#bugTypeButton {
+  margin-right: 70px;
+}
+#issdetmodule {
+  max-width: 100%;
+  height: 100%;
+}
+#gutter-box {
+  color: blue;
+}
+.ant-card-head {
+  height: 40px;
+}
+#issueDetail {
+  margin: 0 auto;
+}
+#codeDetail {
+  margin-top: 20px;
+}
+.error-marker {
+  background-color: skyblue;
+  background-attachment: fixed;
+  z-index: 998;
+  position: absolute;
+}
+.error-marker1 {
+  background-color: rgb(176, 23, 31);
+  background-attachment: fixed;
+  z-index: 999;
+  position: absolute;
+}
+.locafont {
+  font-family: Arial;
+  font-size: 18px;
+  color: #aeaeae;
+  position: relative;
+  padding-left: 130px;
+  padding-top: 10px;
+}
+.shadow {
+  box-shadow: 5px 5px 5px #aeaeae;
+}
+#pbutton {
+  padding-top: 12px;
+}
+
+#initCode {
+  height: 370px;
+  margin-top: 0px;
+}
+
+#smallCode {
+  height: 370px;
+  width: 100%;
+  margin-top: 0px;
+  animation-name: aniamtion_small_big;
+  animation-fill-mode: forwards;
+  animation-duration: 1s;
+}
+
+@keyframes aniamtion_small_big {
+  from {
+    height: 370px;
+    margin-top: 0px;
+  }
+  to {
+    height: 700px;
+    margin-top: -380px;
+  }
+}
+
+#bigCode {
+  height: 700px;
+  margin-top: -380px;
+  width: 100%;
+  animation-name: aniamtion_big_small;
+  animation-fill-mode: forwards;
+  animation-duration: 1s;
+}
+
+@keyframes aniamtion_big_small {
+  from {
+    height: 700px;
+    margin-top: -380px;
+  }
+  to {
+    height: 370px;
+    margin-top: 0;
+  }
+}
+
+.init_react_ace {
+  width: 100% !important;
+  height: 323px !important;
+}
+
+.bigEditor {
+  width: 100% !important;
+  height: 323px !important;
+  animation-name: big_small;
+  animation-fill-mode: forwards;
+  animation-duration: 1s;
+}
+
+@keyframes big_small {
+  from {
+    height: 650px;
+  }
+  to {
+    height: 323px;
+  }
+}
+
+.smallEditor {
+  width: 100% !important;
+  height: 650px !important;
+  animation-name: small_big;
+  animation-fill-mode: forwards;
+  animation-duration: 1s;
+}
+@keyframes small_big {
+  from {
+    height: 323px;
+  }
+  to {
+    height: 650px;
+  }
+}
+
+#minCommitList {
+  height: 100%;
+}
+
+#menuProject {
+  padding: 0;
+  margin-left: 20px;
+  padding-top: 15px;
+}
+
+#menuProject > div {
+  display: inline-block;
+}
+/* #menuProject span {
+  float: left;
+  font-size: 16px;
+  font-weight: bold;
+  display: inline-flex;
+  line-height: 30px;
+  height: 30px;
+  color: black;
+} */
+
+.filterText {
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+.projectMeasure {
+  /* float: left; */
+  left: 25px;
+  min-height: 30px;
+  display: inline-block;
+}
+
+.ant-select-arrow .ant-select-arrow-icon:hover {
+  color: dodgerblue;
+}
+
+#radioGroups {
+  margin-left: 20px;
+  margin-right: 10px;
+  margin-top: 20px;
+}
+
+#radios {
+  float: left;
+  width: 500px;
+  margin-bottom: 30px;
+}
+
+#issueDetail .ant-card-head-title {
+  padding-top: 8px;
+  color: #000c17;
+}
+
+#minCommitList .ant-card-head-title,
+#codeDetail .ant-card-head-title {
+  padding-top: 10px;
+  color: #000c17;
+}
+
+#issueDetail .ant-card-head {
+  background-color: lightgrey;
+}
+
+/* .ant-radio-group {
+  width: 70% !important;
+} */
+
+/* #rawIssueRadio .ant-radio-group {
+  width: initial !important;
+} */
+
+.rawIssueRadioBlock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bolder;
+}
+
+#developmentTraceRadio {
+  white-space: nowrap;
+  margin-right: 30px;
+  float: right;
+}
+
+#bugTypeButtonNew {
+  height: 37px;
+  padding: 5px 12px;
+  margin-right: 30px;
+  margin-top: -3px;
+  font-size: 0.8em;
+  display: inline;
+  float: right;
+  color: whitesmoke;
+  background-color: dodgerblue;
+  border: 1px lightgrey solid;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#bugTypeButtonNew:hover {
+  color: white;
+  border: 1px dodgerblue solid;
+}
+
+#rawisstab {
+  /*background-color: white;*/
+  margin-top: 20px;
+}
+
+.ant-radio-button-wrapper-checked {
+  color: black !important;
+}
+
+.projectMeasure .ant-select-selection {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-left: 8px;
+}
+
+#issueDetailHead td,
+#issueDetailBody td {
+  padding-left: 20px;
+}
+
+#issueDetailBody {
+  padding-left: 20px;
+}
+
+#gutter-box .ant-card-extra {
+  padding: 0;
+}
+
+#btnFilter {
+  margin-left: 0;
+}
+
+#issueTablePage {
+  height: 600px;
+  background-color: white;
+  margin-left: 20px;
+  margin-right: 10px;
+  margin-top: 20px;
+}
+
+#issuePage {
+  width: 100%;
+}
+
+#issuePageTitle {
+  font-size: 23px;
+  font-weight: bold;
+  color: #000c17;
+  padding-bottom: 10px;
+}
+
+#issueTable {
+  padding: 15px 15px 15px 20px;
+  background-color: #fff;
+}

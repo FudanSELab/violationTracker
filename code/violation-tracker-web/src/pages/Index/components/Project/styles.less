@@ -1,0 +1,82 @@
+#project-page {
+  .project-lines-view {
+    /* 
+      z-index属性值并不是在任何元素上都有效果。它仅在定位元素（定义了position属性，且属性值为非static值的元素）上有效果。
+      在不同局部层叠上下文的元素的比较，其实是找到他们的同一元素下的父元素，在父元素的层叠上下文的比较 参考 https://zhuanlan.zhihu.com/p/33984503
+    */
+    position: relative;
+    z-index: 1;
+  }
+  & > div {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .button-switch {
+    height: 40px;
+    button {
+      transition: opacity 1s, transform 1s;
+    }
+  }
+  .flip-container,
+  .front,
+  .back {
+    height: 1000px;
+  }
+  .flip-container {
+    -webkit-perspective: 15000px;
+    -moz-perspective: 15000px;
+    -o-perspective: 15000px;
+    perspective: 15000px;
+
+    -webkit-perspective-origin: 50% 10%;
+    -moz-perspective-origin: 50% 10%;
+    -o-perspective-origin: 50% 10%;
+    perspective-origin: 50% 10%;
+
+    .flipper.hover {
+      -webkit-transform: rotateY(180deg);
+      -moz-transform: rotateY(180deg);
+      -o-transform: rotateY(180deg);
+      transform: rotateY(180deg);
+    }
+    .flipper {
+      -webkit-transition: 0.9s;
+      -webkit-transform-style: preserve-3d;
+
+      -moz-transition: 0.9s;
+      -moz-transform-style: preserve-3d;
+
+      -o-transition: 0.9s;
+      -o-transform-style: preserve-3d;
+
+      transition: 0.9s;
+      transform-style: preserve-3d;
+
+      position: relative;
+
+      .front,
+      .back {
+        -webkit-backface-visibility: hidden;
+        -moz-backface-visibility: hidden;
+        -o-backface-visibility: hidden;
+        backface-visibility: hidden;
+
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        overflow-y: scroll;
+      }
+      .front {
+        z-index: 2;
+      }
+      .back {
+        -webkit-transform: rotateY(180deg);
+        -moz-transform: rotateY(180deg);
+        -o-transform: rotateY(180deg);
+        transform: rotateY(180deg);
+      }
+    }
+  }
+}

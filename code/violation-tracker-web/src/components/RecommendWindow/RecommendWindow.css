@@ -1,0 +1,17 @@
+#methodsRecommended {
+  width: 50%;
+  height: 300px;
+}
+.expertsImformation {
+  height: 28px;
+  display: inline-block;
+}
+.experts {
+  margin-left: 50px;
+}
+.methods {
+  margin-left: 50px;
+}
+.methodsLine {
+  margin-left: 50px;
+}

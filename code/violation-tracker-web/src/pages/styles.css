@@ -1,0 +1,84 @@
+.commitScan {
+  font-size: 5px;
+  color: red;
+}
+/* .ant-modal {
+  width: 1000px !important;
+} */
+/* .ant-radio-group {
+  width: 90% !important;
+} */
+.buttonBr {
+  clear: both;
+  height: 3px;
+}
+.unscan {
+  color: red;
+}
+.scaning {
+  color: blue;
+}
+.scanned {
+  color: green;
+}
+.ready {
+  color: orange;
+}
+.scanButton {
+  float: left;
+}
+
+.detailButton {
+  width: 155px;
+}
+#projectList > div > div > div > div > div > div > table > tbody > tr > td {
+  height: 100px !important;
+}
+.descriptionStyle {
+  display: -moz-inline-box;
+  display: inline-block;
+  width: 400px !important;
+  vertical-align: bottom;
+  margin-left: 2em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+/* .ant-popover-inner-content{
+    max-width: 1000px;
+    color:white;
+}
+.ant-popover-arrow{
+} */
+div .issloca {
+  height: 60px;
+  margin-bottom: 20px;
+  background-color: white;
+  width: 100%;
+  font-family: Arial;
+  font-size: 18px;
+  box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.05);
+}
+.issloca > div {
+  /* padding-top: 13px; */
+  margin-left: 60px;
+  /* font-size: 1.2em; */
+  /* font-weight: bold; */
+  margin-bottom: 15px;
+}
+
+#issloclast {
+  margin-top: 4.5rem;
+}
+
+.input {
+  width: 90%;
+  margin: 0 auto;
+  height: 100%;
+}
+.input > div {
+  display: inline-block;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  vertical-align: middle;
+}

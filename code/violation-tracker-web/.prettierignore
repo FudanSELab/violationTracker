@@ -1,0 +1,9 @@
+**/*.md
+**/*.svg
+**/*.ejs
+**/*.html
+package.json
+tsconfig.json
+.umi
+.umi-production
+.umi-test

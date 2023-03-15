@@ -1,0 +1,142 @@
+/*.ant-menu{*/
+/*padding-top: 2px;*/
+/*padding-bottom: 2px;*/
+/*}*/
+#menu {
+  height: 60px;
+  background-color: black;
+  color: #333333;
+  width: 100%;
+  min-width: 1280px;
+  z-index: 999;
+}
+#menuright {
+  float: right;
+  margin-right: 100px;
+  margin-top: 15px;
+}
+#NavLogo {
+  margin-left: 65px;
+  vertical-align: middle;
+  color: #ffffff;
+  font-size: 36px;
+  font-family: Arial;
+  font-weight: bold;
+}
+#NavLogo:hover {
+  /*margin-left: 100px;*/
+  /*color: black;*/
+  /*font-size: 17px;*/
+}
+#Profit {
+  float: right;
+  margin-right: 100px;
+}
+#ProfitImage {
+  width: 30px;
+  border-radius: 50%;
+}
+#UserName {
+  margin-left: 10px;
+}
+#Sign {
+  float: right;
+  margin-right: 100px;
+  color: black;
+}
+#Sign:hover {
+  color: cornflowerblue;
+}
+/*.ant-menu-horizontal > .ant-menu-item:hover, .ant-menu-horizontal > .ant-menu-submenu:hover, .ant-menu-horizontal > .ant-menu-item-active, .ant-menu-horizontal > .ant-menu-submenu-active, .ant-menu-horizontal > .ant-menu-item-open, .ant-menu-horizontal > .ant-menu-submenu-open, .ant-menu-horizontal > .ant-menu-item-selected, .ant-menu-horizontal > .ant-menu-submenu-selected {*/
+/*border-bottom: none;*/
+/*}*/
+
+#message {
+  margin-left: 10px;
+}
+
+.messagePopover {
+  width: 400px;
+  /*height: 400px ;*/
+  /*overflow-y: auto;*/
+  box-sizing: border-box;
+  box-shadow: 1px 2px 1px rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+}
+
+.messagePopover > div > div > div > .ant-popover-inner-content {
+  height: 400px;
+  overflow-y: auto;
+}
+
+.messagePopover
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > .ant-list-item-meta-description {
+  font-size: 10px;
+}
+.messagePopover
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > div
+  > .ant-list-item-meta-description
+  > div
+  > p.time {
+  color: black;
+  font-size: 12px !important;
+  /*-webkit-transform-origin-x: 0;*/
+  -webkit-transform: scale(0.8);
+  text-align: right;
+}
+.time {
+  color: black;
+}
+
+.aLink {
+  color: #000c17;
+}
+
+#langVersionDropdown {
+  float: right;
+  padding: 3px 10px;
+  margin-right: 80px;
+  margin-top: 20px;
+  color: black;
+  background-color: whitesmoke;
+  border-radius: 3px;
+}
+
+#langVersionDropdown > span {
+  padding: 0 10px;
+}
+
+.logo {
+  width: 32px;
+  margin-right: 14px;
+  margin-top: -6px;
+  /*margin-left: -15px;*/
+  border-radius: 16px;
+}
