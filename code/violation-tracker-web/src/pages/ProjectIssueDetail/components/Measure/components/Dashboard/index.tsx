@@ -157,7 +157,6 @@ class Dashboard extends Component<IProps, IState> {
       activeLoading,
       issueLoading,
     } = this.state;
-    const { repoUuid, projectName } = this.props;
     const { TabPane } = Tabs;
     const { RangePicker } = DatePicker;
     const label = {

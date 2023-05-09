@@ -56,7 +56,7 @@ const FileMetaCard: React.FC<IProps> = ({
           ) : null}
         </Col>
       </Row>
-      <Descriptions column={2} title="文件元数据">
+      <Descriptions column={2} title="File Information">
         {level === 'method' ? (
           <Descriptions.Item label={intl.get('class')}>
             <Typography.Text code>{className ?? ''}</Typography.Text>

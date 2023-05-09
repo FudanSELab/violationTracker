@@ -53,14 +53,14 @@ const MetaCard: React.FC<IProps> = ({
                 title={intl.get('BugType')}
                 value={transformIssueName(issueType)}
               />
-              <p>原文：{issueType}</p>
+              {/*<p>原文：{issueType}</p>*/}
             </>
           ) : null}
         </Col>
       </Row>
       <Descriptions
         column={2}
-        title={level === 'method' ? '方法元数据' : '文件元数据'}
+        title={level === 'method' ? 'Method Information' : 'File Information'}
       >
         {level === 'method' ? (
           <>

@@ -19,6 +19,7 @@ import ChooseTwoBehavior from './components/ChooseTwoBehavior';
 import RenderSelected from './components/RenderSelected';
 import iconLoader from '@antv/graphin-icons';
 import '@antv/graphin-icons/dist/index.css';
+// @ts-ignore
 import { INode, Item } from '@antv/graphin/node_modules/@antv/g6-core';
 
 const { fontFamily } = iconLoader();

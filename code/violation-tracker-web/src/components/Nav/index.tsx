@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import {
-  DeleteOutlined,
   DownOutlined,
   LogoutOutlined,
   InfoCircleOutlined,

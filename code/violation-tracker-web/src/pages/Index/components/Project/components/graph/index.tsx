@@ -32,8 +32,8 @@ const ProjectLinesView: React.FC<IProps> = ({ dataList }) => {
     () => [
       {
         type: 'livingIssue',
-        title: 'Living Issue',
-        yAxisTitle: 'issues',
+        title: 'Living Violations',
+        yAxisTitle: 'violations',
         yField: 'num',
         onClick: (item: LivingIssueProjectViewData) => {
           if (!item.projectId || item.num === 0) {

@@ -48,7 +48,7 @@ export const INDEX_TABS: {
     content: (
       <span>
         <ExceptionOutlined />
-        Issue
+        Violation Cases
       </span>
     ),
     children: (
@@ -64,7 +64,7 @@ export const INDEX_TABS: {
     content: (
       <span>
         <FundProjectionScreenOutlined />
-        Static Issue Analysis
+        Static Violation Analysis
       </span>
     ),
     children: (

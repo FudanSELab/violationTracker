@@ -7,7 +7,6 @@ import {
   retrospectStatementHistories,
 } from '../../services/method';
 import { createHighlightMap } from '../../utils/methodTrace';
-import RetrospectSearch from './components/RetrospectSearch';
 import ITWDiffViewer from '../ITWDiffViewer';
 import UserStore from '@/models/userStore';
 import { BugLineType, LINK_METHOD_TAG } from '@/models/metaStore';
@@ -316,12 +315,12 @@ class MethodRetrospectViewer extends Component<IProps, IState> {
           </div>
         ) : (
           <>
-            <RetrospectSearch
-              loading={retrospecting}
-              loadingLines={this.getMapArrayLength(highlightInfoLinesMethodMap)}
-              onRetrospect={this.onRetrospect}
-              onClear={this.onRetrospectClear}
-            />
+            {/*<RetrospectSearch*/}
+            {/*  loading={retrospecting}*/}
+            {/*  loadingLines={this.getMapArrayLength(highlightInfoLinesMethodMap)}*/}
+            {/*  onRetrospect={this.onRetrospect}*/}
+            {/*  onClear={this.onRetrospectClear}*/}
+            {/*/>*/}
             <div style={{ maxWidth: '100vw', overflow: 'auto' }}>
               {this.props.level === 'method' || this.props.level === 'field'
                 ? this.props.uuids.map((uuid, index) => {

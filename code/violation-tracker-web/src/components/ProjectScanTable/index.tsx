@@ -1,7 +1,7 @@
 import { useStores } from '@/models';
 import intl from 'react-intl-universal';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Modal, message, Select } from 'antd';
+import { Select } from 'antd';
 import { useCallback, useEffect, useRef, useMemo, useState } from 'react';
 import { OverStockButton } from './components/OverStockButton';
 import { useHistory } from '@/pages/historyContext';
@@ -17,11 +17,6 @@ interface SearchParams extends Record<string, any> {
   projectName?: string[];
   repoName?: string[];
   leaders?: string;
-}
-
-interface IHistorySearch {
-  project_name: string;
-  repo_uuids: string;
 }
 
 interface IProps {
@@ -49,7 +44,7 @@ const ProjectScanTable: React.FC<IProps> = ({ className }) => {
 
   const [current, setCurrent] = useState<number>(1);
   const [searchParams, setSearchParams] = useState<any>();
-  const [total, setTotal] = useState<number>(0);
+  const [total] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<API.ProjectScanItem[]>([]);
   const showModal = useCallback((v) => {

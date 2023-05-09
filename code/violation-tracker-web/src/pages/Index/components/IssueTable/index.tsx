@@ -44,7 +44,6 @@ import DownloadButton from '@/components/DownloadButton';
 import './styles.less';
 import { ellipsisText } from '@/utils/utils';
 import { filterRepoOption, mapRepoItem } from '@/utils/table';
-import { getTagList } from '@/services/tag';
 
 interface IProps {
   ignoreManage: boolean;
@@ -127,9 +126,8 @@ const IssueTable = observer(({ ignoreManage, toolbar }: IProps) => {
   const [sideMenuOptions, setSideMenuOptions] = useState<API.SideMenuItem[]>();
   const [visible, setVisible] = useState<boolean>(false);
   const [showDetailNum, setShowDetailNum] = useState<number>(0);
-  const [tagList, setTagList] = useState<API.TagItems[]>([]);
+  const [tagList] = useState<API.TagItems[]>([]);
   const [onExclude, setOnExclude] = useState<boolean>(false);
-  // const [showSolvedTypes, setShowSolvedTypes] = useState<Object>();
   const HISTORY_SEARCH = useMemo(
     () => (parse(location.search) as unknown) as IHistorySearch,
     [location.search],
