@@ -15,14 +15,14 @@ const TipsModal: React.FC = () => {
         zIndex: 1,
       }}
     >
-      <div className="tips" onClick={() => setVisible(true)}>
-        <QuestionCircleOutlined
-          style={{ fontSize: '17pt', marginRight: '5px', color: '#0d94d8' }}
-        />
-        如何查询语句段
-      </div>
+      {/*<div className="tips" onClick={() => setVisible(true)}>*/}
+      {/*  <QuestionCircleOutlined*/}
+      {/*    style={{ fontSize: '17pt', marginRight: '5px', color: '#0d94d8' }}*/}
+      {/*  />*/}
+      {/*  How to tracker statements?*/}
+      {/*</div>*/}
       <Modal
-        title="提示"
+        title="Tips"
         visible={visible}
         onCancel={() => setVisible(false)}
         footer={null}

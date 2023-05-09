@@ -225,19 +225,19 @@ export default class FileTrace extends Component<IProps, IState> {
     const repoName =
       this.props.projectStore.repoList.find(
         ({ repo_id }) => repo_id === historySearch.repo_uuid,
-      )?.name ?? '未知库';
+      )?.name ?? 'unknown';
     const projectName = historySearch.repo_uuid
       ? this.props.projectStore.getProjectByRepoUuid(historySearch.repo_uuid) ??
-        '未知项目'
-      : '未知项目';
+        'unknown'
+      : 'unknown';
     return (
       <div id="meta-trace">
         <div className="issloca">
           <div className="input">
             <BackButton />
             <div>
-              {(issueType ?? '') !== '' ? '缺陷' : '文件'}追溯（{repoName} /{' '}
-              {projectName}）
+              {(issueType ?? '') !== '' ? 'Violation' : 'File'}Tracker（
+              {repoName} / {projectName}）
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@ export default class FileTrace extends Component<IProps, IState> {
                       alignItems: 'center',
                     }}
                   >
-                    追溯链
+                    Tracker-Chain
                     <GitGraphLegend />
                   </p>
                   <div style={{ textAlign: 'right' }}>
@@ -282,7 +282,7 @@ export default class FileTrace extends Component<IProps, IState> {
                         );
                       }}
                     >
-                      展示未变化提交
+                      Show unchanged revisions
                     </Checkbox>
                     <Checkbox
                       checked={graphRecommend}
@@ -293,7 +293,7 @@ export default class FileTrace extends Component<IProps, IState> {
                         });
                       }}
                     >
-                      推荐模式
+                      Recommend
                     </Checkbox>
                     <Button
                       size="small"
@@ -304,7 +304,7 @@ export default class FileTrace extends Component<IProps, IState> {
                         });
                       }}
                     >
-                      清空选中
+                      Clear
                     </Button>
                   </div>
                 </>
@@ -347,7 +347,7 @@ export default class FileTrace extends Component<IProps, IState> {
                     this.getMoreGraph();
                   }}
                 >
-                  加载更多
+                  More
                 </Button>
               )}
             </Drawer>
@@ -391,7 +391,7 @@ export default class FileTrace extends Component<IProps, IState> {
                     margin: '0 13px 13px 13px',
                   }}
                 >
-                  <Result title="暂无数据，不可比较" />
+                  <Result title="None data to be compared" />
                 </Card>
               </div>
             </div>

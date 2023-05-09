@@ -46,7 +46,7 @@ const MemoCommitTitle = memo<Props>(
         {level !== null ? (
           <Descriptions.Item span={2}>
             <details>
-              <summary>说明</summary>
+              <summary>Detail</summary>
               <Typography.Paragraph
                 style={{ margin: 0, paddingLeft: '15px' }}
                 ellipsis={

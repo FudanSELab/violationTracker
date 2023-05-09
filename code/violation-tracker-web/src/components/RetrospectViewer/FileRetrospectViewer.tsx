@@ -8,7 +8,6 @@ import {
   retrospectStatementHistories,
 } from '../../services/method';
 import { createHighlightMap } from '../../utils/methodTrace';
-import RetrospectSearch from './components/RetrospectSearch';
 import UserStore from '@/models/userStore';
 import './styles.css';
 import BugMarkPlugin from '../FileDiffViewer/plugin/BugMarkPlugin';
@@ -387,12 +386,12 @@ class FileRetrospectViewer extends Component<IProps, IState> {
         ) : (
           <>
             <TipsModal />
-            <RetrospectSearch
-              loading={retrospecting}
-              loadingLines={selectedLinesInRangeList.length}
-              onRetrospect={this.onRetrospect}
-              onClear={this.onRetrospectClear}
-            />
+            {/*<RetrospectSearch*/}
+            {/*  loading={retrospecting}*/}
+            {/*  loadingLines={selectedLinesInRangeList.length}*/}
+            {/*  onRetrospect={this.onRetrospect}*/}
+            {/*  onClear={this.onRetrospectClear}*/}
+            {/*/>*/}
             {displayFileViewer ? (
               <>
                 {mergeLineRangeList.length > 0 ? (

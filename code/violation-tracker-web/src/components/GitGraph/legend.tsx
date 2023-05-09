@@ -19,54 +19,62 @@ const GitGraphLegend = () => {
     <>
       <Button type="text" onClick={() => setVisible(true)}>
         <QuestionCircleOutlined />
-        图例说明
+        Legend Description
       </Button>
       <Modal
         visible={visible}
-        title="追溯链图例说明"
+        title="legend description"
         onCancel={() => setVisible(false)}
         footer={null}
       >
         <Descriptions column={1}>
           <Descriptions.Item
-            label={<img src={Common} style={{ width: 33 }} alt="普通节点" />}
+            label={<img src={Common} style={{ width: 33 }} alt="Normal" />}
           >
-            普通节点，表示一个 commit
+            Normal node, represents a commit.
+          </Descriptions.Item>
+          <Descriptions.Item
+            label={<img src={Retrospect} style={{ width: 33 }} alt="Tracked" />}
+          >
+            Tracked node, represents a commit traced back to the desired
+            statement.
           </Descriptions.Item>
           <Descriptions.Item
             label={
-              <img src={Retrospect} style={{ width: 33 }} alt="追溯节点" />
+              <img
+                src={Direct}
+                style={{ width: 33 }}
+                alt="Direct parent-child"
+              />
             }
           >
-            追溯节点，表示这个 commit 追溯到了希望追溯的语句
+            Direct parent-child relationship, represents a parent-child
+            relationship between the two commits in chronological order.
           </Descriptions.Item>
           <Descriptions.Item
             label={
-              <img src={Direct} style={{ width: 33 }} alt="直接父子关系" />
+              <img
+                src={Indirect}
+                style={{ width: 33 }}
+                alt="Indirect parent-child"
+              />
             }
           >
-            直接父子关系，表示前后两个 commit 是父子关系
+            Indirect parent-child relationship, represents a grandparent-child
+            relationship between the two commits in chronological order.
           </Descriptions.Item>
           <Descriptions.Item
-            label={
-              <img src={Indirect} style={{ width: 33 }} alt="间接父子关系" />
-            }
+            label={<img src={ChangeEdge} style={{ width: 33 }} alt="Changed" />}
           >
-            间接父子关系，表示前后两个 commit 是祖父子关系
-          </Descriptions.Item>
-          <Descriptions.Item
-            label={
-              <img src={ChangeEdge} style={{ width: 33 }} alt="间接父子关系" />
-            }
-          >
-            表示前后两个 commit 的代码有变动
+            Indicates that there are code changes between the two commits in
+            chronological order.
           </Descriptions.Item>
           <Descriptions.Item
             label={
               <StopTwoTone style={{ fontSize: 20 }} twoToneColor="#de1c31" />
             }
           >
-            表示该节点不可编译
+            Indicates that the node cannot be compiled.
           </Descriptions.Item>
           <Descriptions.Item
             label={
@@ -76,17 +84,17 @@ const GitGraphLegend = () => {
               />
             }
           >
-            表示从该节点引入缺陷
+            Indicates the introduction of a violation from this node.
           </Descriptions.Item>
           <Descriptions.Item
             label={
               <BugTwoTone style={{ fontSize: 20 }} twoToneColor="#de1c31" />
             }
           >
-            表示该节点缺陷仍然存在
+            Indicates that the violation still exists at this node.
           </Descriptions.Item>
           <Descriptions.Item label={<BugTwoTone style={{ fontSize: 20 }} />}>
-            表示该节点缺陷可能存在
+            Indicates that the violation maybe exists at this node.
           </Descriptions.Item>
           <Descriptions.Item
             label={
@@ -96,7 +104,7 @@ const GitGraphLegend = () => {
               />
             }
           >
-            表示该节点缺陷被修复
+            Indicates that the violation has been fixed at this node.
           </Descriptions.Item>
         </Descriptions>
       </Modal>
