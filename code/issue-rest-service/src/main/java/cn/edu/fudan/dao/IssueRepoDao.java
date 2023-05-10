@@ -1,13 +1,10 @@
 package cn.edu.fudan.dao;
 
 import cn.edu.fudan.common.domain.po.scan.RepoScan;
-import cn.edu.fudan.common.domain.po.scan.ScanStatus;
 import cn.edu.fudan.mapper.IssueRepoMapper;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,5 +25,10 @@ public class IssueRepoDao {
 
     public List<RepoScan> getAllRepos() {
         return issueRepoMapper.getAllRepos();
+    }
+
+    @Autowired
+    public void setIssueRepoMapper(IssueRepoMapper issueRepoMapper) {
+        this.issueRepoMapper = issueRepoMapper;
     }
 }
