@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @author Jerry Zhang <zhangjian16@fudan.edu.cn>
- * @desc 缺陷整体情况与当前版本位置信息
+ * @desc violation overview
  * @date 2023/3/6 14:22
  */
 
@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class IssueWithLocationItem {
     /**
-     * issue 整体状态
+     * overview
      */
     private String issueUuid;
     private String type;
@@ -32,13 +32,16 @@ public class IssueWithLocationItem {
     private String lastCommitTime;
     private String status;
     private Integer versions;
+    /**
+     * last revision
+     */
+    private List<Location> locations;
 
     /**
-     * issue 指定版本信息
+     * current revision
      */
     private String currCommit;
     private String currFilePath;
     private String currRawIssueUuid;
     private String currRawIssueDetail;
-    private List<Location> locations;
 }

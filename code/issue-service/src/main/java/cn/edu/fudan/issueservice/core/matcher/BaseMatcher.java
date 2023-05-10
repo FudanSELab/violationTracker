@@ -3,10 +3,7 @@ package cn.edu.fudan.issueservice.core.matcher;
 import cn.edu.fudan.common.jgit.JGitHelper;
 import cn.edu.fudan.issueservice.core.analyzer.BaseAnalyzer;
 import cn.edu.fudan.issueservice.core.process.RawIssueMatcher;
-import cn.edu.fudan.issueservice.dao.IssueDao;
-import cn.edu.fudan.issueservice.dao.IssueTypeDao;
-import cn.edu.fudan.issueservice.dao.RawIssueDao;
-import cn.edu.fudan.issueservice.dao.RawIssueMatchInfoDao;
+import cn.edu.fudan.issueservice.dao.*;
 import cn.edu.fudan.issueservice.domain.dbo.Issue;
 import cn.edu.fudan.issueservice.domain.dbo.IssueType;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
@@ -46,17 +43,20 @@ public abstract class BaseMatcher implements Matcher {
     protected IssueDao issueDao;
     protected IssueTypeDao issueTypeDao;
     protected RawIssueDao rawIssueDao;
+    protected IssueScanDao issueScanDao;
     protected RawIssueMatchInfoDao rawIssueMatchInfoDao;
     protected ApplicationContext applicationContext;
     protected MatcherResult matcherResult;
 
     @Override
-    public void init(String logHome, IssueDao issueDao, IssueTypeDao issueTypeDao, RawIssueDao rawIssueDao, RawIssueMatchInfoDao rawIssueMatchInfoDao) {
+    public void init(String logHome, IssueDao issueDao, IssueTypeDao issueTypeDao, RawIssueDao rawIssueDao, RawIssueMatchInfoDao rawIssueMatchInfoDao,
+                     Map<String, IssueType> issueTypeMap, IssueScanDao issueScanDao) {
         this.logHome = logHome;
         this.issueDao = issueDao;
         this.issueTypeDao = issueTypeDao;
         this.rawIssueDao = rawIssueDao;
         this.rawIssueMatchInfoDao = rawIssueMatchInfoDao;
+        this.issueScanDao = issueScanDao;
         this.issueTypeMap = new HashMap<>(32);
         this.issueTypeDao.getIssueTypes(null).forEach(issueType -> issueTypeMap.putIfAbsent(issueType.getType(), issueType));
     }

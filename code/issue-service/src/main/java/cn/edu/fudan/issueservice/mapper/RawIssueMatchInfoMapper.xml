@@ -41,21 +41,21 @@
     </insert>
 
     <delete id="deleteRawIssueMatchInfo">
-        DELETE FROM raw_issue_match_info
-        WHERE cur_rawIssue_uuid IN
+        DELETE rimi FROM raw_issue_match_info rimi
+        WHERE rimi.cur_rawIssue_uuid IN
         <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
             #{rawIssueUuid}
         </foreach>
-        OR pre_rawIssue_uuid IN
+        OR rimi.pre_rawIssue_uuid IN
         <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
             #{rawIssueUuid}
         </foreach>
     </delete>
 
     <delete id="deleteRawIssueMatchInfoByRepoUuid">
-        delete
-        from raw_issue_match_info
-        where repo_uuid = #{repoUuid}
+        delete rimi
+        from raw_issue_match_info rimi
+        where rimi.repo_uuid = #{repoUuid}
     </delete>
 
     <select id="getIssueByPreCommits" resultType="String">
@@ -256,6 +256,17 @@
         <foreach collection="statuses" item="status" separator="," open="(" close=")">
             #{status}
         </foreach>
+    </select>
+
+    <select id="getMatchInfoByIssueUuidList" resultType="java.util.Map">
+        SELECT issue_uuid issueUuid, cur_commit_id curCommitId, solve_way solveWay
+        FROM raw_issue_match_info
+        <if test="issue_uuids != null and issue_uuids.size > 0">
+            where issue_uuid IN
+            <foreach collection="issue_uuids" item="c" separator="," open="(" close=")">
+                #{c}
+            </foreach>
+        </if>
     </select>
 
 

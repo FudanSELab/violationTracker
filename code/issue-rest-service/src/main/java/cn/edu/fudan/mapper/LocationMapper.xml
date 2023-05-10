@@ -55,9 +55,9 @@
     </insert>
 
     <delete id="deleteLocationsByRepoUuid">
-        DELETE
-        FROM location
-        WHERE repo_uuid = #{repo_uuid}
+        DELETE l
+        FROM location l
+        WHERE l.repo_uuid = #{repo_uuid}
     </delete>
 
 
@@ -79,11 +79,11 @@
     </select>
 
     <!--TODO 待修改methodName 为anchorName-->
-    <select id="getLocationsByRawIssueUuid" parameterType="String" resultType="java.util.HashMap">
-        SELECT start_line AS startLine,
-        end_line AS endLine,
-        file_name AS filePath,
-        method_name AS methodName,
+    <select id="getLocationsByRawIssueUuid" parameterType="String" resultMap="location">
+        SELECT start_line,
+        end_line,
+        file_name,
+        method_name,
         offset,
         code
         FROM location

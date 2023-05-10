@@ -35,6 +35,14 @@
         where repo_uuid = #{repoUuid}
     </update>
 
+    <delete id="deleteRepoRepoByCondition" parameterType="String">
+        DELETE FROM issue_repo_scan_list
+        WHERE repo_uuid = #{repoUuid}
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+    </delete>
+
     <select id="getRepoScansByCondition" resultMap="issueRepo">
         select repo_uuid,branch,start_commit,status
         from issue_repo_scan_list

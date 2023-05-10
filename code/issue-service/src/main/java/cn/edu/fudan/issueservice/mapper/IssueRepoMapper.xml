@@ -138,7 +138,10 @@
         end_scan_time
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-        AND tool = #{tool}
+        <if test="tool != null and tool != ''">
+            AND tool = #{tool}
+        </if>
+        LIMIT 1
     </select>
 
     <select id="getStartCommitTime" resultType="java.lang.String">
@@ -155,7 +158,10 @@
         SELECT start_commit
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-        AND tool = #{tool} LIMIT 1
+        <if test="tool != null and tool != ''">
+            AND tool = #{tool}
+        </if>
+        LIMIT 1
     </select>
 
     <select id="getStartCommits" resultType="java.lang.String">
@@ -187,6 +193,14 @@
         from issue_repo
         where status = #{status}
     </select>
-
+    <select id="getRepoScanByRepoUuids" resultMap="issueRepo">
+        select * from issue_repo where 1=1
+        <if test="repoUuids != null and repoUuids.size > 0 ">
+            and repo_uuid in
+            <foreach collection="repoUuids" separator="," open="(" close=")" item="repoUuid">
+                #{repoUuid}
+            </foreach>
+        </if>
+    </select>
 </mapper>
 

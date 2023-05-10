@@ -17,5 +17,6 @@ public class AnalysisIssue {
     private String solveWay;
     private String commitId;
     private String commitTime;
+    private String authorTime;
     private String developer;
 }

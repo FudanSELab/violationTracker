@@ -77,5 +77,7 @@ public class IssueRepoDao {
     public void setIssueRepoMapper(IssueRepoMapper issueRepoMapper) {
         this.issueRepoMapper = issueRepoMapper;
     }
-
+    public List<RepoScan> getRepoScanByRepoUuids(List<String> repoUuids) {
+        return issueRepoMapper.getRepoScanByRepoUuids(repoUuids);
+    }
 }

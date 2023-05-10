@@ -66,6 +66,9 @@ public class IssueDao {
         return issueMapper.getIssueFilterListCount(query);
     }
 
+    public int getRemainingIssueCountUntil(Map<String, Object> query) {
+        return issueMapper.getRemainingIssueCountUntil(query);
+    }
     public int getSolvedIssueFilterListCount(Map<String, Object> query) {
         return issueMapper.getSolvedIssueFilterListCount(query);
     }
@@ -130,8 +133,12 @@ public class IssueDao {
         return issueMapper.getIssuesOverview(query);
     }
 
-    public List<Map<String, Object>> getIssueCountByCategoryAndType(Map<String, Object> query) {
-        return issueMapper.getIssueCountByCategoryAndType(query);
+    public List<Map<String, Object>> getIssueByCategoryAndTypeAndSolveWay(Map<String, Object> query) {
+        return issueMapper.getIssueByCategoryAndTypeAndSolveWay(query);
+    }
+
+    public List<Map<String, Object>> getIssueByCategoryAndType(Map<String, Object> query) {
+        return issueMapper.getIssueByCategoryAndType(query);
     }
 
     public Map<String, Object> getLivingIssueTendency(String until, String projectId, String showDetail) {
@@ -259,12 +266,16 @@ public class IssueDao {
     }
 
 
-    public List<String> getIssueUuidsByIssueTypeStatus(List<String> repoUuids, String tool, IssueTypeStatusEnum issueTypeStatusEnum) {
-        return issueMapper.getIssueUuidsByIssueTypeStatus(repoUuids, tool, issueTypeStatusEnum.getStatus());
+    public List<IssueWithLocationItem> getIssuesSolvedInCommitIdByConditions(String repoUuid, String commitId, String filePath) {
+        return issueMapper.getIssuesSolvedInCommitIdByConditions(repoUuid, commitId, filePath);
+    }
+    public List<IssueWithLocationItem> getIssuesInCommitIdByConditions(String repoUuid, String commitId, String filePath) {
+        return issueMapper.getIssuesInCommitIdByConditions(repoUuid, commitId, filePath);
     }
 
-    public List<IssueWithLocationItem> getIssuesByConditions(String repoUuid, String commitId, String filePath) {
-        return issueMapper.getIssuesByConditions(repoUuid, commitId, filePath);
+
+    public List<Issue> getIssuesByFileToolAndRepo(String filePath, String repoUuid, String tool) {
+        return issueMapper.getIssuesByFileToolAndRepo(filePath, repoUuid, tool);
     }
 
 }

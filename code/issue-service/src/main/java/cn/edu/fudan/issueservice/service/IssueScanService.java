@@ -19,6 +19,7 @@ public interface IssueScanService {
      */
     RepoScan getScanStatusByRepoUuid(String repoUuid) throws Exception;
 
+
     /**
      * @param repoId repoId
      * @return IssueRepo

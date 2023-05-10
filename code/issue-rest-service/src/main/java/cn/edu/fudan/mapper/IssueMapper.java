@@ -91,6 +91,13 @@ public interface IssueMapper {
     List<Issue> getIssuesByIds(@Param("issueId_list") List<String> issueIdList);
 
     /**
+     * Return the number of surviving violations before the cutoff date, i.e., legacy data.
+     * @param query
+     * @return
+     */
+    int getRemainingIssueCountUntil(Map<String, Object> query);
+
+    /**
      * Return the number of filtered issues
      *
      * @param query conditions
@@ -229,7 +236,7 @@ public interface IssueMapper {
      * @param query query
      * @return issue count group by type
      */
-    List<Map<String, Object>> getIssueCountByCategoryAndType(Map<String, Object> query);
+    List<Map<String, Object>> getIssueByCategoryAndType(Map<String, Object> query);
 
     /**
      * living issue tendency data
@@ -441,8 +448,29 @@ public interface IssueMapper {
      */
     List<String> getIssueUuidsByIssueTypeStatus(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool, @Param("issueTypeStatus") String issueTypeStatus);
 
+    /**
+     * Issues resolved in the commit
+     * @param repoUuid repo uuid
+     * @param commitId solved commit
+     * @param filePath file path
+     * @return issue list
+     */
+    List<IssueWithLocationItem> getIssuesSolvedInCommitIdByConditions(@Param("repoUuid") String repoUuid, @Param("commitId") String commitId,
+                                                                      @Param("filePath") String filePath);
 
-    List<IssueWithLocationItem> getIssuesByConditions(@Param("repoUuid") String repoUuid, @Param("commitId") String commitId,
-                                                      @Param("filePath") String filePath);
+    /**
+     * Issues that still exist in the commit
+     * @param repoUuid repo uuid
+     * @param commitId commit id
+     * @param filePath file path
+     * @return issue list
+     */
+    List<IssueWithLocationItem> getIssuesInCommitIdByConditions(@Param("repoUuid") String repoUuid, @Param("commitId") String commitId,
+                                                                @Param("filePath") String filePath);
+
+    List<Issue> getIssuesByFileToolAndRepo(@Param("filePath") String filePath, @Param("repoUuid") String repoUuid, @Param("tool") String tool);
+
+
+    List<Map<String, Object>> getIssueByCategoryAndTypeAndSolveWay(Map<String, Object> query);
 
 }

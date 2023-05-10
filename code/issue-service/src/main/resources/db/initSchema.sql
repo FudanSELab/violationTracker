@@ -1,4 +1,5 @@
 -- auto-generated definition
+drop table if exists file_exclude;
 create table file_exclude
 (
     id           int auto_increment
@@ -12,6 +13,7 @@ create table file_exclude
     charset utf8mb4;
 
 -- auto-generated definition
+drop table if exists issue;
 create table issue
 (
     id                int auto_increment
@@ -32,6 +34,7 @@ create table issue
     resolution        varchar(20)                   null,
     issue_category    varchar(50)                   null,
     producer          varchar(64)                   null,
+    producer_status   varchar(20) default 'Default' null,
     solver            varchar(64)                   null,
     solve_commit      varchar(64)                   null,
     solve_commit_date datetime                      null,
@@ -43,9 +46,15 @@ create index issue__uuid
     on issue (uuid);
 create index issue_repo_uuid_index
     on issue (repo_uuid);
-
+create index issue_type_index
+    on issue (type);
+create index issue_solver_index
+    on issue (solver);
+create index issue_producer_index
+    on issue (producer);
 
 -- auto-generated definition
+drop table if exists issue_repo;
 create table issue_repo
 (
     id                   int auto_increment
@@ -67,6 +76,7 @@ create index issue_repo_repo_uuid_index
     on issue_repo (repo_uuid);
 
 -- auto-generated definition
+drop table if exists issue_scan;
 create table issue_scan
 (
     uuid           varchar(36)  not null comment '主键'
@@ -93,7 +103,11 @@ create index idx_scan_repo_id
 create index idx_scan_tool
     on issue_scan (tool);
 
+create index issue_scan_commit_id_index
+    on issue_scan (commit_id);
+
 -- auto-generated definition
+drop table if exists issue_type;
 create table issue_type
 (
     uuid                 varchar(36)                 not null comment '主键'
@@ -111,7 +125,11 @@ create table issue_type
 )
     charset = utf8mb4;
 
+create index issue_type_type_index
+    on issue_type (type);
+
 -- auto-generated definition
+drop table if exists location;
 create table location
 (
     id            int auto_increment
@@ -132,12 +150,13 @@ create table location
 )
     charset = utf8mb4;
 
-create index raw_issue_id_index
+create index location_raw_issue_uuid_index
     on location (rawIssue_uuid);
 create index location_repo_uuid_index
     on location (repo_uuid);
 
 -- auto-generated definition
+drop table if exists raw_issue;
 create table raw_issue
 (
     id             int auto_increment
@@ -180,6 +199,7 @@ create index idx_repo_id_hash
     on raw_issue (repo_uuid, raw_issue_hash);
 
 -- auto-generated definition
+drop table if exists raw_issue_match_info;
 create table raw_issue_match_info
 (
     id                int auto_increment
@@ -196,8 +216,13 @@ create table raw_issue_match_info
     charset = utf8mb4;
 create index raw_issue_match_info_repo_uuid_index
     on raw_issue_match_info (repo_uuid);
+create index raw_issue_match_info_issue_uuid_index
+    on raw_issue_match_info (issue_uuid);
+create index raw_issue_match_info_cur_commit_id_index
+    on raw_issue_match_info (cur_commit_id);
 
 -- auto-generated definition
+drop table if exists scan_result;
 create table scan_result
 (
     id               int auto_increment comment '主键
@@ -221,6 +246,7 @@ create index scan_result_repo_uuid_index
 
 
 -- auto-generated definition
+drop table if exists raw_issue_cache;
 create table raw_issue_cache
 (
     id             int auto_increment
@@ -238,6 +264,7 @@ create table raw_issue_cache
 create index idx_repo_uuid_commit_id
     on raw_issue_cache (repo_uuid, commit_id);
 
+drop table if exists issue_repo_scan_list;
 create table issue_repo_scan_list
 (
     repo_uuid            varchar(36) primary key,
@@ -247,383 +274,383 @@ create table issue_repo_scan_list
 );
 
 
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('007ffda0-f852-4be9-8fbd-8afa5a4b80e6', 'Broken Null Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('008576fb-0f5e-4188-96d9-42197265e4b6', 'Security - Array is stored directly', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('00b6ebc9-2a62-4376-a4f6-9aeba0ee3aed', 'Avoid Decimal Literals In Big Decimal Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('00c51c76-679e-44b5-a325-24055793763c', 'Finalize Only Calls Super Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('01b8b479-ba0b-42d2-b34d-6a57b0549f09', 'Track comments matching a regular expression', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('025837e0-18af-42f3-ae74-d8be096ff740', '[p3c]Class names should be nouns in UpperCamelCase except domain models: DO, BO, DTO, VO, etc.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('02a7da1e-5bfb-4ab5-9404-6d6bbcabae25', 'Databases should be password-protected', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('02c7c1b7-9107-43db-9df3-3f606d4e119d', '[p3c]Avoid using [Math.random()] by multiple threads.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('03b807dd-1db9-4b33-8563-151d8caa8e66', 'Exception As Flow Control', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0400922e-4aa7-48c2-91fa-10aa8bf54ec6', 'Avoid Rethrowing Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('04d842c0-19a1-4fde-a506-5f91c148c462', 'Test class without test cases (JUnit 3.x only)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0511f50c-0b36-4682-8baa-d17222cdcb17', 'Call Super In Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('051e1e56-34d0-42fa-88a4-961ca6c7aa30', '[p3c]Constant variable names should be written in upper characters separated by underscores.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0528b5c7-6973-4a3a-90b2-df276e8b09a9', 'Use Varargs', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('062a60af-f998-48e6-b531-32192660f2ec', 'Default Package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('075886c0-ea4f-43c3-9e4d-4c8e4be9613a', 'Suspicious Octal Escape', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('087912a2-8fb6-461b-921e-771c99f5bf1a', 'Comment Size', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09491e76-8468-463a-9864-797bc3fa9515', 'Use ConcurrentHashMap', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09c19c7a-759f-4b17-9fe1-da679fe523a9', 'Insufficient String Buffer Declaration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09cb37e8-1f02-4d06-9931-f868644aeec0', 'Simplify Starts With', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0a44393d-65ab-4d2a-a3e6-ab3b8e9b5689', 'Strict Exception - Do not throw exception in finally', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b2531db-3658-4992-9f63-b822dc6a3fe3', '[p3c]Equals should be invoked by a constant or an object that is definitely not null.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b375cf7-b996-43a9-a72a-72d7e56781d8', 'Avoid Final Local Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b51985a-2e58-4567-a346-e189d3e01342', '[p3c]Constant variable names should be written in upper characters separated by underscores.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0ba486bf-dab9-4ab8-935e-9b26c1a69296', 'Local Interface Session Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0c94e932-6889-49e4-a1d3-5596a43a1ac0', 'Avoid Reassigning Parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0e192bba-7b49-4250-803f-25d7802f2f25', '[p3c]Attribute rollbackFor of annotation Transactional must be set.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0e230bec-bb62-4e83-9f4f-08307d4624bd', 'Non Static Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0eebd2ba-9b77-4dac-b241-d698a37e44fc', 'Synchronization should not be based on Strings or boxed primitives', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0f4643e5-7409-49fa-bb2a-a1a03ee58b5c', 'Bad Comparison', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1186af5d-99f0-4614-91a0-4253a323816b', '[p3c]Use System.currentTimeMillis() to get the current millisecond. Do not use new Date().getTime().', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1215dfc6-8d5a-43a7-b4f4-f2c9f3390e25', 'Unnecessary parentheses', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('12b22aa5-fb25-485a-94c2-912b85f79f05', 'Immutable Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1390d834-89c7-4895-a86f-576276807ef0', 'Avoid Calling Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('13cc37c2-ecc3-40bb-9846-8346f31e20a7', 'Empty If Stmt', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1467a123-293c-4419-abef-06108042e1bc', 'JUnit spelling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1536da26-baa4-403d-8a10-1261dd22d92b', 'Do Not Call System Exit', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('16ee33e1-583b-4fc5-ad27-2495663aa6f3', 'Finalize Overloaded', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19a403e2-2cd5-4ee2-81fe-155903451eb1', '"@Import"s should be preferred to "@ComponentScan"s', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19b983a7-bbb2-4a1a-a9a4-f4cf899060e0', 'Unused imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19bf4845-471e-4cd6-adc6-cb2057dda053', 'Unnecessary Case Change', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19ca8988-cee9-4ff3-bb56-9938df6bcd65', 'Ncss Constructor Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1bb0faa9-7457-4e93-adf8-8c9303d71308', 'Unnecessary Local Before Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1c9cda4f-0db3-40eb-a9ce-0ba49b540e3f', 'Empty Method In Abstract Class Should Be Abstract', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1d8e2529-e513-4f54-b805-b3ede71c0519', 'Modified Cyclomatic Complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1dd29f43-d08d-4aa8-96c8-f9aa6cda9a68', 'Track uses of disallowed constructors', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1f4dc845-6f70-42fe-a0ac-a7ca70f61a36', '[p3c]Brackets are a part of an Array type. The definition could be: String[] args', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('200a6408-b9d4-4645-b09e-80f1f3822fa1', 'Avoid Using Volatile', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('201eb761-430c-47de-a699-f6537b32db3b', 'Simplify boolean returns', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2028dd4e-60fd-45a8-beb1-8425a7970067', 'Unused Private Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('214ac660-b2dc-439a-ae48-9207dbc8321d', 'Use Collection Is Empty', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('21979929-7abd-459c-aee3-cd024accaa8c', 'JUnit assertions should include a message', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('219901f0-da3b-40de-8824-946d1a422f36', 'Changing or bypassing accessibility is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2211bc1f-48ec-45b7-b687-2d1c0cb5191d', '[p3c]Magic values, except for predefined, are forbidden in coding.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('22d0536e-991b-4fac-a94e-5fac2e250979', 'Abstract naming', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('236b5eb4-1d17-495b-8733-38dae31e60bf', 'Generic wildcard types should not be used in return parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('244d6edb-5806-4dd6-8854-89b9d5bc9222', 'JUnit Test Contains Too Many Asserts', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('24617fe3-953f-4cae-9bea-231f2e7e86cf', 'Dont Use Float Type For Loop Indices', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('24da516c-b317-4349-8a01-482cecaecbbc', 'Unused Imports (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('257388e8-431d-4800-a6e4-87cf483a2ae1', 'Abstract class without any methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('26514e6e-e142-409f-be04-e83daa2bbf55', '[p3c]Use ScheduledExecutorService instead.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('26ec5b95-837f-4b27-8eb3-ac148979674b', 'Cypher Block Chaining IV''s should be random and unique', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('27b4a380-2a97-4d9a-937e-d7ed7863b08a', 'Unnecessary constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('27cd0d31-d33c-458a-ba6c-fe7a3f09e13e', 'Big Integer Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('285be0df-66be-47c4-9288-818408554063', 'Use String Buffer Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('29ff2749-33f8-4ab8-babe-1db71ecd2250', 'Switch statements should have default', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2b5c3609-3d18-4fc4-bbfb-2733c70fd6a2', '[p3c]All names should not start or end with an underline or a dollar sign.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2c2ba90b-2bae-4ee7-a1ed-8fdcdf05826b', 'Comment Content', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2c79d9f0-33d2-468f-ae49-e775d2156313', 'Android - Do Not Hard Code SD Card', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2db6ea5b-4859-486b-9df8-6f58c2f2b34f', '[p3c]While defining POJO classes like DO, DTO, VO, etc., do not assign any default values to the members.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2e9d6381-965e-4b7f-b535-91c011c0727a', 'Avoid Synchronized At Method Level', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2ff729d9-ea6b-49d4-b540-027236d7f6ed', 'Short Class Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('314ce312-03e2-4507-80b3-15ed4796b6b3', 'Guard Log Statement Java Util', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('34f6caa9-a6ed-4ad6-b3fe-a143bfdb8ebb', '[p3c]Explicitly creating threads is not allowed, use thread pool instead.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3567492f-8d88-40b1-b31f-eca5a8f1a24e', 'Duplicate Imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('359e52d9-2fba-4237-be4a-6c2d0fb7bd6f', 'Assignment In Operand', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('369835c2-98fd-499d-8572-fb9a66596204', 'Unused local variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('36a36996-f470-4e11-87f6-10b8e1f81684', 'Remote Session Interface Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('36eaaf08-9dcf-4034-8422-a43ca413ad8e', 'Compare Objects With Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('37af7bcb-6d37-41b4-9ffe-17611b94eee2', '[p3c]''L'' instead of ''l'' should be used for long or Long variable.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('385e9df6-6bc2-4988-9121-366005050550', 'Too many methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('394fdd3c-ecd4-4105-934a-db92f3dcb60b', 'Ncss Method Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39505ca5-29f7-46f1-93fd-8f17e52cd506', 'JUnit Use Expected', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39a8c51a-eb80-4ec1-9534-fab71b540be5', 'Avoid Catching Throwable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39fa9558-b6df-4c20-9009-25f1a8d68362', '[p3c]Do not use complicated statements in conditional statements.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3a6d4afa-bbd2-4d3f-86d6-2405cff12d41', 'Exception should not be created without being thrown', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3b1b6714-6f2c-4468-84da-1f4c8a97f77c', 'Avoid Throwing Null Pointer Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3b7c16f6-b4ec-43c5-9478-bd2a9d886798', 'Replace Vector With List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3bd2c272-f15e-499b-8303-23d2b1196d7d', 'Permissive Cross-Origin Resource Sharing policy is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3bf4a33f-666b-402d-a132-1933119a604a', 'If a class implements Cloneable the return type of the method clone() must be the class name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3d6cf5bf-d104-44d5-b08c-62a4477f7ed8', 'Use Index Of Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3ecbb3c7-dad3-45c0-9080-59a3541cd392', '[p3c]Avoid using *Apache BeanUtils* to copy attributes.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3ef2100f-4727-48ce-96f6-02490dbc6c10', 'Naming - Class naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3f38e978-4c33-4df4-b536-1c3b4028e95e', 'Classes should not be too complex', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3f50123d-a67c-4bb1-80b8-2c3e77b609a2', '[p3c]Abstract class names must start with Abstract or Base.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3fd89164-0389-4a86-b16d-5d7991a8d896', 'Naming - Method naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('42c25a0c-fb2c-4ca4-9154-3ffbc08e5e43', 'Avoid Using Octal Values', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('42c3eae8-dd4c-4690-a561-cc203499a4e7', 'Avoid unnecessary comparisons in boolean expressions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('43260efc-5a0b-4f51-bd73-6e98bd18f491', 'Return From Finally Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('43b25f32-6ad9-42d2-9ab0-b2ee3c6b4250', 'JUnit4 Test Should Use Test Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('449c1804-3a77-41b1-912c-b6fd7d318aa0', 'Failed unit tests should be fixed', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4591bacc-556a-4d5d-ba40-7b3cf41a4090', 'Generics Naming', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('465e9ef3-e829-4eac-8fa2-ae7803c2db85', '[p3c]Never use return within a finally block.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46ac3038-7d5a-40ed-9021-be3834778e45', 'Final Field Could Be Static', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46aed1ac-8e2f-4a30-9559-9fddca15ab00', 'Avoid Branching Statement As Last In Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46f57f26-72bb-4023-80ea-6670d0d2e241', 'Close Resource', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46fbc549-78b4-416c-ae9c-d1ef6449b1eb', '[p3c]The wrapper classes should be compared by equals method rather than by symbol of ''=='' directly.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('471c9edb-b0cc-4588-a01c-2131ab8a8894', 'Naming - Suspicious constant field name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4848545d-b21e-4de3-89aa-b20d89593454', 'Loose Coupling (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4a1f646f-66b9-4197-9a7c-c9aa0deac223', 'Tests should not be ignored', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4a99b2dc-b60f-488e-a42c-a04e8766fdee', 'Use assertSame instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4b3cdeb1-5a34-4cad-bd91-55eb3274dd20', 'XPath rule template', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ca48391-a999-4ad2-abc4-04404bd09ff7', 'Consecutive Appends Should Reuse', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4e1dfdaa-bd09-4155-bfda-068202ff0a87', 'NPath complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4eac12cb-bc76-49be-b28f-8b071831cdc6', '[p3c]Use the append method in StringBuilder inside a loop body when concatenating multiple strings.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ebe98b8-49d1-4d3b-ab3a-1e291a4745ad', '[p3c]In a switch block, each case should be finished by break/return.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ecb0485-3c89-461b-b215-4870c50258ab', 'Ternary operator with a boolean literal can be simplified with a boolean expression', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4f8cf22e-712b-4948-8feb-f5d5a54439bb', 'Ncss Type Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50331cfd-b41a-49be-8c3b-8d1c158834d1', 'Empty Statement Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50c440a9-aa8d-4b77-8a2d-362bbb02f5f4', 'Avoid Multiple Unary Operators', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50ffac2f-27cc-418c-b715-206ad3b0c135', 'Unconditional If Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('51903161-132f-4482-b671-fb741bc9372a', 'Avoid Protected Method In Final Class Not Extending', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('52665afa-86cf-46b1-800f-7f42bf8b467f', 'Empty Catch Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('52e51cdc-d4cd-43a5-85f7-dbb41cd2f5ce', 'Use Correct Exception Logging', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('53488698-82cd-4ee6-9b3a-009aba698f5b', 'Avoid Instanceof Checks In Catch Clause', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('540fbd40-4605-4d19-bef5-3fd09235271b', 'Naming - Avoid dollar signs', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('553aa4c7-c617-4e06-b649-8dc168e52b09', 'While Loops Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('554a09b3-cc66-4dd0-b651-f18242c1bba9', 'Long Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('556072a4-b6a3-4ecc-a6b5-d790a589a685', 'Unused private method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('56b1e8f7-6c4b-4b9c-a111-3164ae09e4e7', 'Excessive Public Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('57ff216d-e1e6-49ca-ab55-5636b30279ec', 'Inefficient Empty String Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('58a0d77b-2b05-44cb-8094-8d4656cf9af3', '[p3c]Codes or configuration that is noticed to be obsoleted should be resolutely removed from projects.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('59c8da5a-145d-4614-a863-54ecf0165052', 'Constructor Calls Overridable Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('59d8ac5a-b799-4688-a256-38c79fabcc59', 'Unnecessary Wrapper Object Creation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5a3de30a-4fa0-4900-bad6-9ebe80854d39', 'Avoid Literals In If Condition', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5ad03cc2-b279-49fa-8280-65c0b4443de4', '[p3c]Javadoc should be used for classes, class variables and methods. The format should be ''/** comment **/'', rather than ''// xxx''.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5b2a96e5-2f8d-412c-bba8-b8d16a65c810', '[p3c]Do not use methods which will modify the list after using Arrays.asList to convert array to list.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5bec1f38-83b2-4089-bbe2-6ceac9de9096', 'Use assertEquals instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5cd35642-4e91-4024-8bae-0a3d03a43f79', 'Use Notify All Instead Of Notify', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5d8e35b4-33d7-414a-b9f2-7b799cd14d2e', '[p3c]Must be ended with Exception.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5d936f0a-f27c-46e4-9126-6078595c43e4', 'Loose Package Coupling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5de26ec3-0424-4922-a51d-a3ac5e8572be', '[p3c]The negation operator is not easy to be quickly understood.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5e0781af-d21a-4e71-8dcd-a32d5b347d09', 'Logic Inversion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5e94fcb7-be43-4185-bd43-329d83cd592e', 'If Else Stmts Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5f9ea61b-a63c-4d7a-b68e-2c61e46843d6', 'Empty Statement Not In Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('60510a85-9ef2-40d1-b4ca-76d5df18a60c', 'Append Character With Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('60e0cf1c-b9d0-484d-865e-dd70b8c3a40b', 'Missing Static Method In Non Instantiatable Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6135bcf7-5d37-49b9-8a80-62f5781e19ae', 'Non Thread Safe Singleton', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6145c6a2-a9b4-42c8-9356-3ae30cce401f', 'Uncommented Empty Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61715ac7-8c31-4914-a1c1-42b9f26d4084', 'Avoid Prefixing Method Parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61b1a8a2-00d9-49c5-bb44-15b9ef18bda1', '[p3c]Method names, parameter names, member variable names, and local variable names should be written in lowerCamelCase.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61ee13dc-ac46-435f-8c44-b57eda834544', 'Expanding archive files is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('63455987-7127-4197-8e12-7feaed1b792d', 'More Than One Logger', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6347799e-ebfa-45d0-b13f-244c1aa1a387', 'Too Many Fields', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('637ce81f-5b95-4ef0-8cc5-769efd1e674e', 'Loose coupling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('652efd9d-5c84-47c4-b50d-968edea8be98', 'Avoid StringBuffer field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('65541523-e274-4ff7-a3cd-ed7b00ec7cc5', '[p3c]SimpleDataFormat is unsafe, do not define it as a static variable. If have to, lock or DateUtils class must be used.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('66b68414-f2b4-45d8-b430-6e7257d91bdb', 'Singular Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('66e27d17-2924-41dd-baa8-6f107f850218', 'Use Object For Clearer API', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('67e9eb30-da15-4de0-bfd1-80e7ffc6c305', 'Unnecessary Conversion Temporary', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('68226c22-eeb4-4c09-8ae6-3259b9ebfd88', 'Signature Declare Throws Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('693a4106-9d87-4ca4-85ad-3fb47923d76f', 'Avoid Constants Interface', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6964096f-d82f-4d8b-82cc-5374488af6e3', '[p3c]Do not use toArray method without arguments.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6987915e-1e35-467c-83c4-0067360a8c62', 'Use Equals To Compare Strings', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a005c63-7afa-4fc8-9fe8-ae855423dac9', 'getInstance should cache the instance', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a2cb6a7-5431-4777-b4da-fbdfc74f886c', '[p3c]Braces are used with if, else, for, do and while statements, even if the body contains only a single statement.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a4faf84-8414-4128-87be-8175d11c1898', 'Instantiation To Get Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a560dce-fa89-4668-a3dd-833dfa939f96', 'Use Proper Class Loader', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6b94c873-50d8-47a8-bdf6-c6a512b1aa4c', 'Accessor Class Generation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6be41c54-326d-46f0-affc-a4950d6d9920', 'Setting loose file permissions is security-sensitive', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6eadcf32-2440-4a97-b46a-e4b324f26269', 'Authentication should not rely on insecure "PasswordEncoder"', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7121f660-6f30-4048-8907-654a90ae727e', 'Unused formal parameter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('71929211-46a7-4c6b-a6a8-ebe454a43d7b', '[p3c]Date format string [%s] is error,When doing date formatting, ''y'' should be written in lowercase for ''year''.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7286747a-930e-4052-b9cd-b15b855520cf', 'Equals Null', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7345df7c-a5d3-4e68-bd7a-e7581e319431', 'Do Not Use Threads', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('741c94aa-1852-4e12-820b-3c90327a851d', 'JUnit tests should include an assert', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('742a7316-ea83-4d32-a2f9-3cb8af7a6741', 'Finalize Does Not Call Super Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('75c7d37f-2e1f-4d17-88ce-7541a73e16e3', 'Optimizable To Array Call', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('76a07407-cf71-465c-950e-597601ec1134', 'Useless Operation On Immutable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('76d3a156-edf6-41e9-8848-99b44cad04d8', '[p3c]type ''ThreadLocal'' must call remove() method at least one times.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('772e50ab-80c0-473c-ba86-274c7670111d', 'Track uses of disallowed methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('77c739d5-efe0-4314-b43b-24e2b72d768a', '[p3c]We can call the toString method in a POJO directly to print property values.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('77f87662-af8d-4c6f-940a-cde6ff8f3a92', 'At Least One Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7897e551-69e3-4da3-b043-dd360db7112c', 'Package case', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('78f5eb0a-1af6-4f15-8b3b-1ec85e1e7659', 'Avoid Deeply Nested If Stmts', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7956fd82-80d0-4bce-bb9a-17ec3d8e3152', 'Use Locale With Case Conversions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b0e06e1-b959-4832-8477-5d1827c5df4c', 'Avoid Throwing Raw Exception Types', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b353ee0-6e6c-4ac8-9e5c-5230d04a3802', 'God Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b680cc4-2ca7-4995-9f5d-847c02edebba', 'Empty While Stmt', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b6e4860-eca7-4593-a632-fbb304569de8', 'Check Skip Result', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e4a804f-060e-4adb-bad6-c63139728db3', 'Avoid Array Loops', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e5c8bd3-db5f-4597-a49a-1e79a2780719', 'Clone Method Must Implement Cloneable (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e696988-f011-4753-8eed-c6c09fb804c6', 'Avoid Using Hard Coded IP', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7eed4919-d2f9-46f4-b951-2954518d21a0', '"switch" statements should not be nested', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7f42f4f5-8b0c-4191-aa8e-c5df409433e9', 'Avoid Thread Group', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8007aac0-3c9d-4aa4-a818-7ab4cbd1f417', 'Empty Static Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('808f1727-b11f-40aa-a0ae-118734177655', 'Naming - Variable naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('827e7bbc-30c0-490f-913e-da2da6464a51', '[p3c]When using subList, be careful to modify the size of original list.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('84af605f-8920-4b9a-97d9-77bf740e3172', 'Position Literals First In Case Insensitive Comparisons', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('857926a0-2402-484a-babb-ef2c92820bad', 'LDAP deserialization should be disabled', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8819b2ab-03c5-471d-a4ce-2b0b43df2d1a', 'Simplify Conditional', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8888a12a-570d-4844-bee7-bb02c33d2caa', 'Default label not last in switch statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('88f27b21-6a2f-4c4b-a55b-013c58685ec9', 'String Buffer Instantiation With Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('893bab51-f46b-4cd0-9022-a376c93a75d1', 'Excessive Class Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('897d1aa3-2394-4cbb-ae8f-b2fa11ddf8cc', 'Avoid Duplicate Literals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('89c13b1b-b536-4213-8f43-b18e8e8760be', 'JUnit static suite', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8b4dceb5-aa84-4905-9acd-76444975a7cb', 'Skipped unit tests should be either removed or fixed', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8cafb2ca-6dfb-442f-a68b-89507a4ea76b', 'Simplify boolean assertion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d04471e-18de-4c87-894a-27b58406d664', 'Unnecessary Final Modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d44716e-9303-44c7-8276-f7e50f2942af', 'Static EJB Field Should Be Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d9d6e86-c4c2-473c-b878-2df07d2532f1', 'Locale should be used in String operations', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('915121d8-f40c-4106-a180-2efa425bfce5', 'JUnit4 Suites Should Use Suite Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('93ef3eea-846e-4d77-98bb-c5f8c2c54437', 'No package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9598ce00-f829-436a-9e23-d7b1b633d938', 'Unnecessary Fully Qualified Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9610f0ac-0520-4c6c-94a4-2b856778c1f2', 'Class Cast Exception With To Array', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9670a50d-6034-45ea-98d2-34fa90cea555', '[p3c]Manually create thread pool is better.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('968be856-4ed9-4b11-8f91-aab09e49f82b', '[p3c]Do not remove or add elements to a collection in a foreach loop.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('96a5f195-e1f9-4c8e-988a-1390421a81e0', 'If Stmts Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('96cc6ca7-7278-4beb-8d57-b402d201cbe2', 'Import From Same Package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('97bee36b-6819-4bda-8c95-a5486851f752', 'Unused Modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9859f3d9-9f4a-478a-8c2d-5485883f9795', 'Only one getInstance method is allowed', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('99273c33-be79-4adb-a95d-d55938625e0e', 'Java5 migration - Short instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9985e198-d0b0-47a2-9728-60fdc684dfec', 'JUnit4 Test Should Use After Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('99ea3add-cb0e-4ffd-8202-a829e71aa5b2', 'Use assertNull instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9afe3388-c467-402b-a14c-ec7f122a972c', 'Use String Buffer For String Appends', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9b333545-3f6b-4bde-a33b-b5d2d8cd6114', 'Return empty array rather than null', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9b8fe5c6-a5ec-4e6c-8c4d-8c210268c5b7', 'Short Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9bba9c41-36ae-43f7-8770-cd2678a54628', 'Proper Logger', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9bd89b71-c5ac-4136-90ff-0259f2ad2690', 'JUnit4 Test Should Use Before Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9c40c526-702b-401a-a676-c2063aeb61c9', '[p3c]Single line comments in a method should be put above the code to be commented, by using // and multiple lines by using /* */.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9e5b5980-db1c-4af5-87d0-ed8fa731ba39', 'Excessive Parameter List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9e9225d3-7cc5-4e9d-8654-5b2b1e7747c4', 'Position Literals First In Comparisons', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9f299a9c-721e-4ae5-9d00-7a1c7e0d2232', 'Std Cyclomatic Complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9ff0a2f6-bc75-4091-8165-db60cd415682', 'Code size - cyclomatic complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a0186922-e9c5-410f-a894-c4ff9365c93a', 'Avoid Catching Generic Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a01d883b-34dc-4348-9b2c-af75df9ac88a', 'Basic - Empty Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a022e5a2-97c1-4194-b727-1d439840f23e', '[p3c]Do not add ''is'' as prefix while defining Boolean variable.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a04e2a56-f05e-43db-891e-ef823c6c4220', 'Confusing Ternary', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a15cbf02-d945-4ea1-a0bf-b645d49d0807', 'Coupling - excessive imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a2cbf7ca-ae0f-4728-a2f3-a7af186d8fea', 'Check ResultSet', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a3669bd0-99fd-4a69-9bb4-7512e004b326', 'Integer Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('aae15e03-7185-4293-8557-13a2ce74ba0a', 'Add Empty String', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ab55d42a-c681-46c0-b323-c3c7689fc000', 'Bean Members Should Serialize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('abdfec72-3436-4f54-a60a-da27a8bd5ba4', 'Avoid Enum As Identifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ac1ad108-793c-45ad-b7e2-9f89e179b81e', 'Avoid Accessibility Alteration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('acc03392-4ca8-42b7-bd4b-41ae4f748c30', 'Useless String Value Of', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('acc2ffc2-84ed-4983-8320-fe5e77ca936b', '[p3c]HashMap should set a size when initializing.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ad648a0c-16d8-4739-b996-a731d05283ad', '"private" methods that don''t access instance data should be "static"', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('af5c608f-3643-4fd8-9bf8-34f44b250cbc', 'System Println', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('afb63c33-7e4e-4686-9f4d-710f90fa1b49', 'By convention, classes that implement the Cloneable interface should override Object.clone (which is protected) with a public method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b00a5f27-ed63-45ee-9c7c-969824b891e8', 'Android - call super last', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b049b9df-4142-4fe4-9b3b-a363cf45f3a3', 'Avoid Assert As Identifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b060e609-d885-445f-b90b-c63eb63a49ca', 'Empty Finally Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b080e7f6-3bc6-483d-90df-f547e0aa9c9b', 'Missing Serial Version UID', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b117260a-3379-406d-863b-48c78333ec2b', 'Avoid Catching NPE', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b241ea4b-bfaa-45d8-a4f5-5cb72521ae82', 'Guard Debug Logging', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b2b9cbb3-52b6-430e-b03c-bd4f49198d67', 'Dont Import Sun', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b3a4251b-d596-48ea-a5b7-31e6d1f88ad7', 'Excessive Method Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b3e44e00-4a64-41c4-8065-d5e32ac4d07f', 'Do not call garbage collection explicitly', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b4596fe1-862f-4d3f-82f6-794844223e31', 'Idempotent Operations', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b499a643-dc2a-49ec-9c73-b316e0523d9e', 'Clone method must implement Cloneable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b4b71510-37ff-4eaf-a326-a7e043cd344d', 'Premature Declaration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b67d4777-bc9f-4396-ab45-29681a7be0d9', 'For Loop Should Be While Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b6a70640-885a-4e37-9481-af63aeb60e10', 'Switch Density', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b6e8a439-61c5-4e30-9619-87778212e4d5', 'Empty Switch Statements', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b78679cb-d58c-4524-82f3-2f68c6f32762', 'Inefficient String Buffering', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b7da5f71-2a09-437c-87d5-ed56c801c3c4', 'Do Not Extend Java Lang Error', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b8537695-d3b5-4e2b-81d3-d25aa3040858', '[p3c]Test cases should be ended with Test.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b8572f19-1194-4f26-bde1-1e7b9a22f0f8', '[p3c]The total number of lines for a method should not be more than 80.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9a0e7a9-47df-4d18-8ca4-ebf3a44a7166', 'Branches should have sufficient coverage by tests', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9d8a19a-d48b-450e-b3ea-0220ebe40d61', 'Avoid Using Native Code', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9ed93ba-0380-41b3-9073-47b4cdb8ab6a', 'Boolean Get Method Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bb04a38c-82f7-4688-b3e8-222f833d92a1', 'Use Assert True Instead Of Assert Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bcfb8a0c-5c48-46b8-aee7-7aa6ee79b4d2', 'Missing Break In Switch', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bd03174f-58ba-4665-9365-d8af5274b76d', 'Empty Synchronized Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('be8a437b-9569-4331-9f1a-4da7cf12161f', 'Misplaced Null Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bece5725-18f2-459d-bf1d-42a022f2c416', 'Naming - Suspicious Hashcode method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bf657bac-d9cd-402b-808f-64fccee9e217', 'Extends Object', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bfc3c6e2-f816-4296-b5fe-011d1d644f4e', 'Java5 migration - Byte instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c1931d68-0a2c-4249-a97b-b9f05175cb40', 'Hashing data is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c22284ff-bbf1-4bc4-af62-8d81848d4a06', 'Track uses of disallowed classes', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c2856fb3-4f8c-46f9-86c5-eb2833512026', 'Source files should not have any duplicated blocks', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c29211bd-a297-4d7c-a0a5-3ca93ec68a55', 'Collapsible If Statements', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c2a9adb8-3858-4d30-9a83-1f265027c92b', 'Empty Try Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c3d2ec35-0dc2-41d7-96e2-5ec29a450356', 'Non Case Label In Switch Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c3fcad29-dffb-4b48-9ecc-47444aefef2f', 'Strict Exception - Avoid throwing new instance of same exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4321c8d-e1b6-47b7-a454-7d6c2811479b', 'Message Driven Bean And Session Bean Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c44a791f-2c97-4cb5-b991-8911b959dde1', '[p3c]If the return type is primitive, return a value of wrapper class may cause NullPointerException.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4819437-ff03-4e25-a4d1-470eec5e65ba', '[p3c]Every class should include information of author(s) and date.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4c34374-5b1f-41b2-b542-508990b0c727', 'Source files should have a sufficient density of comment lines', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c511f83a-8882-4d1b-9070-1a188295b319', '[p3c]The return type of Math.random() is double, value range is 0<=x<1 (0 is possible).', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c557f7ff-7b7b-4b51-a89b-c79578a1861c', 'Avoid instantiating objects in loops', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c63c7727-1775-43f4-a770-a4035dcb981b', 'Only One Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c7a1279f-cbc7-4839-9463-796b2bb4d4d4', '[p3c]A meaningful thread name is helpful to trace the error information,so assign a name when creating threads or thread pools.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c7ed097a-d7df-4810-98e4-0691b5cff143', 'Avoid Protected Field In Final Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca0b78e2-f397-47f0-87da-5e627fef05f4', 'Use Utility Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca6a2095-4928-40b5-b58f-b0e4aafae714', 'Remote Interface Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca6a88d8-f2af-459b-bafa-d2414368a75e', 'Track uses of disallowed dependencies', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cb156ee3-f242-4181-ad26-e9af029fe106', '[p3c]When using regex, precompile needs to be done in order to increase the matching performance.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cc864084-a34c-46a0-a9ab-5ea0c5df0477', '[p3c]iBatis built in com.ibatis.sqlmap.client.SqlMapClient.queryForList(String statementName,int start,int size) is not recommended', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd40a648-990b-455b-acfa-795283b6a3f9', '[p3c]Do not cast subList in class ArrayList, otherwise ClassCastException will be thrown.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd4bc267-8b9b-487f-89c4-dfd268618476', 'Assignment To Non Final Static', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd525bf0-84db-4312-9102-8f0c0a83195a', 'Avoid Using Short Type', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cf47404d-c027-47ff-bcff-8d6bf60896c0', 'String Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cfa1c602-0702-4b10-8165-eff444603f02', 'Proper clone implementation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d002c7d0-4905-4fc6-8653-12def7535af7', 'Unsynchronized Static Date Formatter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d028dceb-32fe-45e2-a592-fb49e6f4968b', 'Use Array List Instead Of Vector', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d119c5d5-893c-47cc-924a-190eb90d6f97', 'Avoid Print Stack Trace', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d231c59c-971f-42e5-b73d-adf86c41968d', '"@RequestMapping" methods should specify HTTP method', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d2336d41-a916-4194-906c-2bc48a878992', 'Naming - Method with same name as enclosing class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d3247f09-50d4-42af-adef-5db05b624bc1', '[p3c]All enumeration type fields should be commented as Javadoc style.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d4a42656-c8b8-4a22-b331-ce0252338179', 'Naming - Avoid field name matching method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d5cc2d87-2472-472b-86ae-bd61c893e756', 'Unnecessary boolean assertion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d600ebb1-787b-4484-98b1-1731b8b6b8e3', 'Java5 migration - Long instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d60c4bd6-ef3e-4431-84a2-b80227297bb6', 'Finalize Should Be Protected', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d6aa2d39-b504-409d-ab81-64266daf65ba', 'Signature Declare Throws Exception (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d6dd9ffb-b7c3-4c61-be89-47c6aac3b6e8', 'Android - call super first', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d7934c90-8a60-49d3-80b4-fb4e30907f40', 'Uncommented Empty Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d8182e44-13f6-48a9-90ad-d771669397de', 'Local Home Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d860b2e2-8ee0-4f33-85b6-16068706db55', 'Too few branches for a switch statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('da2ca9e5-a8df-4511-9376-2275b462aaaa', 'Flags unnecessary qualified usages of this', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('da46a966-b43c-4be2-b7a6-ddee37975291', 'Abstract Class Without Abstract Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('db866a19-b94c-48b0-a450-e94ccdf8328d', 'Unused Null Check In Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dc2a547c-8bd9-4dda-bb8c-420343bb69ca', 'Logger Is Not Static Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dca12c37-7872-4276-86dc-d23321456924', 'Java 8 features should be preferred to Guava', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dce34aa4-0204-40e8-af5d-994df94e00d9', 'Preserve Stack Trace', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('de6e41e4-cdf6-4012-bfe7-7cf6cb6e29f7', 'Coupling between objects', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('de95df00-f2f8-4156-8aeb-2356b8938a17', 'Local variable could be final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('df83e105-91e0-4775-8d7c-66068f5d6515', 'Simple Date Format Needs Locale', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e0a4c1e5-22f7-4d45-96f9-739f58728381', 'Naming - Avoid field name matching type name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e0fbe721-9041-4bc1-94e9-c85c6f654b77', 'Clone Throws Clone Not Supported Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e1de38c7-5cf8-4e53-8884-857c21a03bdc', 'Replace Enumeration With Iterator', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e2c4bb2f-611a-4c3c-aeb7-052dbf650e4e', 'Useless Overriding Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e3b81c03-86a1-4df0-8aaa-a056c730f944', 'Dataflow Anomaly Analysis', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e3c95b71-8077-46fe-95e6-34932989c597', 'Unnecessary Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e51b2670-d322-4da6-9433-3c4c9429cb52', 'Law Of Demeter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e64ade6f-1cf3-453a-ba3c-0975a3e28007', 'Useless Parentheses', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e6c7b313-3971-45cf-9f20-5a249538c563', '[p3c]All Service and DAO classes must be interface based on SOA principle. Implementation class names.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e6ef2268-e10c-4ea4-85fa-21fe336c959e', '[p3c]Abstract methods (including methods in interface) should be commented by Javadoc.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e740d6fe-cae9-49fb-86d4-91e2a8781911', 'Lines should have sufficient coverage by tests', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e94182b4-4e83-4897-89f9-b100880440d3', 'Guard Log Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e975be9e-6be7-436f-be0a-7a5cc36e3768', 'Avoid Losing Exception Information', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ea740150-3b05-4e9e-a902-19c61e9c2774', 'Jumbled Incrementer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('eae262e9-7120-4c7a-a3b6-bf50665728d2', 'String To String', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebb05259-86dd-4d4f-86a6-03d9a915cc77', 'Boolean Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebd988f0-c9d9-4a5b-997d-218247a4d7ab', 'Security - Method returns internal array', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebf69354-5b22-48e4-a7a6-87226398b6f1', 'Use Arrays As List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ec38b9f8-508e-42b4-877b-8a45e240ef84', 'Dont Call Thread Run', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ed9d0f2f-0e72-4a7e-bd52-17cc28a3073c', 'Class with only private constructors should be final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('eef339c1-8f9b-4960-8143-8d20d4b465c3', 'One Declaration Per Line', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef367e9a-c1ad-4d59-93c7-194fa16bbeab', 'Literal boolean values should not be used in assertions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef387b01-a1bc-4868-8a55-d59670ce07a5', 'Double checked locking', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef3af05f-216f-4b6e-bbb8-17d2f60550cb', '[p3c]Rules for using primitive data types and wrapper classes.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef88010d-e39a-404a-8ee8-aeb0edaa68c2', 'JUnit assertions should include messages', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('effdb5d6-063e-44c2-8460-bdfa4fed701c', 'Comment Required', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f04510e4-e184-4469-83f4-5af07c74c081', 'Custom resources should be closed', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f0a0ff2d-a337-4899-8a62-26c69950a0d5', 'For Loops Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f0cfadd6-a59f-40d3-b585-bc155990c8bb', 'Comment the default access modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f10c57b3-0af9-42a8-a548-4ef8d4be616d', 'Naming - Suspicious equals method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f433afbe-5475-4f34-aaaf-8419c996da09', 'The Object.finalize() method should not be overriden', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f4b2b33e-f8fe-467d-9709-fe86cbf9a94e', 'Override both equals and hashcode', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f55f2ce2-8708-410a-8ff6-826cfdf95358', 'Null Assignment', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f5cc2e30-5dce-4aa0-b15e-92547a6b62f9', 'Method Argument Could Be Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f5f1e1de-4de6-48a0-aec2-12be2b9cd786', '[p3c]should be called in finally block.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f754e3db-735c-47ba-ba73-ffdaa5c96a2b', 'Replace Hashtable With Map', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f905b5cd-015a-40b3-a267-ff601022b01f', 'Too Many Static Imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fb488b4f-69b6-4972-aefa-260b934996ae', 'Consecutive Literal Appends', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fc41e552-7acc-4f8f-a768-c53eb9c74a5f', 'Naming - Misleading variable name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fcf4b2d7-f302-468c-a9c6-065bf2994f30', 'Redundant Field Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fdc838a0-4983-46d4-9756-ced60754b701', 'Field Declarations Should Be At Start Of Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fe8a3772-59b3-4e62-9335-c50a50029d0b', 'Dont Import Java Lang', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fefbf4cc-5f75-4353-82f2-b65687c513ed', 'Empty Finalizer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ffb8d057-eb0d-4cde-85e8-daf00599d6d1', 'Naming - Short method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:NoSonar', 'Track uses of "NOSONAR" comments', 'sonarqube', 'Code Smell', '<p>Any issue to quality rule can be deactivated with the <code>NOSONAR</code> marker. This marker is pretty useful to exclude false-positive results
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('007ffda0-f852-4be9-8fbd-8afa5a4b80e6', 'Broken Null Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('008576fb-0f5e-4188-96d9-42197265e4b6', 'Security - Array is stored directly', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('00b6ebc9-2a62-4376-a4f6-9aeba0ee3aed', 'Avoid Decimal Literals In Big Decimal Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('00c51c76-679e-44b5-a325-24055793763c', 'Finalize Only Calls Super Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('01b8b479-ba0b-42d2-b34d-6a57b0549f09', 'Track comments matching a regular expression', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('025837e0-18af-42f3-ae74-d8be096ff740', '[p3c]Class names should be nouns in UpperCamelCase except domain models: DO, BO, DTO, VO, etc.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('02a7da1e-5bfb-4ab5-9404-6d6bbcabae25', 'Databases should be password-protected', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('02c7c1b7-9107-43db-9df3-3f606d4e119d', '[p3c]Avoid using [Math.random()] by multiple threads.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('03b807dd-1db9-4b33-8563-151d8caa8e66', 'Exception As Flow Control', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0400922e-4aa7-48c2-91fa-10aa8bf54ec6', 'Avoid Rethrowing Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('04d842c0-19a1-4fde-a506-5f91c148c462', 'Test class without test cases (JUnit 3.x only)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0511f50c-0b36-4682-8baa-d17222cdcb17', 'Call Super In Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('051e1e56-34d0-42fa-88a4-961ca6c7aa30', '[p3c]Constant variable names should be written in upper characters separated by underscores.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0528b5c7-6973-4a3a-90b2-df276e8b09a9', 'Use Varargs', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('062a60af-f998-48e6-b531-32192660f2ec', 'Default Package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('075886c0-ea4f-43c3-9e4d-4c8e4be9613a', 'Suspicious Octal Escape', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('087912a2-8fb6-461b-921e-771c99f5bf1a', 'Comment Size', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09491e76-8468-463a-9864-797bc3fa9515', 'Use ConcurrentHashMap', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09c19c7a-759f-4b17-9fe1-da679fe523a9', 'Insufficient String Buffer Declaration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('09cb37e8-1f02-4d06-9931-f868644aeec0', 'Simplify Starts With', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0a44393d-65ab-4d2a-a3e6-ab3b8e9b5689', 'Strict Exception - Do not throw exception in finally', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b2531db-3658-4992-9f63-b822dc6a3fe3', '[p3c]Equals should be invoked by a constant or an object that is definitely not null.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b375cf7-b996-43a9-a72a-72d7e56781d8', 'Avoid Final Local Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0b51985a-2e58-4567-a346-e189d3e01342', '[p3c]Constant variable names should be written in upper characters separated by underscores.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0ba486bf-dab9-4ab8-935e-9b26c1a69296', 'Local Interface Session Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0c94e932-6889-49e4-a1d3-5596a43a1ac0', 'Avoid Reassigning Parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0e192bba-7b49-4250-803f-25d7802f2f25', '[p3c]Attribute rollbackFor of annotation Transactional must be set.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0e230bec-bb62-4e83-9f4f-08307d4624bd', 'Non Static Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0eebd2ba-9b77-4dac-b241-d698a37e44fc', 'Synchronization should not be based on Strings or boxed primitives', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('0f4643e5-7409-49fa-bb2a-a1a03ee58b5c', 'Bad Comparison', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1186af5d-99f0-4614-91a0-4253a323816b', '[p3c]Use System.currentTimeMillis() to get the current millisecond. Do not use new Date().getTime().', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1215dfc6-8d5a-43a7-b4f4-f2c9f3390e25', 'Unnecessary parentheses', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('12b22aa5-fb25-485a-94c2-912b85f79f05', 'Immutable Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1390d834-89c7-4895-a86f-576276807ef0', 'Avoid Calling Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('13cc37c2-ecc3-40bb-9846-8346f31e20a7', 'Empty If Stmt', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1467a123-293c-4419-abef-06108042e1bc', 'JUnit spelling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1536da26-baa4-403d-8a10-1261dd22d92b', 'Do Not Call System Exit', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('16ee33e1-583b-4fc5-ad27-2495663aa6f3', 'Finalize Overloaded', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19a403e2-2cd5-4ee2-81fe-155903451eb1', '"@Import"s should be preferred to "@ComponentScan"s', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19b983a7-bbb2-4a1a-a9a4-f4cf899060e0', 'Unused imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19bf4845-471e-4cd6-adc6-cb2057dda053', 'Unnecessary Case Change', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('19ca8988-cee9-4ff3-bb56-9938df6bcd65', 'Ncss Constructor Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1bb0faa9-7457-4e93-adf8-8c9303d71308', 'Unnecessary Local Before Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1c9cda4f-0db3-40eb-a9ce-0ba49b540e3f', 'Empty Method In Abstract Class Should Be Abstract', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1d8e2529-e513-4f54-b805-b3ede71c0519', 'Modified Cyclomatic Complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1dd29f43-d08d-4aa8-96c8-f9aa6cda9a68', 'Track uses of disallowed constructors', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('1f4dc845-6f70-42fe-a0ac-a7ca70f61a36', '[p3c]Brackets are a part of an Array type. The definition could be: String[] args', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('200a6408-b9d4-4645-b09e-80f1f3822fa1', 'Avoid Using Volatile', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('201eb761-430c-47de-a699-f6537b32db3b', 'Simplify boolean returns', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2028dd4e-60fd-45a8-beb1-8425a7970067', 'Unused Private Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('214ac660-b2dc-439a-ae48-9207dbc8321d', 'Use Collection Is Empty', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('21979929-7abd-459c-aee3-cd024accaa8c', 'JUnit assertions should include a message', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('219901f0-da3b-40de-8824-946d1a422f36', 'Changing or bypassing accessibility is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2211bc1f-48ec-45b7-b687-2d1c0cb5191d', '[p3c]Magic values, except for predefined, are forbidden in coding.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('22d0536e-991b-4fac-a94e-5fac2e250979', 'Abstract naming', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('236b5eb4-1d17-495b-8733-38dae31e60bf', 'Generic wildcard types should not be used in return parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('244d6edb-5806-4dd6-8854-89b9d5bc9222', 'JUnit Test Contains Too Many Asserts', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('24617fe3-953f-4cae-9bea-231f2e7e86cf', 'Dont Use Float Type For Loop Indices', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('24da516c-b317-4349-8a01-482cecaecbbc', 'Unused Imports (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('257388e8-431d-4800-a6e4-87cf483a2ae1', 'Abstract class without any methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('26514e6e-e142-409f-be04-e83daa2bbf55', '[p3c]Use ScheduledExecutorService instead.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('26ec5b95-837f-4b27-8eb3-ac148979674b', 'Cypher Block Chaining IV''s should be random and unique', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('27b4a380-2a97-4d9a-937e-d7ed7863b08a', 'Unnecessary constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('27cd0d31-d33c-458a-ba6c-fe7a3f09e13e', 'Big Integer Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('285be0df-66be-47c4-9288-818408554063', 'Use String Buffer Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('29ff2749-33f8-4ab8-babe-1db71ecd2250', 'Switch statements should have default', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2b5c3609-3d18-4fc4-bbfb-2733c70fd6a2', '[p3c]All names should not start or end with an underline or a dollar sign.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2c2ba90b-2bae-4ee7-a1ed-8fdcdf05826b', 'Comment Content', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2c79d9f0-33d2-468f-ae49-e775d2156313', 'Android - Do Not Hard Code SD Card', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2db6ea5b-4859-486b-9df8-6f58c2f2b34f', '[p3c]While defining POJO classes like DO, DTO, VO, etc., do not assign any default values to the members.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2e9d6381-965e-4b7f-b535-91c011c0727a', 'Avoid Synchronized At Method Level', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('2ff729d9-ea6b-49d4-b540-027236d7f6ed', 'Short Class Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('314ce312-03e2-4507-80b3-15ed4796b6b3', 'Guard Log Statement Java Util', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('34f6caa9-a6ed-4ad6-b3fe-a143bfdb8ebb', '[p3c]Explicitly creating threads is not allowed, use thread pool instead.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3567492f-8d88-40b1-b31f-eca5a8f1a24e', 'Duplicate Imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('359e52d9-2fba-4237-be4a-6c2d0fb7bd6f', 'Assignment In Operand', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('369835c2-98fd-499d-8572-fb9a66596204', 'Unused local variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('36a36996-f470-4e11-87f6-10b8e1f81684', 'Remote Session Interface Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('36eaaf08-9dcf-4034-8422-a43ca413ad8e', 'Compare Objects With Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('37af7bcb-6d37-41b4-9ffe-17611b94eee2', '[p3c]''L'' instead of ''l'' should be used for long or Long variable.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('385e9df6-6bc2-4988-9121-366005050550', 'Too many methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('394fdd3c-ecd4-4105-934a-db92f3dcb60b', 'Ncss Method Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39505ca5-29f7-46f1-93fd-8f17e52cd506', 'JUnit Use Expected', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39a8c51a-eb80-4ec1-9534-fab71b540be5', 'Avoid Catching Throwable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('39fa9558-b6df-4c20-9009-25f1a8d68362', '[p3c]Do not use complicated statements in conditional statements.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3a6d4afa-bbd2-4d3f-86d6-2405cff12d41', 'Exception should not be created without being thrown', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3b1b6714-6f2c-4468-84da-1f4c8a97f77c', 'Avoid Throwing Null Pointer Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3b7c16f6-b4ec-43c5-9478-bd2a9d886798', 'Replace Vector With List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3bd2c272-f15e-499b-8303-23d2b1196d7d', 'Permissive Cross-Origin Resource Sharing policy is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3bf4a33f-666b-402d-a132-1933119a604a', 'If a class implements Cloneable the return type of the method clone() must be the class name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3d6cf5bf-d104-44d5-b08c-62a4477f7ed8', 'Use Index Of Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3ecbb3c7-dad3-45c0-9080-59a3541cd392', '[p3c]Avoid using *Apache BeanUtils* to copy attributes.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3ef2100f-4727-48ce-96f6-02490dbc6c10', 'Naming - Class naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3f38e978-4c33-4df4-b536-1c3b4028e95e', 'Classes should not be too complex', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3f50123d-a67c-4bb1-80b8-2c3e77b609a2', '[p3c]Abstract class names must start with Abstract or Base.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('3fd89164-0389-4a86-b16d-5d7991a8d896', 'Naming - Method naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('42c25a0c-fb2c-4ca4-9154-3ffbc08e5e43', 'Avoid Using Octal Values', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('42c3eae8-dd4c-4690-a561-cc203499a4e7', 'Avoid unnecessary comparisons in boolean expressions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('43260efc-5a0b-4f51-bd73-6e98bd18f491', 'Return From Finally Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('43b25f32-6ad9-42d2-9ab0-b2ee3c6b4250', 'JUnit4 Test Should Use Test Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('449c1804-3a77-41b1-912c-b6fd7d318aa0', 'Failed unit tests should be fixed', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4591bacc-556a-4d5d-ba40-7b3cf41a4090', 'Generics Naming', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('465e9ef3-e829-4eac-8fa2-ae7803c2db85', '[p3c]Never use return within a finally block.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46ac3038-7d5a-40ed-9021-be3834778e45', 'Final Field Could Be Static', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46aed1ac-8e2f-4a30-9559-9fddca15ab00', 'Avoid Branching Statement As Last In Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46f57f26-72bb-4023-80ea-6670d0d2e241', 'Close Resource', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('46fbc549-78b4-416c-ae9c-d1ef6449b1eb', '[p3c]The wrapper classes should be compared by equals method rather than by symbol of ''=='' directly.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('471c9edb-b0cc-4588-a01c-2131ab8a8894', 'Naming - Suspicious constant field name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4848545d-b21e-4de3-89aa-b20d89593454', 'Loose Coupling (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4a1f646f-66b9-4197-9a7c-c9aa0deac223', 'Tests should not be ignored', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4a99b2dc-b60f-488e-a42c-a04e8766fdee', 'Use assertSame instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4b3cdeb1-5a34-4cad-bd91-55eb3274dd20', 'XPath rule template', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ca48391-a999-4ad2-abc4-04404bd09ff7', 'Consecutive Appends Should Reuse', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4e1dfdaa-bd09-4155-bfda-068202ff0a87', 'NPath complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4eac12cb-bc76-49be-b28f-8b071831cdc6', '[p3c]Use the append method in StringBuilder inside a loop body when concatenating multiple strings.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ebe98b8-49d1-4d3b-ab3a-1e291a4745ad', '[p3c]In a switch block, each case should be finished by break/return.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4ecb0485-3c89-461b-b215-4870c50258ab', 'Ternary operator with a boolean literal can be simplified with a boolean expression', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('4f8cf22e-712b-4948-8feb-f5d5a54439bb', 'Ncss Type Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50331cfd-b41a-49be-8c3b-8d1c158834d1', 'Empty Statement Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50c440a9-aa8d-4b77-8a2d-362bbb02f5f4', 'Avoid Multiple Unary Operators', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('50ffac2f-27cc-418c-b715-206ad3b0c135', 'Unconditional If Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('51903161-132f-4482-b671-fb741bc9372a', 'Avoid Protected Method In Final Class Not Extending', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('52665afa-86cf-46b1-800f-7f42bf8b467f', 'Empty Catch Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('52e51cdc-d4cd-43a5-85f7-dbb41cd2f5ce', 'Use Correct Exception Logging', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('53488698-82cd-4ee6-9b3a-009aba698f5b', 'Avoid Instanceof Checks In Catch Clause', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('540fbd40-4605-4d19-bef5-3fd09235271b', 'Naming - Avoid dollar signs', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('553aa4c7-c617-4e06-b649-8dc168e52b09', 'While Loops Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('554a09b3-cc66-4dd0-b651-f18242c1bba9', 'Long Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('556072a4-b6a3-4ecc-a6b5-d790a589a685', 'Unused private method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('56b1e8f7-6c4b-4b9c-a111-3164ae09e4e7', 'Excessive Public Count', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('57ff216d-e1e6-49ca-ab55-5636b30279ec', 'Inefficient Empty String Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('58a0d77b-2b05-44cb-8094-8d4656cf9af3', '[p3c]Codes or configuration that is noticed to be obsoleted should be resolutely removed from projects.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('59c8da5a-145d-4614-a863-54ecf0165052', 'Constructor Calls Overridable Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('59d8ac5a-b799-4688-a256-38c79fabcc59', 'Unnecessary Wrapper Object Creation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5a3de30a-4fa0-4900-bad6-9ebe80854d39', 'Avoid Literals In If Condition', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5ad03cc2-b279-49fa-8280-65c0b4443de4', '[p3c]Javadoc should be used for classes, class variables and methods. The format should be ''/** comment **/'', rather than ''// xxx''.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5b2a96e5-2f8d-412c-bba8-b8d16a65c810', '[p3c]Do not use methods which will modify the list after using Arrays.asList to convert array to list.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5bec1f38-83b2-4089-bbe2-6ceac9de9096', 'Use assertEquals instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5cd35642-4e91-4024-8bae-0a3d03a43f79', 'Use Notify All Instead Of Notify', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5d8e35b4-33d7-414a-b9f2-7b799cd14d2e', '[p3c]Must be ended with Exception.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5d936f0a-f27c-46e4-9126-6078595c43e4', 'Loose Package Coupling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5de26ec3-0424-4922-a51d-a3ac5e8572be', '[p3c]The negation operator is not easy to be quickly understood.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5e0781af-d21a-4e71-8dcd-a32d5b347d09', 'Logic Inversion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5e94fcb7-be43-4185-bd43-329d83cd592e', 'If Else Stmts Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('5f9ea61b-a63c-4d7a-b68e-2c61e46843d6', 'Empty Statement Not In Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('60510a85-9ef2-40d1-b4ca-76d5df18a60c', 'Append Character With Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('60e0cf1c-b9d0-484d-865e-dd70b8c3a40b', 'Missing Static Method In Non Instantiatable Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6135bcf7-5d37-49b9-8a80-62f5781e19ae', 'Non Thread Safe Singleton', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6145c6a2-a9b4-42c8-9356-3ae30cce401f', 'Uncommented Empty Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61715ac7-8c31-4914-a1c1-42b9f26d4084', 'Avoid Prefixing Method Parameters', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61b1a8a2-00d9-49c5-bb44-15b9ef18bda1', '[p3c]Method names, parameter names, member variable names, and local variable names should be written in lowerCamelCase.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('61ee13dc-ac46-435f-8c44-b57eda834544', 'Expanding archive files is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('63455987-7127-4197-8e12-7feaed1b792d', 'More Than One Logger', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6347799e-ebfa-45d0-b13f-244c1aa1a387', 'Too Many Fields', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('637ce81f-5b95-4ef0-8cc5-769efd1e674e', 'Loose coupling', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('652efd9d-5c84-47c4-b50d-968edea8be98', 'Avoid StringBuffer field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('65541523-e274-4ff7-a3cd-ed7b00ec7cc5', '[p3c]SimpleDataFormat is unsafe, do not define it as a static variable. If have to, lock or DateUtils class must be used.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('66b68414-f2b4-45d8-b430-6e7257d91bdb', 'Singular Field', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('66e27d17-2924-41dd-baa8-6f107f850218', 'Use Object For Clearer API', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('67e9eb30-da15-4de0-bfd1-80e7ffc6c305', 'Unnecessary Conversion Temporary', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('68226c22-eeb4-4c09-8ae6-3259b9ebfd88', 'Signature Declare Throws Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('693a4106-9d87-4ca4-85ad-3fb47923d76f', 'Avoid Constants Interface', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6964096f-d82f-4d8b-82cc-5374488af6e3', '[p3c]Do not use toArray method without arguments.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6987915e-1e35-467c-83c4-0067360a8c62', 'Use Equals To Compare Strings', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a005c63-7afa-4fc8-9fe8-ae855423dac9', 'getInstance should cache the instance', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a2cb6a7-5431-4777-b4da-fbdfc74f886c', '[p3c]Braces are used with if, else, for, do and while statements, even if the body contains only a single statement.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a4faf84-8414-4128-87be-8175d11c1898', 'Instantiation To Get Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6a560dce-fa89-4668-a3dd-833dfa939f96', 'Use Proper Class Loader', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6b94c873-50d8-47a8-bdf6-c6a512b1aa4c', 'Accessor Class Generation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6be41c54-326d-46f0-affc-a4950d6d9920', 'Setting loose file permissions is security-sensitive', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('6eadcf32-2440-4a97-b46a-e4b324f26269', 'Authentication should not rely on insecure "PasswordEncoder"', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7121f660-6f30-4048-8907-654a90ae727e', 'Unused formal parameter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('71929211-46a7-4c6b-a6a8-ebe454a43d7b', '[p3c]Date format string [%s] is error,When doing date formatting, ''y'' should be written in lowercase for ''year''.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7286747a-930e-4052-b9cd-b15b855520cf', 'Equals Null', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7345df7c-a5d3-4e68-bd7a-e7581e319431', 'Do Not Use Threads', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('741c94aa-1852-4e12-820b-3c90327a851d', 'JUnit tests should include an assert', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('742a7316-ea83-4d32-a2f9-3cb8af7a6741', 'Finalize Does Not Call Super Finalize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('75c7d37f-2e1f-4d17-88ce-7541a73e16e3', 'Optimizable To Array Call', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('76a07407-cf71-465c-950e-597601ec1134', 'Useless Operation On Immutable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('76d3a156-edf6-41e9-8848-99b44cad04d8', '[p3c]type ''ThreadLocal'' must call remove() method at least one times.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('772e50ab-80c0-473c-ba86-274c7670111d', 'Track uses of disallowed methods', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('77c739d5-efe0-4314-b43b-24e2b72d768a', '[p3c]We can call the toString method in a POJO directly to print property values.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('77f87662-af8d-4c6f-940a-cde6ff8f3a92', 'At Least One Constructor', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7897e551-69e3-4da3-b043-dd360db7112c', 'Package case', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('78f5eb0a-1af6-4f15-8b3b-1ec85e1e7659', 'Avoid Deeply Nested If Stmts', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7956fd82-80d0-4bce-bb9a-17ec3d8e3152', 'Use Locale With Case Conversions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b0e06e1-b959-4832-8477-5d1827c5df4c', 'Avoid Throwing Raw Exception Types', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b353ee0-6e6c-4ac8-9e5c-5230d04a3802', 'God Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b680cc4-2ca7-4995-9f5d-847c02edebba', 'Empty While Stmt', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7b6e4860-eca7-4593-a632-fbb304569de8', 'Check Skip Result', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e4a804f-060e-4adb-bad6-c63139728db3', 'Avoid Array Loops', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e5c8bd3-db5f-4597-a49a-1e79a2780719', 'Clone Method Must Implement Cloneable (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7e696988-f011-4753-8eed-c6c09fb804c6', 'Avoid Using Hard Coded IP', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7eed4919-d2f9-46f4-b951-2954518d21a0', '"switch" statements should not be nested', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('7f42f4f5-8b0c-4191-aa8e-c5df409433e9', 'Avoid Thread Group', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8007aac0-3c9d-4aa4-a818-7ab4cbd1f417', 'Empty Static Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('808f1727-b11f-40aa-a0ae-118734177655', 'Naming - Variable naming conventions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('827e7bbc-30c0-490f-913e-da2da6464a51', '[p3c]When using subList, be careful to modify the size of original list.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('84af605f-8920-4b9a-97d9-77bf740e3172', 'Position Literals First In Case Insensitive Comparisons', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('857926a0-2402-484a-babb-ef2c92820bad', 'LDAP deserialization should be disabled', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8819b2ab-03c5-471d-a4ce-2b0b43df2d1a', 'Simplify Conditional', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8888a12a-570d-4844-bee7-bb02c33d2caa', 'Default label not last in switch statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('88f27b21-6a2f-4c4b-a55b-013c58685ec9', 'String Buffer Instantiation With Char', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('893bab51-f46b-4cd0-9022-a376c93a75d1', 'Excessive Class Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('897d1aa3-2394-4cbb-ae8f-b2fa11ddf8cc', 'Avoid Duplicate Literals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('89c13b1b-b536-4213-8f43-b18e8e8760be', 'JUnit static suite', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8b4dceb5-aa84-4905-9acd-76444975a7cb', 'Skipped unit tests should be either removed or fixed', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8cafb2ca-6dfb-442f-a68b-89507a4ea76b', 'Simplify boolean assertion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d04471e-18de-4c87-894a-27b58406d664', 'Unnecessary Final Modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d44716e-9303-44c7-8276-f7e50f2942af', 'Static EJB Field Should Be Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('8d9d6e86-c4c2-473c-b878-2df07d2532f1', 'Locale should be used in String operations', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('915121d8-f40c-4106-a180-2efa425bfce5', 'JUnit4 Suites Should Use Suite Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('93ef3eea-846e-4d77-98bb-c5f8c2c54437', 'No package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9598ce00-f829-436a-9e23-d7b1b633d938', 'Unnecessary Fully Qualified Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9610f0ac-0520-4c6c-94a4-2b856778c1f2', 'Class Cast Exception With To Array', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9670a50d-6034-45ea-98d2-34fa90cea555', '[p3c]Manually create thread pool is better.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('968be856-4ed9-4b11-8f91-aab09e49f82b', '[p3c]Do not remove or add elements to a collection in a foreach loop.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('96a5f195-e1f9-4c8e-988a-1390421a81e0', 'If Stmts Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('96cc6ca7-7278-4beb-8d57-b402d201cbe2', 'Import From Same Package', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('97bee36b-6819-4bda-8c95-a5486851f752', 'Unused Modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9859f3d9-9f4a-478a-8c2d-5485883f9795', 'Only one getInstance method is allowed', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('99273c33-be79-4adb-a95d-d55938625e0e', 'Java5 migration - Short instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9985e198-d0b0-47a2-9728-60fdc684dfec', 'JUnit4 Test Should Use After Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('99ea3add-cb0e-4ffd-8202-a829e71aa5b2', 'Use assertNull instead of assertTrue', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9afe3388-c467-402b-a14c-ec7f122a972c', 'Use String Buffer For String Appends', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9b333545-3f6b-4bde-a33b-b5d2d8cd6114', 'Return empty array rather than null', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9b8fe5c6-a5ec-4e6c-8c4d-8c210268c5b7', 'Short Variable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9bba9c41-36ae-43f7-8770-cd2678a54628', 'Proper Logger', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9bd89b71-c5ac-4136-90ff-0259f2ad2690', 'JUnit4 Test Should Use Before Annotation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9c40c526-702b-401a-a676-c2063aeb61c9', '[p3c]Single line comments in a method should be put above the code to be commented, by using // and multiple lines by using /* */.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9e5b5980-db1c-4af5-87d0-ed8fa731ba39', 'Excessive Parameter List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9e9225d3-7cc5-4e9d-8654-5b2b1e7747c4', 'Position Literals First In Comparisons', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9f299a9c-721e-4ae5-9d00-7a1c7e0d2232', 'Std Cyclomatic Complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('9ff0a2f6-bc75-4091-8165-db60cd415682', 'Code size - cyclomatic complexity', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a0186922-e9c5-410f-a894-c4ff9365c93a', 'Avoid Catching Generic Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a01d883b-34dc-4348-9b2c-af75df9ac88a', 'Basic - Empty Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a022e5a2-97c1-4194-b727-1d439840f23e', '[p3c]Do not add ''is'' as prefix while defining Boolean variable.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a04e2a56-f05e-43db-891e-ef823c6c4220', 'Confusing Ternary', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a15cbf02-d945-4ea1-a0bf-b645d49d0807', 'Coupling - excessive imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a2cbf7ca-ae0f-4728-a2f3-a7af186d8fea', 'Check ResultSet', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('a3669bd0-99fd-4a69-9bb4-7512e004b326', 'Integer Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('aae15e03-7185-4293-8557-13a2ce74ba0a', 'Add Empty String', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ab55d42a-c681-46c0-b323-c3c7689fc000', 'Bean Members Should Serialize', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('abdfec72-3436-4f54-a60a-da27a8bd5ba4', 'Avoid Enum As Identifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ac1ad108-793c-45ad-b7e2-9f89e179b81e', 'Avoid Accessibility Alteration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('acc03392-4ca8-42b7-bd4b-41ae4f748c30', 'Useless String Value Of', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('acc2ffc2-84ed-4983-8320-fe5e77ca936b', '[p3c]HashMap should set a size when initializing.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ad648a0c-16d8-4739-b996-a731d05283ad', '"private" methods that don''t access instance data should be "static"', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('af5c608f-3643-4fd8-9bf8-34f44b250cbc', 'System Println', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('afb63c33-7e4e-4686-9f4d-710f90fa1b49', 'By convention, classes that implement the Cloneable interface should override Object.clone (which is protected) with a public method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b00a5f27-ed63-45ee-9c7c-969824b891e8', 'Android - call super last', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b049b9df-4142-4fe4-9b3b-a363cf45f3a3', 'Avoid Assert As Identifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b060e609-d885-445f-b90b-c63eb63a49ca', 'Empty Finally Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b080e7f6-3bc6-483d-90df-f547e0aa9c9b', 'Missing Serial Version UID', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b117260a-3379-406d-863b-48c78333ec2b', 'Avoid Catching NPE', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b241ea4b-bfaa-45d8-a4f5-5cb72521ae82', 'Guard Debug Logging', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b2b9cbb3-52b6-430e-b03c-bd4f49198d67', 'Dont Import Sun', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b3a4251b-d596-48ea-a5b7-31e6d1f88ad7', 'Excessive Method Length', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b3e44e00-4a64-41c4-8065-d5e32ac4d07f', 'Do not call garbage collection explicitly', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b4596fe1-862f-4d3f-82f6-794844223e31', 'Idempotent Operations', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b499a643-dc2a-49ec-9c73-b316e0523d9e', 'Clone method must implement Cloneable', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b4b71510-37ff-4eaf-a326-a7e043cd344d', 'Premature Declaration', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b67d4777-bc9f-4396-ab45-29681a7be0d9', 'For Loop Should Be While Loop', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b6a70640-885a-4e37-9481-af63aeb60e10', 'Switch Density', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b6e8a439-61c5-4e30-9619-87778212e4d5', 'Empty Switch Statements', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b78679cb-d58c-4524-82f3-2f68c6f32762', 'Inefficient String Buffering', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b7da5f71-2a09-437c-87d5-ed56c801c3c4', 'Do Not Extend Java Lang Error', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b8537695-d3b5-4e2b-81d3-d25aa3040858', '[p3c]Test cases should be ended with Test.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b8572f19-1194-4f26-bde1-1e7b9a22f0f8', '[p3c]The total number of lines for a method should not be more than 80.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9a0e7a9-47df-4d18-8ca4-ebf3a44a7166', 'Branches should have sufficient coverage by tests', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9d8a19a-d48b-450e-b3ea-0220ebe40d61', 'Avoid Using Native Code', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('b9ed93ba-0380-41b3-9073-47b4cdb8ab6a', 'Boolean Get Method Name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bb04a38c-82f7-4688-b3e8-222f833d92a1', 'Use Assert True Instead Of Assert Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bcfb8a0c-5c48-46b8-aee7-7aa6ee79b4d2', 'Missing Break In Switch', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bd03174f-58ba-4665-9365-d8af5274b76d', 'Empty Synchronized Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('be8a437b-9569-4331-9f1a-4da7cf12161f', 'Misplaced Null Check', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bece5725-18f2-459d-bf1d-42a022f2c416', 'Naming - Suspicious Hashcode method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bf657bac-d9cd-402b-808f-64fccee9e217', 'Extends Object', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('bfc3c6e2-f816-4296-b5fe-011d1d644f4e', 'Java5 migration - Byte instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c1931d68-0a2c-4249-a97b-b9f05175cb40', 'Hashing data is security-sensitive', 'sonarqube', 'SECURITY_HOTSPOT', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c22284ff-bbf1-4bc4-af62-8d81848d4a06', 'Track uses of disallowed classes', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c2856fb3-4f8c-46f9-86c5-eb2833512026', 'Source files should not have any duplicated blocks', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c29211bd-a297-4d7c-a0a5-3ca93ec68a55', 'Collapsible If Statements', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c2a9adb8-3858-4d30-9a83-1f265027c92b', 'Empty Try Block', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c3d2ec35-0dc2-41d7-96e2-5ec29a450356', 'Non Case Label In Switch Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c3fcad29-dffb-4b48-9ecc-47444aefef2f', 'Strict Exception - Avoid throwing new instance of same exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4321c8d-e1b6-47b7-a454-7d6c2811479b', 'Message Driven Bean And Session Bean Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c44a791f-2c97-4cb5-b991-8911b959dde1', '[p3c]If the return type is primitive, return a value of wrapper class may cause NullPointerException.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4819437-ff03-4e25-a4d1-470eec5e65ba', '[p3c]Every class should include information of author(s) and date.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c4c34374-5b1f-41b2-b542-508990b0c727', 'Source files should have a sufficient density of comment lines', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c511f83a-8882-4d1b-9070-1a188295b319', '[p3c]The return type of Math.random() is double, value range is 0<=x<1 (0 is possible).', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c557f7ff-7b7b-4b51-a89b-c79578a1861c', 'Avoid instantiating objects in loops', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c63c7727-1775-43f4-a770-a4035dcb981b', 'Only One Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c7a1279f-cbc7-4839-9463-796b2bb4d4d4', '[p3c]A meaningful thread name is helpful to trace the error information,so assign a name when creating threads or thread pools.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('c7ed097a-d7df-4810-98e4-0691b5cff143', 'Avoid Protected Field In Final Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca0b78e2-f397-47f0-87da-5e627fef05f4', 'Use Utility Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca6a2095-4928-40b5-b58f-b0e4aafae714', 'Remote Interface Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ca6a88d8-f2af-459b-bafa-d2414368a75e', 'Track uses of disallowed dependencies', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cb156ee3-f242-4181-ad26-e9af029fe106', '[p3c]When using regex, precompile needs to be done in order to increase the matching performance.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cc864084-a34c-46a0-a9ab-5ea0c5df0477', '[p3c]iBatis built in com.ibatis.sqlmap.client.SqlMapClient.queryForList(String statementName,int start,int size) is not recommended', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd40a648-990b-455b-acfa-795283b6a3f9', '[p3c]Do not cast subList in class ArrayList, otherwise ClassCastException will be thrown.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd4bc267-8b9b-487f-89c4-dfd268618476', 'Assignment To Non Final Static', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cd525bf0-84db-4312-9102-8f0c0a83195a', 'Avoid Using Short Type', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cf47404d-c027-47ff-bcff-8d6bf60896c0', 'String Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('cfa1c602-0702-4b10-8165-eff444603f02', 'Proper clone implementation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d002c7d0-4905-4fc6-8653-12def7535af7', 'Unsynchronized Static Date Formatter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d028dceb-32fe-45e2-a592-fb49e6f4968b', 'Use Array List Instead Of Vector', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d119c5d5-893c-47cc-924a-190eb90d6f97', 'Avoid Print Stack Trace', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d231c59c-971f-42e5-b73d-adf86c41968d', '"@RequestMapping" methods should specify HTTP method', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d2336d41-a916-4194-906c-2bc48a878992', 'Naming - Method with same name as enclosing class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d3247f09-50d4-42af-adef-5db05b624bc1', '[p3c]All enumeration type fields should be commented as Javadoc style.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d4a42656-c8b8-4a22-b331-ce0252338179', 'Naming - Avoid field name matching method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d5cc2d87-2472-472b-86ae-bd61c893e756', 'Unnecessary boolean assertion', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d600ebb1-787b-4484-98b1-1731b8b6b8e3', 'Java5 migration - Long instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d60c4bd6-ef3e-4431-84a2-b80227297bb6', 'Finalize Should Be Protected', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d6aa2d39-b504-409d-ab81-64266daf65ba', 'Signature Declare Throws Exception (With Type Resolution)', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d6dd9ffb-b7c3-4c61-be89-47c6aac3b6e8', 'Android - call super first', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d7934c90-8a60-49d3-80b4-fb4e30907f40', 'Uncommented Empty Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d8182e44-13f6-48a9-90ad-d771669397de', 'Local Home Naming Convention', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('d860b2e2-8ee0-4f33-85b6-16068706db55', 'Too few branches for a switch statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('da2ca9e5-a8df-4511-9376-2275b462aaaa', 'Flags unnecessary qualified usages of this', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('da46a966-b43c-4be2-b7a6-ddee37975291', 'Abstract Class Without Abstract Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('db866a19-b94c-48b0-a450-e94ccdf8328d', 'Unused Null Check In Equals', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dc2a547c-8bd9-4dda-bb8c-420343bb69ca', 'Logger Is Not Static Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dca12c37-7872-4276-86dc-d23321456924', 'Java 8 features should be preferred to Guava', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('dce34aa4-0204-40e8-af5d-994df94e00d9', 'Preserve Stack Trace', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('de6e41e4-cdf6-4012-bfe7-7cf6cb6e29f7', 'Coupling between objects', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('de95df00-f2f8-4156-8aeb-2356b8938a17', 'Local variable could be final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('df83e105-91e0-4775-8d7c-66068f5d6515', 'Simple Date Format Needs Locale', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e0a4c1e5-22f7-4d45-96f9-739f58728381', 'Naming - Avoid field name matching type name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e0fbe721-9041-4bc1-94e9-c85c6f654b77', 'Clone Throws Clone Not Supported Exception', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e1de38c7-5cf8-4e53-8884-857c21a03bdc', 'Replace Enumeration With Iterator', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e2c4bb2f-611a-4c3c-aeb7-052dbf650e4e', 'Useless Overriding Method', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e3b81c03-86a1-4df0-8aaa-a056c730f944', 'Dataflow Anomaly Analysis', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e3c95b71-8077-46fe-95e6-34932989c597', 'Unnecessary Return', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e51b2670-d322-4da6-9433-3c4c9429cb52', 'Law Of Demeter', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e64ade6f-1cf3-453a-ba3c-0975a3e28007', 'Useless Parentheses', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e6c7b313-3971-45cf-9f20-5a249538c563', '[p3c]All Service and DAO classes must be interface based on SOA principle. Implementation class names.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e6ef2268-e10c-4ea4-85fa-21fe336c959e', '[p3c]Abstract methods (including methods in interface) should be commented by Javadoc.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e740d6fe-cae9-49fb-86d4-91e2a8781911', 'Lines should have sufficient coverage by tests', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e94182b4-4e83-4897-89f9-b100880440d3', 'Guard Log Statement', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('e975be9e-6be7-436f-be0a-7a5cc36e3768', 'Avoid Losing Exception Information', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ea740150-3b05-4e9e-a902-19c61e9c2774', 'Jumbled Incrementer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('eae262e9-7120-4c7a-a3b6-bf50665728d2', 'String To String', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebb05259-86dd-4d4f-86a6-03d9a915cc77', 'Boolean Instantiation', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebd988f0-c9d9-4a5b-997d-218247a4d7ab', 'Security - Method returns internal array', 'sonarqube', 'VULNERABILITY', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ebf69354-5b22-48e4-a7a6-87226398b6f1', 'Use Arrays As List', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ec38b9f8-508e-42b4-877b-8a45e240ef84', 'Dont Call Thread Run', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ed9d0f2f-0e72-4a7e-bd52-17cc28a3073c', 'Class with only private constructors should be final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('eef339c1-8f9b-4960-8143-8d20d4b465c3', 'One Declaration Per Line', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef367e9a-c1ad-4d59-93c7-194fa16bbeab', 'Literal boolean values should not be used in assertions', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef387b01-a1bc-4868-8a55-d59670ce07a5', 'Double checked locking', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef3af05f-216f-4b6e-bbb8-17d2f60550cb', '[p3c]Rules for using primitive data types and wrapper classes.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ef88010d-e39a-404a-8ee8-aeb0edaa68c2', 'JUnit assertions should include messages', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('effdb5d6-063e-44c2-8460-bdfa4fed701c', 'Comment Required', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f04510e4-e184-4469-83f4-5af07c74c081', 'Custom resources should be closed', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f0a0ff2d-a337-4899-8a62-26c69950a0d5', 'For Loops Must Use Braces', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f0cfadd6-a59f-40d3-b585-bc155990c8bb', 'Comment the default access modifier', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f10c57b3-0af9-42a8-a548-4ef8d4be616d', 'Naming - Suspicious equals method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f433afbe-5475-4f34-aaaf-8419c996da09', 'The Object.finalize() method should not be overriden', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f4b2b33e-f8fe-467d-9709-fe86cbf9a94e', 'Override both equals and hashcode', 'sonarqube', 'BUG', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f55f2ce2-8708-410a-8ff6-826cfdf95358', 'Null Assignment', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f5cc2e30-5dce-4aa0-b15e-92547a6b62f9', 'Method Argument Could Be Final', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f5f1e1de-4de6-48a0-aec2-12be2b9cd786', '[p3c]should be called in finally block.', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f754e3db-735c-47ba-ba73-ffdaa5c96a2b', 'Replace Hashtable With Map', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('f905b5cd-015a-40b3-a267-ff601022b01f', 'Too Many Static Imports', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fb488b4f-69b6-4972-aefa-260b934996ae', 'Consecutive Literal Appends', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fc41e552-7acc-4f8f-a768-c53eb9c74a5f', 'Naming - Misleading variable name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fcf4b2d7-f302-468c-a9c6-065bf2994f30', 'Redundant Field Initializer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fdc838a0-4983-46d4-9756-ced60754b701', 'Field Declarations Should Be At Start Of Class', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fe8a3772-59b3-4e62-9335-c50a50029d0b', 'Dont Import Java Lang', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('fefbf4cc-5f75-4353-82f2-b65687c513ed', 'Empty Finalizer', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('ffb8d057-eb0d-4cde-85e8-daf00599d6d1', 'Naming - Short method name', 'sonarqube', 'CODE_SMELL', null, 'java', 'DEPRECATED', null, 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:NoSonar', 'Track uses of "NOSONAR" comments', 'sonarqube', 'Code Smell', '<p>Any issue to quality rule can be deactivated with the <code>NOSONAR</code> marker. This marker is pretty useful to exclude false-positive results
 but it can also be used abusively to hide real quality flaws.</p>
 <p>This rule raises an issue when <code>NOSONAR</code> is used.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S100', 'Method names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that all method names match a provided regular expression.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S100', 'Method names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that all method names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With default provided regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
 <pre>
@@ -639,7 +666,7 @@ public int doSomething(){...}
 @Override
 public int Do_Something(){...}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S101', 'Class names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate effectively. This rule allows to check that all class names match a provided regular
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S101', 'Class names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate effectively. This rule allows to check that all class names match a provided regular
 expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With default provided regular expression <code>^[A-Z][a-zA-Z0-9]*$</code>:</p>
@@ -650,13 +677,13 @@ class my_class {...}
 <pre>
 class MyClass {...}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S103', 'Lines should not be too long', 'sonarqube', 'Code Smell', '<p>Having to scroll horizontally makes it harder to get a quick overview and understanding of any piece of code.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S104', 'Files should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>A source file that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S103', 'Lines should not be too long', 'sonarqube', 'Code Smell', '<p>Having to scroll horizontally makes it harder to get a quick overview and understanding of any piece of code.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S104', 'Files should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>A source file that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to
 maintain. Above a specific threshold, it is strongly advised to refactor it into smaller pieces of code which focus on well defined tasks. Those
 smaller files will not only be easier to understand but also probably easier to test.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S105', 'Tabulation characters should not be used', 'sonarqube', 'Code Smell', '<p>Developers should not need to configure the tab width of their text editors in order to be able to read source code.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S105', 'Tabulation characters should not be used', 'sonarqube', 'Code Smell', '<p>Developers should not need to configure the tab width of their text editors in order to be able to read source code.</p>
 <p>So the use of the tabulation character must be banned.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S106', 'Standard outputs should not be used directly to log anything', 'sonarqube', 'Code Smell', '<p>When logging a message there are several important requirements which must be fulfilled:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S106', 'Standard outputs should not be used directly to log anything', 'sonarqube', 'Code Smell', '<p>When logging a message there are several important requirements which must be fulfilled:</p>
 <ul>
   <li> The user must be able to easily retrieve the logs </li>
   <li> The format of all logged message must be uniform to allow the user to easily read the log </li>
@@ -677,7 +704,7 @@ logger.log("My Message");
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/nzdGBQ">CERT, ERR02-J.</a> - Prevent exceptions while logging data </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1065', 'Unused labels should be removed', 'sonarqube', 'Code Smell', '<p>If a label is declared but not used in the program, it can be considered as dead code and should therefore be removed.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1065', 'Unused labels should be removed', 'sonarqube', 'Code Smell', '<p>If a label is declared but not used in the program, it can be considered as dead code and should therefore be removed.</p>
 <p>This will improve maintainability as developers will not wonder what this label is used for.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -701,7 +728,7 @@ void foo() {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1066', 'Collapsible "if" statements should be merged', 'sonarqube', 'Code Smell', '<p>Merging collapsible <code>if</code> statements increases the code''s readability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1066', 'Collapsible "if" statements should be merged', 'sonarqube', 'Code Smell', '<p>Merging collapsible <code>if</code> statements increases the code''s readability.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (file != null) {
@@ -720,7 +747,7 @@ private static boolean isFileOrDirectory(File file) {
   return file.isFile() || file.isDirectory();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1067', 'Expressions should not be too complex', 'sonarqube', 'Code Smell', '<p>The complexity of an expression is defined by the number of <code>&amp;&amp;</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1067', 'Expressions should not be too complex', 'sonarqube', 'Code Smell', '<p>The complexity of an expression is defined by the number of <code>&amp;&amp;</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code>
 operators it contains.</p>
 <p>A single expression''s complexity should not become too high to keep the code readable.</p>
 <h2>Noncompliant Code Example</h2>
@@ -735,7 +762,7 @@ if ( (myFirstCondition() || mySecondCondition()) &amp;&amp; myLastCondition()) {
 <h2>Exceptions</h2>
 <p>No issue is reported inside <code>equals</code> methods, because it is common to compare all the fields of a class for equality inside this kind of
 method.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1068', 'Unused "private" fields should be removed', 'sonarqube', 'Code Smell', '<p>If a <code>private</code> field is declared but not used in the program, it can be considered dead code and should therefore be removed. This will
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1068', 'Unused "private" fields should be removed', 'sonarqube', 'Code Smell', '<p>If a <code>private</code> field is declared but not used in the program, it can be considered dead code and should therefore be removed. This will
 improve maintainability because developers will not wonder what the variable is used for.</p>
 <p>Note that this rule does not take reflection into account, which means that issues will be raised on <code>private</code> fields that are only
 accessed using the reflection API.</p>
@@ -770,7 +797,7 @@ public class MyClass implements java.io.Serializable {
 }
 </pre>
 <p>Moreover, this rule doesn''t raise any issue on annotated fields.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S107', 'Methods should not have too many parameters', 'sonarqube', 'Code Smell', '<p>A long parameter list can indicate that a new structure should be created to wrap the numerous parameters or that the function is doing too many
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S107', 'Methods should not have too many parameters', 'sonarqube', 'Code Smell', '<p>A long parameter list can indicate that a new structure should be created to wrap the numerous parameters or that the function is doing too many
 things.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With a maximum number of 4 parameters:</p>
@@ -795,7 +822,7 @@ public void doSomething(int param1, int param2, int param3, String param4) {
   <li> <code>@com.fasterxml.jackson.annotation.JsonCreator</code> </li>
 </ul>
 <p>may have a lot of parameters, encapsulation being possible. Such methods are therefore ignored.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1075', 'URIs should not be hardcoded', 'sonarqube', 'Code Smell', '<p>Hard coding a URI makes it difficult to test a program: path literals are not always portable across operating systems, a given absolute path may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1075', 'URIs should not be hardcoded', 'sonarqube', 'Code Smell', '<p>Hard coding a URI makes it difficult to test a program: path literals are not always portable across operating systems, a given absolute path may
 not exist on a specific test environment, a specified Internet URL may not be available when executing the tests, production environment filesystems
 usually differ from the development environment, ...etc. For all those reasons, a URI should never be hard coded. Instead, it should be replaced by
 customizable parameter.</p>
@@ -833,7 +860,7 @@ public class Foo {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/OjdGBQ">CERT, MSC03-J.</a> - Never hard code sensitive information </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S108', 'Nested blocks of code should not be left empty', 'sonarqube', 'Code Smell', '<p>Most of the time a block of code is empty when a piece of code is really missing. So such empty block must be either filled or removed.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S108', 'Nested blocks of code should not be left empty', 'sonarqube', 'Code Smell', '<p>Most of the time a block of code is empty when a piece of code is really missing. So such empty block must be either filled or removed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (int i = 0; i &lt; 42; i++){}  // Empty on purpose or missing piece of code ?
@@ -841,7 +868,7 @@ for (int i = 0; i &lt; 42; i++){}  // Empty on purpose or missing piece of code 
 <h2>Exceptions</h2>
 <p>When a block contains a comment, this block is not considered to be empty unless it is a <code>synchronized</code> block. <code>synchronized</code>
 blocks are still considered empty even with comments because they can still affect program flow.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S109', 'Magic numbers should not be used', 'sonarqube', 'Code Smell', '<p>A magic number is a number that comes out of nowhere, and is directly used in a statement. Magic numbers are often used, for instance to limit the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S109', 'Magic numbers should not be used', 'sonarqube', 'Code Smell', '<p>A magic number is a number that comes out of nowhere, and is directly used in a statement. Magic numbers are often used, for instance to limit the
 number of iterations of a loop, to test the value of a property, etc.</p>
 <p>Using magic numbers may seem obvious and straightforward when you''re writing a piece of code, but they are much less obvious and straightforward at
 debugging time.</p>
@@ -866,7 +893,7 @@ public static void doSomething() {
 </pre>
 <h2>Exceptions</h2>
 <p>This rule ignores <code>hashCode</code> methods.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S110', 'Inheritance tree of classes should not be too deep', 'sonarqube', 'Code Smell', '<p>Inheritance is certainly one of the most valuable concepts in object-oriented programming. It''s a way to compartmentalize and reuse code by
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S110', 'Inheritance tree of classes should not be too deep', 'sonarqube', 'Code Smell', '<p>Inheritance is certainly one of the most valuable concepts in object-oriented programming. It''s a way to compartmentalize and reuse code by
 creating collections of attributes and behaviors called classes which can be based on previously created classes. But abusing this concept by creating
 a deep inheritance tree can lead to very complex and unmaintainable source code. Most of the time too deep of an inheritance tree is due to bad object
 oriented design which leads to a systematic use of ''inheritance'' when ''composition'' would be better suited.</p>
@@ -893,7 +920,7 @@ oriented design which leads to a systematic use of ''inheritance'' when ''compos
   <li> <code>org.eclipse.**</code> </li>
   <li> <code>org.springframework.**</code> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1104', 'Class variable fields should not have public accessibility', 'sonarqube', 'Code Smell', '<p>Public class variable fields do not respect the encapsulation principle and has three main disadvantages:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1104', 'Class variable fields should not have public accessibility', 'sonarqube', 'Code Smell', '<p>Public class variable fields do not respect the encapsulation principle and has three main disadvantages:</p>
 <ul>
   <li> Additional behavior such as validation cannot be added. </li>
   <li> The internal representation is exposed, and cannot be changed afterwards. </li>
@@ -935,7 +962,7 @@ ignored, as annotations are often used by injection frameworks, which in exchang
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/493.html">MITRE, CWE-493</a> - Critical Public Variable Without Final Modifier </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1105', 'An open curly brace should be located at the end of a line', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when an open curly brace is not placed at the end of a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1105', 'An open curly brace should be located at the end of a line', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when an open curly brace is not placed at the end of a
 line of code.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -955,7 +982,7 @@ if(condition) {
 <pre>
 if(condition) {doSomething();}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1106', 'An open curly brace should be located at the beginning of a line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible to collaborate efficiently. This rule makes it mandatory to place the open curly brace at the beginning
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1106', 'An open curly brace should be located at the beginning of a line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible to collaborate efficiently. This rule makes it mandatory to place the open curly brace at the beginning
 of a line.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -980,7 +1007,7 @@ public void myMethod
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1107', 'Close curly brace and the next "else", "catch" and "finally" keywords should be located on the same line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to collaborate efficiently.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1107', 'Close curly brace and the next "else", "catch" and "finally" keywords should be located on the same line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to collaborate efficiently.</p>
 <p>This rule makes it mandatory to place closing curly braces on the same line as the next <code>else</code>, <code>catch</code> or
 <code>finally</code> keywords.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1025,7 +1052,7 @@ public void myMethod() {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1108', 'Close curly brace and the next "else", "catch" and "finally" keywords should be on two different lines', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to collaborate efficiently.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1108', 'Close curly brace and the next "else", "catch" and "finally" keywords should be on two different lines', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to collaborate efficiently.</p>
 <p>This rule makes it mandatory to place a closing curly brace and the next <code>else</code>, <code>catch</code> or <code>finally</code> keyword on
 two different lines.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1074,7 +1101,7 @@ public void myMethod() {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1109', 'A close curly brace should be located at the beginning of a line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to efficiently collaborate. This rule makes it mandatory to place a close curly brace at the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1109', 'A close curly brace should be located at the beginning of a line', 'sonarqube', 'Code Smell', '<p>Shared coding conventions make it possible for a team to efficiently collaborate. This rule makes it mandatory to place a close curly brace at the
 beginning of a line.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1092,7 +1119,7 @@ if(condition) {
 <pre>
 if(condition) {doSomething();}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1110', 'Redundant pairs of parentheses should be removed', 'sonarqube', 'Code Smell', '<p>The use of parentheses, even those not required to enforce a desired order of operations, can clarify the intent behind a piece of code. But
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1110', 'Redundant pairs of parentheses should be removed', 'sonarqube', 'Code Smell', '<p>The use of parentheses, even those not required to enforce a desired order of operations, can clarify the intent behind a piece of code. But
 redundant pairs of parentheses could be misleading, and should be removed. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1114,7 +1141,7 @@ if (a &amp;&amp; (x+y &gt; 0)) {
 
 return (x + 1);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1111', 'The Object.finalize() method should not be called', 'sonarqube', 'Bug', '<p>According to the official javadoc documentation, this Object.finalize() is called by the garbage collector on an object when garbage collection
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1111', 'The Object.finalize() method should not be called', 'sonarqube', 'Bug', '<p>According to the official javadoc documentation, this Object.finalize() is called by the garbage collector on an object when garbage collection
 determines that there are no more references to the object. Calling this method explicitly breaks this contract and so is misleading. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1127,7 +1154,7 @@ public void dispose() throws Throwable {
   <li> <a href="http://cwe.mitre.org/data/definitions/586.html">MITRE, CWE-586</a> - Explicit Call to Finalize() </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jZGBQ">CERT, MET12-J.</a> - Do not use finalizers </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1113', 'The Object.finalize() method should not be overridden', 'sonarqube', 'Code Smell', '<p>The <code>Object.finalize()</code> method is called on an object by the garbage collector when it determines that there are no more references to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1113', 'The Object.finalize() method should not be overridden', 'sonarqube', 'Code Smell', '<p>The <code>Object.finalize()</code> method is called on an object by the garbage collector when it determines that there are no more references to
 the object. But there is absolutely no warranty that this method will be called AS SOON AS the last references to the object are removed. It can be
 few microseconds to few minutes later. So when system resources need to be disposed by an object, it''s better to not rely on this asynchronous
 mechanism to dispose them.</p>
@@ -1145,7 +1172,7 @@ public class MyClass {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jZGBQ">CERT, MET12-J.</a> - Do not use finalizers </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1114', '"super.finalize()" should be called at the end of "Object.finalize()" implementations', 'sonarqube', 'Bug', '<p>Overriding the <code>Object.finalize()</code> method must be done with caution to dispose some system resources.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1114', '"super.finalize()" should be called at the end of "Object.finalize()" implementations', 'sonarqube', 'Bug', '<p>Overriding the <code>Object.finalize()</code> method must be done with caution to dispose some system resources.</p>
 <p>Calling the <code>super.finalize()</code> at the end of this method implementation is highly recommended in case parent implementations must also
 dispose some system resources.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1171,7 +1198,7 @@ protected void finalize() {
   <li> <a href="http://cwe.mitre.org/data/definitions/568.html">MITRE, CWE-568</a> - finalize() Method Without super.finalize() </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jZGBQ">CERT, MET12-J.</a> - Do not use finalizers </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1116', 'Empty statements should be removed', 'sonarqube', 'Code Smell', '<p>Empty statements, i.e. <code>;</code>, are usually introduced by mistake, for example because:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1116', 'Empty statements should be removed', 'sonarqube', 'Code Smell', '<p>Empty statements, i.e. <code>;</code>, are usually introduced by mistake, for example because:</p>
 <ul>
   <li> It was meant to be replaced by an actual statement, but this was forgotten. </li>
   <li> There was a typo which lead the semicolon to be doubled, i.e. <code>;;</code>. </li>
@@ -1207,7 +1234,7 @@ void doSomethingElse() {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/WtYxBQ">CERT, EXP15-C.</a> - Do not place a semicolon on the same line as an if, for, or while
   statement </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1117', 'Local variables should not shadow class fields', 'sonarqube', 'Code Smell', '<p>Overriding or shadowing a variable declared in an outer scope can strongly impact the readability, and therefore the maintainability, of a piece of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1117', 'Local variables should not shadow class fields', 'sonarqube', 'Code Smell', '<p>Overriding or shadowing a variable declared in an outer scope can strongly impact the readability, and therefore the maintainability, of a piece of
 code. Further, it could lead maintainers to introduce bugs because they think they''re using one variable but are really using another.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1227,7 +1254,7 @@ class Foo {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/DCL51-J.+Do+not+shadow+or+obscure+identifiers+in+subscopes">CERT, DCL51-J.</a> - Do
   not shadow or obscure identifiers in subscopes </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1118', 'Utility classes should not have public constructors', 'sonarqube', 'Code Smell', '<p>Utility classes, which are collections of <code>static</code> members, are not meant to be instantiated. Even abstract utility classes, which can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1118', 'Utility classes should not have public constructors', 'sonarqube', 'Code Smell', '<p>Utility classes, which are collections of <code>static</code> members, are not meant to be instantiated. Even abstract utility classes, which can
 be extended, should not have public constructors.</p>
 <p>Java adds an implicit public constructor to every class which does not define at least one explicitly. Hence, at least one non-public constructor
 should be defined.</p>
@@ -1258,7 +1285,7 @@ class StringUtils { // Compliant
 <h2>Exceptions</h2>
 <p>When class contains <code>public static void main(String[] args)</code> method it is not considered as utility class and will be ignored by this
 rule.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1119', 'Labels should not be used', 'sonarqube', 'Code Smell', '<p>Labels are not commonly used in Java, and many developers do not understand how they work. Moreover, their usage makes the control flow harder to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1119', 'Labels should not be used', 'sonarqube', 'Code Smell', '<p>Labels are not commonly used in Java, and many developers do not understand how they work. Moreover, their usage makes the control flow harder to
 follow, which reduces the code''s readability.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1285,7 +1312,7 @@ for (int row = 1; row &lt; matrix.length; row++) {          // Compliant
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S112', 'Generic exceptions should never be thrown', 'sonarqube', 'Code Smell', '<p>Using such generic exceptions as <code>Error</code>, <code>RuntimeException</code>, <code>Throwable</code>, and <code>Exception</code> prevents
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S112', 'Generic exceptions should never be thrown', 'sonarqube', 'Code Smell', '<p>Using such generic exceptions as <code>Error</code>, <code>RuntimeException</code>, <code>Throwable</code>, and <code>Exception</code> prevents
 calling methods from handling true, system-generated exceptions differently than application-generated errors. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1318,7 +1345,7 @@ public void myOtherMethod throws Exception {
   <li> <a href="http://cwe.mitre.org/data/definitions/397.html">MITRE, CWE-397</a> - Declaration of Throws for Generic Exception </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/_DdGBQ">CERT, ERR07-J.</a> - Do not throw RuntimeException, Exception, or Throwable </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1120', 'Source code should be indented consistently', 'sonarqube', 'Code Smell', '<p>Proper indentation is a simple and effective way to improve the code''s readability. Consistent indentation among the developers within a team also
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1120', 'Source code should be indented consistently', 'sonarqube', 'Code Smell', '<p>Proper indentation is a simple and effective way to improve the code''s readability. Consistent indentation among the developers within a team also
 reduces the differences that are committed to source control systems, making code reviews easier. </p>
 <p>This rule raises an issue when indentation does not match the configured value. Only the first line of a badly indented section is reported.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1352,7 +1379,7 @@ class Foo {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1121', 'Assignments should not be made from within sub-expressions', 'sonarqube', 'Code Smell', '<p>Assignments within sub-expressions are hard to spot and therefore make the code less readable. Ideally, sub-expressions should not have
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1121', 'Assignments should not be made from within sub-expressions', 'sonarqube', 'Code Smell', '<p>Assignments within sub-expressions are hard to spot and therefore make the code less readable. Ideally, sub-expressions should not have
 side-effects.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1384,7 +1411,7 @@ result = (bresult = new byte[len]);
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ZNYxBQ">CERT, EXP45-C.</a> - Do not perform assignments in selection statements </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ITZGBQ">CERT, EXP51-J.</a> - Do not perform assignments in conditional expressions </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1123', 'Deprecated elements should have both the annotation and the Javadoc tag', 'sonarqube', 'Code Smell', '<p>Deprecation should be marked with both the <code>@Deprecated</code> annotation and @deprecated Javadoc tag. The annotation enables tools such as
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1123', 'Deprecated elements should have both the annotation and the Javadoc tag', 'sonarqube', 'Code Smell', '<p>Deprecation should be marked with both the <code>@Deprecated</code> annotation and @deprecated Javadoc tag. The annotation enables tools such as
 IDEs to warn about referencing deprecated elements, and the tag can be used to explain when it was deprecated, why, and how references should be
 refactored. </p>
 <p>Further, Java 9 adds two additional arguments to the annotation:</p>
@@ -1462,7 +1489,7 @@ interface Plop {
 
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1124', 'Modifiers should be declared in the correct order', 'sonarqube', 'Code Smell', '<p>The Java Language Specification recommends listing modifiers in the following order:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1124', 'Modifiers should be declared in the correct order', 'sonarqube', 'Code Smell', '<p>The Java Language Specification recommends listing modifiers in the following order:</p>
 <ol>
   <li> Annotations </li>
   <li> public </li>
@@ -1489,7 +1516,7 @@ static public void main(String[] args) {   // Noncompliant
 public static void main(String[] args) {   // Compliant
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1125', 'Boolean literals should not be redundant', 'sonarqube', 'Code Smell', '<p>Redundant Boolean literals should be removed from expressions to improve readability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1125', 'Boolean literals should not be redundant', 'sonarqube', 'Code Smell', '<p>Redundant Boolean literals should be removed from expressions to improve readability.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (booleanMethod() == true) { /* ... */ }
@@ -1518,7 +1545,7 @@ booleanVariable = !booleanMethod() &amp;&amp; exp;
 booleanVariable = !booleanMethod() || exp;
 booleanVariable = booleanMethod() &amp;&amp; exp;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1126', 'Return of boolean expressions should not be wrapped into an "if-then-else" statement', 'sonarqube', 'Code Smell', '<p>Return of boolean literal statements wrapped into <code>if-then-else</code> ones should be simplified.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1126', 'Return of boolean expressions should not be wrapped into an "if-then-else" statement', 'sonarqube', 'Code Smell', '<p>Return of boolean literal statements wrapped into <code>if-then-else</code> ones should be simplified.</p>
 <p>Similarly, method invocations wrapped into <code>if-then-else</code> differing only from boolean literals should be simplified into a single
 invocation.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1545,7 +1572,7 @@ boolean foo(Object param) {
   return expression;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1128', 'Unnecessary imports should be removed', 'sonarqube', 'Code Smell', '<p>The imports part of a file should be handled by the Integrated Development Environment (IDE), not manually by the developer. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1128', 'Unnecessary imports should be removed', 'sonarqube', 'Code Smell', '<p>The imports part of a file should be handled by the Integrated Development Environment (IDE), not manually by the developer. </p>
 <p>Unused and useless imports should not occur if that is the case. </p>
 <p>Leaving them in reduces the code''s readability, since their presence can be confusing.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1568,7 +1595,7 @@ class ExampleClass {
 </pre>
 <h2>Exceptions</h2>
 <p>Imports for types mentioned in comments, such as Javadocs, are ignored.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S113', 'Files should contain an empty newline at the end', 'sonarqube', 'Code Smell', '<p>Some tools work better when files end with an empty line.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S113', 'Files should contain an empty newline at the end', 'sonarqube', 'Code Smell', '<p>Some tools work better when files end with an empty line.</p>
 <p>This rule simply generates an issue if it is missing.</p>
 <p>For example, a Git diff looks like this if the empty line is missing at the end of the file:</p>
 <pre>
@@ -1576,7 +1603,7 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
 +}
  No newline at end of file
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1130', '"throws" declarations should not be superfluous', 'sonarqube', 'Code Smell', '<p>An exception in a <code>throws</code> declaration in Java is superfluous if it is:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1130', '"throws" declarations should not be superfluous', 'sonarqube', 'Code Smell', '<p>An exception in a <code>throws</code> declaration in Java is superfluous if it is:</p>
 <ul>
   <li> listed multiple times </li>
   <li> a subclass of another listed exception </li>
@@ -1630,7 +1657,7 @@ class A extends B {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1132', 'Strings literals should be placed on the left side when checking for equality', 'sonarqube', 'Code Smell', '<p>It is preferable to place string literals on the left-hand side of an <code>equals()</code> or <code>equalsIgnoreCase()</code> method call.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1132', 'Strings literals should be placed on the left side when checking for equality', 'sonarqube', 'Code Smell', '<p>It is preferable to place string literals on the left-hand side of an <code>equals()</code> or <code>equalsIgnoreCase()</code> method call.</p>
 <p>This prevents null pointer exceptions from being raised, as a string literal can never be null by definition.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -1643,7 +1670,7 @@ System.out.println("Equal? " + (myString != null &amp;&amp; myString.equals("foo
 <pre>
 System.out.println("Equal?" + "foo".equals(myString));                         // properly deals with the null case
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1133', 'Deprecated code should be removed', 'sonarqube', 'Code Smell', '<p>This rule is meant to be used as a way to track code which is marked as being deprecated. Deprecated code should eventually be removed.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1133', 'Deprecated code should be removed', 'sonarqube', 'Code Smell', '<p>This rule is meant to be used as a way to track code which is marked as being deprecated. Deprecated code should eventually be removed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 class Foo {
@@ -1661,7 +1688,7 @@ class Foo {
   }
 }
 </pre>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1134', 'Track uses of "FIXME" tags', 'sonarqube', 'Code Smell', '<p><code>FIXME</code> tags are commonly used to mark places where a bug is suspected, but which the developer wants to deal with later.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1134', 'Track uses of "FIXME" tags', 'sonarqube', 'Code Smell', '<p><code>FIXME</code> tags are commonly used to mark places where a bug is suspected, but which the developer wants to deal with later.</p>
 <p>Sometimes the developer will not have the time or will simply forget to get back to that tag.</p>
 <p>This rule is meant to track those tags and to ensure that they do not go unnoticed.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1674,7 +1701,7 @@ int divide(int numerator, int denominator) {
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/546.html">MITRE, CWE-546</a> - Suspicious Comment </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1135', 'Track uses of "TODO" tags', 'sonarqube', 'Code Smell', '<p><code>TODO</code> tags are commonly used to mark places where some more code is required, but which the developer wants to implement later.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1135', 'Track uses of "TODO" tags', 'sonarqube', 'Code Smell', '<p><code>TODO</code> tags are commonly used to mark places where some more code is required, but which the developer wants to implement later.</p>
 <p>Sometimes the developer will not have the time or will simply forget to get back to that tag.</p>
 <p>This rule is meant to track those tags and to ensure that they do not go unnoticed.</p>
 <h2>Noncompliant Code Example</h2>
@@ -1687,7 +1714,7 @@ void doSomething() {
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/546.html">MITRE, CWE-546</a> - Suspicious Comment </li>
 </ul>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S114', 'Interface names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S114', 'Interface names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all
 interface names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[A-Z][a-zA-Z0-9]*$</code>:</p>
@@ -1698,9 +1725,9 @@ public interface myInterface {...} // Noncompliant
 <pre>
 public interface MyInterface {...}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1141', 'Try-catch blocks should not be nested', 'sonarqube', 'Code Smell', '<p>Nesting <code>try</code>/<code>catch</code> blocks severely impacts the readability of source code because it makes it too difficult to understand
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1141', 'Try-catch blocks should not be nested', 'sonarqube', 'Code Smell', '<p>Nesting <code>try</code>/<code>catch</code> blocks severely impacts the readability of source code because it makes it too difficult to understand
 which block will catch which exception.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1142', 'Methods should not have too many return statements', 'sonarqube', 'Code Smell', '<p>Having too many return statements in a method increases the method''s essential complexity because the flow of execution is broken each time a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1142', 'Methods should not have too many return statements', 'sonarqube', 'Code Smell', '<p>Having too many return statements in a method increases the method''s essential complexity because the flow of execution is broken each time a
 return statement is encountered. This makes it harder to read and understand the logic of the method.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default threshold of 3:</p>
@@ -1718,7 +1745,7 @@ public boolean myMethod() { // Noncompliant; there are 4 return statements
   return false;
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1143', 'Jump statements should not occur in "finally" blocks', 'sonarqube', 'Bug', '<p>Using <code>return</code>, <code>break</code>, <code>throw</code>, and so on from a <code>finally</code> block suppresses the propagation of any
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1143', 'Jump statements should not occur in "finally" blocks', 'sonarqube', 'Bug', '<p>Using <code>return</code>, <code>break</code>, <code>throw</code>, and so on from a <code>finally</code> block suppresses the propagation of any
 unhandled <code>Throwable</code> which was thrown in the <code>try</code> or <code>catch</code> block.</p>
 <p>This rule raises an issue when a jump statement (<code>break</code>, <code>continue</code>, <code>return</code>, <code>throw</code>, and
 <code>goto</code>) would force control flow to leave a <code>finally</code> block. </p>
@@ -1780,7 +1807,7 @@ public static void doSomethingWhichThrowsException() {
   <li> <a href="http://cwe.mitre.org/data/definitions/584.html">MITRE, CWE-584</a> - Return Inside Finally Block </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/BTdGBQ">CERT, ERR04-J.</a> - Do not complete abruptly from a finally block </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1144', 'Unused "private" methods should be removed', 'sonarqube', 'Code Smell', '<p><code>private</code> methods that are never executed are dead code: unnecessary, inoperative code that should be removed. Cleaning out dead code
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1144', 'Unused "private" methods should be removed', 'sonarqube', 'Code Smell', '<p><code>private</code> methods that are never executed are dead code: unnecessary, inoperative code that should be removed. Cleaning out dead code
 decreases the size of the maintained codebase, making it easier to understand the program and preventing bugs from being introduced.</p>
 <p>Note that this rule does not take reflection into account, which means that issues will be raised on <code>private</code> methods that are only
 accessed using the reflection API.</p>
@@ -1815,7 +1842,7 @@ public class Foo implements Serializable
 </pre>
 <h2>Exceptions</h2>
 <p>This rule doesn''t raise any issue on annotated methods.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1145', 'Useless "if(true) {...}" and "if(false){...}" blocks should be removed', 'sonarqube', 'Bug', '<p><code>if</code> statements with conditions that are always false have the effect of making blocks of code non-functional. <code>if</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1145', 'Useless "if(true) {...}" and "if(false){...}" blocks should be removed', 'sonarqube', 'Bug', '<p><code>if</code> statements with conditions that are always false have the effect of making blocks of code non-functional. <code>if</code>
 statements with conditions that are always true are completely redundant, and make the code less readable.</p>
 <p>There are three possible causes for the presence of such code: </p>
 <ul>
@@ -1860,7 +1887,7 @@ doSomething();
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS2583''>S2583</a> instead.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1147', 'Exit methods should not be called', 'sonarqube', 'Code Smell', '<p>Calling <code>System.exit(int status)</code> or <code>Rutime.getRuntime().exit(int status)</code> calls the shutdown hooks and shuts downs the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1147', 'Exit methods should not be called', 'sonarqube', 'Code Smell', '<p>Calling <code>System.exit(int status)</code> or <code>Rutime.getRuntime().exit(int status)</code> calls the shutdown hooks and shuts downs the
 entire Java virtual machine. Calling <code>Runtime.getRuntime().halt(int)</code> does an immediate shutdown, without calling the shutdown hooks, and
 skipping finalization.</p>
 <p>Each of these methods should be used with extreme care, and only when the intent is to stop the whole Java process. For instance, none of them
@@ -1878,7 +1905,7 @@ Runtime.getRuntime().halt(0);
   <li> <a href="http://cwe.mitre.org/data/definitions/382.html">MITRE, CWE-382</a> - Use of System.exit() </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/7zZGBQ">CERT, ERR09-J.</a> - Do not allow untrusted code to terminate the JVM </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1148', 'Throwable.printStackTrace(...) should not be called', 'sonarqube', 'Vulnerability', '<p><code>Throwable.printStackTrace(...)</code> prints a <code>Throwable</code> and its stack trace to some stream. By default that stream
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1148', 'Throwable.printStackTrace(...) should not be called', 'sonarqube', 'Vulnerability', '<p><code>Throwable.printStackTrace(...)</code> prints a <code>Throwable</code> and its stack trace to some stream. By default that stream
 <code>System.Err</code>, which could inadvertently expose sensitive information.</p>
 <p>Loggers should be used instead to print <code>Throwable</code>s, as they have many advantages:</p>
 <ul>
@@ -1911,7 +1938,7 @@ try {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS4507''>S4507</a> instead.</p>', 'java', 'DEPRECATED', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1149', 'Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used', 'sonarqube', 'Code Smell', '<p>Early classes of the Java API, such as <code>Vector</code>, <code>Hashtable</code> and <code>StringBuffer</code>, were synchronized to make them
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1149', 'Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used', 'sonarqube', 'Code Smell', '<p>Early classes of the Java API, such as <code>Vector</code>, <code>Hashtable</code> and <code>StringBuffer</code>, were synchronized to make them
 thread-safe. Unfortunately, synchronization has a big negative impact on performance, even when using these collections from a single thread.</p>
 <p>It is better to use their new unsynchronized replacements:</p>
 <ul>
@@ -1936,7 +1963,7 @@ ArrayList cats = new ArrayList();
 @Override
 public Vector getCats() {...}
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S115', 'Constant names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all constant names match a provided regular expression.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S115', 'Constant names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all constant names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$</code>:</p>
 <pre>
@@ -1958,7 +1985,7 @@ public enum MyEnum {
   FIRST;
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1150', 'Enumeration should not be implemented', 'sonarqube', 'Code Smell', '<p>From the official Oracle Javadoc:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1150', 'Enumeration should not be implemented', 'sonarqube', 'Code Smell', '<p>From the official Oracle Javadoc:</p>
 <blockquote>
   <p>NOTE: The functionality of this Enumeration interface is duplicated by the Iterator interface. In addition, Iterator adds an optional remove
   operation, and has shorter method names. New implementations should consider using Iterator in preference to Enumeration.</p>
@@ -1975,7 +2002,7 @@ public class MyClass implements Iterator {     // Compliant
   /* ... */
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1151', '"switch case" clauses should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>The <code>switch</code> statement should be used only to clearly define some new branches in the control flow. As soon as a <code>case</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1151', '"switch case" clauses should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>The <code>switch</code> statement should be used only to clearly define some new branches in the control flow. As soon as a <code>case</code>
 clause contains too many statements this highly decreases the readability of the overall control flow statement. In such case, the content of the
 <code>case</code> clause should be extracted into a dedicated method.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2009,7 +2036,7 @@ private void doSomething(){
     methodCall4("");
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1153', 'String.valueOf() should not be appended to a String', 'sonarqube', 'Code Smell', '<p>Appending <code>String.valueOf()</code> to a <code>String</code> decreases the code readability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1153', 'String.valueOf() should not be appended to a String', 'sonarqube', 'Code Smell', '<p>Appending <code>String.valueOf()</code> to a <code>String</code> decreases the code readability.</p>
 <p>The argument passed to <code>String.valueOf()</code> should be directly appended instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2023,7 +2050,7 @@ public void display(int i){
   System.out.println("Output is " + i);                    // Compliant
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1155', 'Collection.isEmpty() should be used to test for emptiness', 'sonarqube', 'Code Smell', '<p>Using <code>Collection.size()</code> to test for emptiness works, but using <code>Collection.isEmpty()</code> makes the code more readable and can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1155', 'Collection.isEmpty() should be used to test for emptiness', 'sonarqube', 'Code Smell', '<p>Using <code>Collection.size()</code> to test for emptiness works, but using <code>Collection.isEmpty()</code> makes the code more readable and can
 be more performant. The time complexity of any <code>isEmpty()</code> method implementation should be <code>O(1)</code> whereas some implementations
 of <code>size()</code> can be <code>O(n)</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2038,7 +2065,7 @@ if (myCollection.isEmpty()) {
   /* ... */
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1157', 'Case insensitive string comparisons should be made without intermediate upper or lower casing', 'sonarqube', 'Code Smell', '<p>Using <code>toLowerCase()</code> or <code>toUpperCase()</code> to make case insensitive comparisons is inefficient because it requires the creation
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1157', 'Case insensitive string comparisons should be made without intermediate upper or lower casing', 'sonarqube', 'Code Smell', '<p>Using <code>toLowerCase()</code> or <code>toUpperCase()</code> to make case insensitive comparisons is inefficient because it requires the creation
 of temporary, intermediate <code>String</code> objects.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2056,7 +2083,7 @@ locale)</p>
 <pre>
 boolean result1 = foo.toUpperCase(locale).equals(bar);             // Compliant
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1158', 'Primitive wrappers should not be instantiated only for "toString" or "compareTo" calls', 'sonarqube', 'Code Smell', '<p>Creating temporary primitive wrapper objects only for <code>String</code> conversion or the use of the <code>compareTo</code> method is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1158', 'Primitive wrappers should not be instantiated only for "toString" or "compareTo" calls', 'sonarqube', 'Code Smell', '<p>Creating temporary primitive wrapper objects only for <code>String</code> conversion or the use of the <code>compareTo</code> method is
 inefficient.</p>
 <p>Instead, the static <code>toString()</code> or <code>compare</code> method of the primitive wrapper class should be used.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2067,7 +2094,7 @@ new Integer(myInteger).toString();  // Noncompliant
 <pre>
 Integer.toString(myInteger);        // Compliant
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S116', 'Field names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that field
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S116', 'Field names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that field
 names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
@@ -2082,7 +2109,7 @@ class MyClass {
    private int myField;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1160', 'Public methods should throw at most one checked exception', 'sonarqube', 'Code Smell', '<p>Using checked exceptions forces method callers to deal with errors, either by propagating them or by handling them. Throwing exceptions makes them
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1160', 'Public methods should throw at most one checked exception', 'sonarqube', 'Code Smell', '<p>Using checked exceptions forces method callers to deal with errors, either by propagating them or by handling them. Throwing exceptions makes them
 fully part of the API of the method.</p>
 <p>But to keep the complexity for callers reasonable, methods should not throw more than one kind of checked exception.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2099,7 +2126,7 @@ public void delete() throws SomeApplicationLevelException {
 </pre>
 <h2>Exceptions</h2>
 <p>Overriding methods are not checked by this rule and are allowed to throw several checked exceptions.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1161', '"@Override" should be used on overriding and implementing methods', 'sonarqube', 'Code Smell', '<p>Using the <code>@Override</code> annotation is useful for two reasons :</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1161', '"@Override" should be used on overriding and implementing methods', 'sonarqube', 'Code Smell', '<p>Using the <code>@Override</code> annotation is useful for two reasons :</p>
 <ul>
   <li> It elicits a warning from the compiler if the annotated method doesn''t actually override anything, as in the case of a misspelling. </li>
   <li> It improves the readability of the source code by making it obvious that methods are overridden. </li>
@@ -2125,7 +2152,7 @@ class FirstChildClass extends ParentClass {
 </pre>
 <h2>Exceptions</h2>
 <p>This rule is relaxed when overriding a method from the <code>Object</code> class like <code>toString()</code>, <code>hashCode()</code>, ...</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1162', 'Checked exceptions should not be thrown', 'sonarqube', 'Code Smell', '<p>The purpose of checked exceptions is to ensure that errors will be dealt with, either by propagating them or by handling them, but some believe
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1162', 'Checked exceptions should not be thrown', 'sonarqube', 'Code Smell', '<p>The purpose of checked exceptions is to ensure that errors will be dealt with, either by propagating them or by handling them, but some believe
 that checked exceptions negatively impact the readability of source code, by spreading this error handling/propagation logic everywhere.</p>
 <p>This rule verifies that no method throws a new checked exception.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2141,7 +2168,7 @@ public void myMethod2() throws CheckedException {  // Compliant; propagation all
   myMethod1();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1163', 'Exceptions should not be thrown in finally blocks', 'sonarqube', 'Code Smell', '<p>Throwing an exception from within a finally block will mask any exception which was previously thrown in the <code>try</code> or <code>catch</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1163', 'Exceptions should not be thrown in finally blocks', 'sonarqube', 'Code Smell', '<p>Throwing an exception from within a finally block will mask any exception which was previously thrown in the <code>try</code> or <code>catch</code>
 block, and the masked''s exception message and stack trace will be lost.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2166,7 +2193,7 @@ try {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/FTZGBQ">CERT, ERR05-J.</a> - Do not let checked exceptions escape from a finally block </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1165', 'Exception classes should be immutable', 'sonarqube', 'Code Smell', '<p>Exceptions are meant to represent the application''s state at the point at which an error occurred.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1165', 'Exception classes should be immutable', 'sonarqube', 'Code Smell', '<p>Exceptions are meant to represent the application''s state at the point at which an error occurred.</p>
 <p>Making all fields in an <code>Exception</code> class <code>final</code> ensures that this state:</p>
 <ul>
   <li> Will be fully defined at the same time the <code>Exception</code> is instantiated. </li>
@@ -2210,7 +2237,7 @@ public class MyException extends Exception {
 
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1166', 'Exception handlers should preserve the original exceptions', 'sonarqube', 'Code Smell', '<p>When handling a caught exception, the original exception''s message and stack trace should be logged or passed forward.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1166', 'Exception handlers should preserve the original exceptions', 'sonarqube', 'Code Smell', '<p>When handling a caught exception, the original exception''s message and stack trace should be logged or passed forward.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 try {
@@ -2286,7 +2313,7 @@ try {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/xDdGBQ">CERT, ERR00-J.</a> - Do not suppress or ignore checked exceptions </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1168', 'Empty arrays and collections should be returned instead of null', 'sonarqube', 'Code Smell', '<p>Returning <code>null</code> instead of an actual array or collection forces callers of the method to explicitly test for nullity, making them more
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1168', 'Empty arrays and collections should be returned instead of null', 'sonarqube', 'Code Smell', '<p>Returning <code>null</code> instead of an actual array or collection forces callers of the method to explicitly test for nullity, making them more
 complex and less readable.</p>
 <p>Moreover, in many cases, <code>null</code> is used as a synonym for empty.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2332,7 +2359,7 @@ public static void main(String[] args) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/JzZGBQ">CERT, MET55-J.</a> - Return an empty array or collection instead of a null value for
   methods that return an array or collection </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S117', 'Local variable and method parameter names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when a local variable or function parameter name does
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S117', 'Local variable and method parameter names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when a local variable or function parameter name does
 not match the provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
@@ -2363,7 +2390,7 @@ try {
 } catch (Exception e) { // Compliant
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1170', 'Public constants and fields initialized at declaration should be "static final" rather than merely "final"', 'sonarqube', 'Code Smell', '<p>Making a <code>public</code> constant just <code>final</code> as opposed to <code>static final</code> leads to duplicating its value for every
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1170', 'Public constants and fields initialized at declaration should be "static final" rather than merely "final"', 'sonarqube', 'Code Smell', '<p>Making a <code>public</code> constant just <code>final</code> as opposed to <code>static final</code> leads to duplicating its value for every
 instance of the class, uselessly increasing the amount of memory required to execute the application.</p>
 <p>Further, when a non-<code>public</code>, <code>final</code> field isn''t also <code>static</code>, it implies that different instances can have
 different values. However, initializing a non-<code>static final</code> field in its declaration forces every instance to have the same value. So such
@@ -2386,7 +2413,7 @@ public class Myclass {
   <p>An inner class is a nested class that is not explicitly or implicitly declared static. Inner classes may not declare static initializers (§8.7)
   or member interfaces. Inner classes may not declare static members, unless they are compile-time constant fields (§15.28).</p>
 </blockquote>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1171', 'Only static class initializers should be used', 'sonarqube', 'Code Smell', '<p>Non-static initializers are rarely used, and can be confusing for most developers because they only run when new class instances are created. When
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1171', 'Only static class initializers should be used', 'sonarqube', 'Code Smell', '<p>Non-static initializers are rarely used, and can be confusing for most developers because they only run when new class instances are created. When
 possible, non-static initializers should be refactored into standard constructors or field initializers.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2425,7 +2452,7 @@ class MyClass {
   private static final Map&lt;String, String&gt; MY_MAP = ImmutableMap.of("a", "b");
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1172', 'Unused method parameters should be removed', 'sonarqube', 'Code Smell', '<p>Unused parameters are misleading. Whatever the values passed to such parameters, the behavior will be the same.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1172', 'Unused method parameters should be removed', 'sonarqube', 'Code Smell', '<p>Unused parameters are misleading. Whatever the values passed to such parameters, the behavior will be the same.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 void doSomething(int a, int b) {     // "b" is unused
@@ -2480,7 +2507,7 @@ protected void foobar(int a, String s) { // no issue, method is overridable and 
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1174', '"Object.finalize()" should remain protected (versus public) when overriding', 'sonarqube', 'Code Smell', '<p>The contract of the <code>Object.finalize()</code> method is clear: only the Garbage Collector is supposed to call this method.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1174', '"Object.finalize()" should remain protected (versus public) when overriding', 'sonarqube', 'Code Smell', '<p>The contract of the <code>Object.finalize()</code> method is clear: only the Garbage Collector is supposed to call this method.</p>
 <p>Making this method public is misleading, because it implies that any caller can use it.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2497,7 +2524,7 @@ public class MyClass {
   <li> <a href="http://cwe.mitre.org/data/definitions/583.html">MITRE, CWE-583</a> - finalize() Method Declared Public </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jZGBQ">CERT, MET12-J.</a> - Do not use finalizers </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1175', 'The signature of "finalize()" should match that of "Object.finalize()"', 'sonarqube', 'Bug', '<p><code>Object.finalize()</code> is called by the Garbage Collector at some point after the object becomes unreferenced.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1175', 'The signature of "finalize()" should match that of "Object.finalize()"', 'sonarqube', 'Bug', '<p><code>Object.finalize()</code> is called by the Garbage Collector at some point after the object becomes unreferenced.</p>
 <p>In general, overloading <code>Object.finalize()</code> is a bad idea because:</p>
 <ul>
   <li> The overload may not be called by the Garbage Collector. </li>
@@ -2516,7 +2543,7 @@ public int someBetterName(int someParameter) {  // Compliant
   /* ... */
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1176', 'Public types, methods and fields (API) should be documented with Javadoc', 'sonarqube', 'Code Smell', '<p>Try to imagine using the standard Java API (Collections, JDBC, IO, ...) without Javadoc. It would be a nightmare, because Javadoc is the only way
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1176', 'Public types, methods and fields (API) should be documented with Javadoc', 'sonarqube', 'Code Smell', '<p>Try to imagine using the standard Java API (Collections, JDBC, IO, ...) without Javadoc. It would be a nightmare, because Javadoc is the only way
 to understand of the contract of the API. Documenting an API with Javadoc increases the productivity of the developers consuming it.</p>
 <p>On top of a main description for each member of a public API, the following Javadoc elements are required to be described:</p>
 <ul>
@@ -2635,7 +2662,7 @@ public class MyClass&lt;T&gt; implements Runnable {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S118', 'Abstract class names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S118', 'Abstract class names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all
 <code>abstract</code> class names match a provided regular expression. If a non-abstract class match the regular expression, an issue is raised to
 suggest to either make it abstract or to rename it.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2655,7 +2682,7 @@ abstract class AbstractClass {
 class LikeClass {
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1181', 'Throwable and Error should not be caught', 'sonarqube', 'Code Smell', '<p><code>Throwable</code> is the superclass of all errors and exceptions in Java. <code>Error</code> is the superclass of all errors, which are not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1181', 'Throwable and Error should not be caught', 'sonarqube', 'Code Smell', '<p><code>Throwable</code> is the superclass of all errors and exceptions in Java. <code>Error</code> is the superclass of all errors, which are not
 meant to be caught by applications.</p>
 <p>Catching either <code>Throwable</code> or <code>Error</code> will also catch <code>OutOfMemoryError</code> and <code>InternalError</code>, from
 which an application should not attempt to recover.</p>
@@ -2675,7 +2702,7 @@ try { /* ... */ } catch (MyException e) { /* ... */ }
   <li> <a href="https://github.com/isocpp/CppCoreGuidelines/blob/036324/CppCoreGuidelines.md#Re-exception-types">C++ Core Guidelines E.14</a> - Use
   purpose-designed user-defined types as exceptions (not built-in types) </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1182', 'Classes that override "clone" should be "Cloneable" and call "super.clone()"', 'sonarqube', 'Code Smell', '<p><code>Cloneable</code> is the marker <code>Interface</code> that indicates that <code>clone()</code> may be called on an object. Overriding
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1182', 'Classes that override "clone" should be "Cloneable" and call "super.clone()"', 'sonarqube', 'Code Smell', '<p><code>Cloneable</code> is the marker <code>Interface</code> that indicates that <code>clone()</code> may be called on an object. Overriding
 <code>clone()</code> without implementing <code>Cloneable</code> can be useful if you want to control how subclasses clone themselves, but otherwise,
 it''s probably a mistake.</p>
 <p>The usual convention for <code>Object.clone()</code> according to Oracle''s Javadoc is:</p>
@@ -2743,7 +2770,7 @@ class Application {
   <li> <a href="http://cwe.mitre.org/data/definitions/580.html">MITRE, CWE-580</a> - clone() Method Without super.clone() </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/FjZGBQ">CERT, MET53-J.</a> - Ensure that the clone() method calls super.clone() </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1185', 'Overriding methods should do more than simply call the same method in the super class', 'sonarqube', 'Code Smell', '<p>Overriding a method just to call the same method from the super class without performing any other actions is useless and misleading. The only time
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1185', 'Overriding methods should do more than simply call the same method in the super class', 'sonarqube', 'Code Smell', '<p>Overriding a method just to call the same method from the super class without performing any other actions is useless and misleading. The only time
 this is justified is in <code>final</code> overriding methods, where the effect is to lock in the parent class behavior. This rule ignores such
 overrides of <code>equals</code>, <code>hashCode</code> and <code>toString</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -2770,7 +2797,7 @@ public int getId() {                            // Compliant - there is annotati
   return super.getId();
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1186', 'Methods should not be empty', 'sonarqube', 'Code Smell', '<p>There are several reasons for a method not to have a method body:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1186', 'Methods should not be empty', 'sonarqube', 'Code Smell', '<p>There are several reasons for a method not to have a method body:</p>
 <ul>
   <li> It is an unintentional omission, and should be fixed to prevent an unexpected behavior in production. </li>
   <li> It is not yet, or never will be, supported. In this case an <code>UnsupportedOperationException</code> should be thrown. </li>
@@ -2804,10 +2831,10 @@ public abstract class Animal {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1188', 'Anonymous classes should not have too many lines', 'sonarqube', 'Code Smell', '<p>Anonymous classes are a very convenient and compact way to inject a behavior without having to create a dedicated class. But those anonymous inner
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1188', 'Anonymous classes should not have too many lines', 'sonarqube', 'Code Smell', '<p>Anonymous classes are a very convenient and compact way to inject a behavior without having to create a dedicated class. But those anonymous inner
 classes should be used only if the behavior to be injected can be defined in a few lines of code, otherwise the source code can quickly become
 unreadable.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S119', 'Type parameter names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions make it possible for a team to collaborate efficiently. Following the established convention of single-letter type
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S119', 'Type parameter names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions make it possible for a team to collaborate efficiently. Following the established convention of single-letter type
 parameter names helps users and maintainers of your code quickly see the difference between a type parameter and a poorly named class.</p>
 <p>This rule check that all type parameter names match a provided regular expression. The following code snippets use the default regular
 expression.</p>
@@ -2825,7 +2852,7 @@ public class MyClass&lt;T&gt; {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1190', 'Future keywords should not be used as names', 'sonarqube', 'Code Smell', '<p>Through Java''s evolution keywords have been added. While code that uses those words as identifiers may be compilable under older versions of Java,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1190', 'Future keywords should not be used as names', 'sonarqube', 'Code Smell', '<p>Through Java''s evolution keywords have been added. While code that uses those words as identifiers may be compilable under older versions of Java,
 it will not be under modern versions. </p>
 <p>Following keywords are marked as invalid identifiers </p>
 <table>
@@ -2859,7 +2886,7 @@ public void doSomething() {
   int magic = 42;
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1191', 'Classes from "sun.*" packages should not be used', 'sonarqube', 'Code Smell', '<p>Classes in the <code>sun.*</code> or <code>com.sun.*</code> packages are considered implementation details, and are not part of the Java API.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1191', 'Classes from "sun.*" packages should not be used', 'sonarqube', 'Code Smell', '<p>Classes in the <code>sun.*</code> or <code>com.sun.*</code> packages are considered implementation details, and are not part of the Java API.</p>
 <p>They can cause problems when moving to new versions of Java because there is no backwards compatibility guarantee. Similarly, they can cause
 problems when moving to a different Java vendor, such as OpenJDK.</p>
 <p>Such classes are almost always wrapped by Java API classes that should be used instead.</p>
@@ -2868,7 +2895,7 @@ problems when moving to a different Java vendor, such as OpenJDK.</p>
 import com.sun.jna.Native;     // Noncompliant
 import sun.misc.BASE64Encoder; // Noncompliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1192', 'String literals should not be duplicated', 'sonarqube', 'Code Smell', '<p>Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1192', 'String literals should not be duplicated', 'sonarqube', 'Code Smell', '<p>Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.</p>
 <p>On the other hand, constants can be referenced from many places, but only need to be updated in a single place.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default threshold of 3:</p>
@@ -2901,7 +2928,7 @@ public void run() {
 </pre>
 <h2>Exceptions</h2>
 <p>To prevent generating some false-positives, literals having less than 5 characters are excluded.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1193', 'Exception types should not be tested using "instanceof" in catch blocks', 'sonarqube', 'Code Smell', '<p>Multiple catch blocks of the appropriate type should be used instead of catching a general exception, and then testing on the type.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1193', 'Exception types should not be tested using "instanceof" in catch blocks', 'sonarqube', 'Code Smell', '<p>Multiple catch blocks of the appropriate type should be used instead of catching a general exception, and then testing on the type.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 try {
@@ -2923,7 +2950,7 @@ try {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/ERR51-J.+Prefer+user-defined+exceptions+over+more+general+exception+types">CERT,
   ERR51-J.</a> - Prefer user-defined exceptions over more general exception types </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1194', '"java.lang.Error" should not be extended', 'sonarqube', 'Code Smell', '<p><code>java.lang.Error</code> and its subclasses represent abnormal conditions, such as <code>OutOfMemoryError</code>, which should only be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1194', '"java.lang.Error" should not be extended', 'sonarqube', 'Code Smell', '<p><code>java.lang.Error</code> and its subclasses represent abnormal conditions, such as <code>OutOfMemoryError</code>, which should only be
 encountered by the Java Virtual Machine.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2933,7 +2960,7 @@ public class MyException extends Error { /* ... */ }       // Noncompliant
 <pre>
 public class MyException extends Exception { /* ... */ }   // Compliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1195', 'Array designators "[]" should be located after the type in method signatures', 'sonarqube', 'Code Smell', '<p>According to the Java Language Specification: </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1195', 'Array designators "[]" should be located after the type in method signatures', 'sonarqube', 'Code Smell', '<p>According to the Java Language Specification: </p>
 <blockquote>
   <p>For compatibility with older versions of the Java SE platform,</p>
   <p>the declaration of a method that returns an array is allowed to place (some or all of) the empty bracket pairs that form the declaration of the
@@ -2952,7 +2979,7 @@ public int[] getVector() { /* ... */ }
 
 public int[][] getMatrix() { /* ... */ }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1197', 'Array designators "[]" should be on the type, not the variable', 'sonarqube', 'Code Smell', '<p>Array designators should always be located on the type for better code readability. Otherwise, developers must look both at the type and the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1197', 'Array designators "[]" should be on the type, not the variable', 'sonarqube', 'Code Smell', '<p>Array designators should always be located on the type for better code readability. Otherwise, developers must look both at the type and the
 variable name to know whether or not a variable is an array.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2963,7 +2990,7 @@ int[] matrix[];   // Noncompliant
 <pre>
 int[][] matrix;   // Compliant
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1199', 'Nested code blocks should not be used', 'sonarqube', 'Code Smell', '<p>Nested code blocks can be used to create a new scope and restrict the visibility of the variables defined inside it. Using this feature in a method
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1199', 'Nested code blocks should not be used', 'sonarqube', 'Code Smell', '<p>Nested code blocks can be used to create a new scope and restrict the visibility of the variables defined inside it. Using this feature in a method
 typically indicates that the method has too many responsibilities, and should be refactored into smaller methods.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -2991,7 +3018,7 @@ private void evaluateAdd() {
   stack.push(result);
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S120', 'Package names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all package names match a provided regular expression.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S120', 'Package names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all package names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[a-z_]+(.[a-z_][a-z0-9_]*)*$</code>:</p>
 <pre>
@@ -3001,7 +3028,7 @@ package org.exAmple; // Noncompliant
 <pre>
 package org.example;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1200', 'Classes should not be coupled to too many other classes (Single Responsibility Principle)', 'sonarqube', 'Code Smell', '<p>According to the Single Responsibility Principle, introduced by Robert C. Martin in his book "Principles of Object Oriented Design", a class should
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1200', 'Classes should not be coupled to too many other classes (Single Responsibility Principle)', 'sonarqube', 'Code Smell', '<p>According to the Single Responsibility Principle, introduced by Robert C. Martin in his book "Principles of Object Oriented Design", a class should
 have only one responsibility:</p>
 <blockquote>
   <p>If a class has more than one responsibility, then the responsibilities become coupled.</p>
@@ -3029,7 +3056,7 @@ class Foo {                        // Noncompliant - Foo depends on too many cla
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1201', '"equals" method overrides should accept "Object" parameters', 'sonarqube', 'Bug', '<p>"equals" as a method name should be used exclusively to override <code>Object.equals(Object)</code> to prevent any confusion.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1201', '"equals" method overrides should accept "Object" parameters', 'sonarqube', 'Bug', '<p>"equals" as a method name should be used exclusively to override <code>Object.equals(Object)</code> to prevent any confusion.</p>
 <p>It is tempting to overload the method to take a specific class instead of <code>Object</code> as parameter, to save the class comparison check.
 However, this will not work as expected when that is the only override.</p>
 <h2>Noncompliant Code Example</h2>
@@ -3089,7 +3116,7 @@ class MyClass2 {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1206', '"equals(Object obj)" and "hashCode()" should be overridden in pairs', 'sonarqube', 'Bug', '<p>According to the Java Language Specification, there is a contract between <code>equals(Object)</code> and <code>hashCode()</code>:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1206', '"equals(Object obj)" and "hashCode()" should be overridden in pairs', 'sonarqube', 'Bug', '<p>According to the Java Language Specification, there is a contract between <code>equals(Object)</code> and <code>hashCode()</code>:</p>
 <blockquote>
   <p>If two objects are equal according to the <code>equals(Object)</code> method, then calling the <code>hashCode</code> method on each of the two
   objects must produce the same integer result. </p>
@@ -3133,7 +3160,7 @@ class MyClass {    // Compliant
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/7DVGBQ">CERT, MET09-J.</a> - Classes that define an equals() method must also define a
   hashCode() method </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S121', 'Control structures should use curly braces', 'sonarqube', 'Code Smell', '<p>While not technically incorrect, the omission of curly braces can be misleading, and may lead to the introduction of errors during maintenance.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S121', 'Control structures should use curly braces', 'sonarqube', 'Code Smell', '<p>While not technically incorrect, the omission of curly braces can be misleading, and may lead to the introduction of errors during maintenance.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (condition)  // Noncompliant
@@ -3153,7 +3180,7 @@ line.</p>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/g9YxBQ">CERT, EXP19-C.</a> - Use braces for the body of an if, for, or while statement </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/MzZGBQ">CERT, EXP52-J.</a> - Use braces for the body of an if, for, or while statement </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1210', '"equals(Object obj)" should be overridden along with the "compareTo(T obj)" method', 'sonarqube', 'Code Smell', '<p>According to the Java <code>Comparable.compareTo(T o)</code> documentation:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1210', '"equals(Object obj)" should be overridden along with the "compareTo(T obj)" method', 'sonarqube', 'Code Smell', '<p>According to the Java <code>Comparable.compareTo(T o)</code> documentation:</p>
 <blockquote>
   <p>It is strongly recommended, but not strictly required that <code>(x.compareTo(y)==0) == (x.equals(y))</code>.</p>
   <p>Generally speaking, any class that implements the Comparable interface and violates this condition should clearly indicate this fact.</p>
@@ -3179,7 +3206,7 @@ public class Foo implements Comparable&lt;Foo&gt; {
   public boolean equals(Object obj) { /* ... */ }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1213', 'The members of an interface or class declaration should appear in a pre-defined order', 'sonarqube', 'Code Smell', '<p>According to the Java Code Conventions as defined by Oracle, the members of a class or interface declaration should appear in the following order
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1213', 'The members of an interface or class declaration should appear in a pre-defined order', 'sonarqube', 'Code Smell', '<p>According to the Java Code Conventions as defined by Oracle, the members of a class or interface declaration should appear in the following order
 in the source files:</p>
 <ul>
   <li> Class variables </li>
@@ -3205,7 +3232,7 @@ public class Foo{
    public boolean isTrue() {...}
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1214', 'Constants should not be defined in interfaces', 'sonarqube', 'Code Smell', '<p>According to Joshua Bloch, author of "Effective Java":</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1214', 'Constants should not be defined in interfaces', 'sonarqube', 'Code Smell', '<p>According to Joshua Bloch, author of "Effective Java":</p>
 <blockquote>
   <p>The constant interface pattern is a poor use of interfaces. </p>
   <p>That a class uses some constants internally is an implementation detail.</p>
@@ -3237,7 +3264,7 @@ public final class Status {             // Compliant
    public static final int CLOSED = 2;
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1215', 'Execution of the Garbage Collector should be triggered only by the JVM', 'sonarqube', 'Code Smell', '<p>Calling <code>System.gc()</code> or <code>Runtime.getRuntime().gc()</code> is a bad idea for a simple reason: there is no way to know exactly what
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1215', 'Execution of the Garbage Collector should be triggered only by the JVM', 'sonarqube', 'Code Smell', '<p>Calling <code>System.gc()</code> or <code>Runtime.getRuntime().gc()</code> is a bad idea for a simple reason: there is no way to know exactly what
 will be done under the hood by the JVM because the behavior will depend on its vendor, version and options:</p>
 <ul>
   <li> Will the whole application be frozen during the call? </li>
@@ -3249,7 +3276,7 @@ will be done under the hood by the JVM because the behavior will depend on its v
 any objects pending finalization.</p>
 <p>An application relying on these unpredictable methods is also unpredictable and therefore broken. The task of running the garbage collector and
 calling <code>finalize()</code> methods should be left exclusively to the JVM.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1217', '"Thread.run()" should not be called directly', 'sonarqube', 'Bug', '<p>The purpose of the <code>Thread.run()</code> method is to execute code in a separate, dedicated thread. Calling this method directly doesn''t make
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1217', '"Thread.run()" should not be called directly', 'sonarqube', 'Bug', '<p>The purpose of the <code>Thread.run()</code> method is to execute code in a separate, dedicated thread. Calling this method directly doesn''t make
 sense because it causes its code to be executed in the current thread. </p>
 <p>To get the expected behavior, call the <code>Thread.start()</code> method instead.</p>
 <h2>Noncompliant Code Example</h2>
@@ -3267,7 +3294,7 @@ myThread.start(); // Compliant
   <li> <a href="http://cwe.mitre.org/data/definitions/572.html">MITRE, CWE-572</a> - Call to Thread run() instead of start() </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/6DdGBQ">CERT THI00-J.</a> - Do not invoke Thread.run() </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1219', '"switch" statements should not contain non-case labels', 'sonarqube', 'Code Smell', '<p>Even if it is legal, mixing case and non-case labels in the body of a switch statement is very confusing and can even be the result of a typing
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1219', '"switch" statements should not contain non-case labels', 'sonarqube', 'Code Smell', '<p>Even if it is legal, mixing case and non-case labels in the body of a switch statement is very confusing and can even be the result of a typing
 error.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3314,7 +3341,7 @@ switch (day) {
     /* ... */
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S122', 'Statements should be on separate lines', 'sonarqube', 'Code Smell', '<p>For better readability, do not put more than one statement on a single line.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S122', 'Statements should be on separate lines', 'sonarqube', 'Code Smell', '<p>For better readability, do not put more than one statement on a single line.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if(someCondition) doSomething();
@@ -3325,7 +3352,7 @@ if(someCondition) {
   doSomething();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1220', 'The default unnamed package should not be used', 'sonarqube', 'Code Smell', '<p>According to the Java Language Specification:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1220', 'The default unnamed package should not be used', 'sonarqube', 'Code Smell', '<p>According to the Java Language Specification:</p>
 <blockquote>
   <p>Unnamed packages are provided by the Java platform principally for convenience when developing small or temporary applications or when just
   beginning development.</p>
@@ -3341,7 +3368,7 @@ package org.example;
 
 public class MyClass{ /* ... */ }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1221', 'Methods should not be named "tostring", "hashcode" or "equal"', 'sonarqube', 'Bug', '<p>Naming a method <code>tostring</code>, <code>hashcode</code> or <code>equal</code> is either:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1221', 'Methods should not be named "tostring", "hashcode" or "equal"', 'sonarqube', 'Bug', '<p>Naming a method <code>tostring</code>, <code>hashcode</code> or <code>equal</code> is either:</p>
 <ul>
   <li> A bug in the form of a typo. Overriding <code>toString</code>, <code>Object.hashCode()</code> (note the camelCasing) or
   <code>Object.equals</code> (note the ''s'' on the end) was meant, and the application does not behave as expected. </li>
@@ -3368,7 +3395,7 @@ public String toString() { /* ... */ }
 @Override
 public boolean equals(Object obj) { /* ... */ }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1223', 'Non-constructor methods should not have the same name as the enclosing class', 'sonarqube', 'Code Smell', '<p>Having a class and some of its methods sharing the same name is misleading, and leaves others to wonder whether it was done that way on purpose, or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1223', 'Non-constructor methods should not have the same name as the enclosing class', 'sonarqube', 'Code Smell', '<p>Having a class and some of its methods sharing the same name is misleading, and leaves others to wonder whether it was done that way on purpose, or
 was the methods supposed to be a constructor.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3384,7 +3411,7 @@ public class Foo {
    public void foo(String label) {...}  // Compliant
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1226', 'Method parameters, caught exceptions and foreach variables'' initial values should not be ignored', 'sonarqube', 'Bug', '<p>While it is technically correct to assign to parameters from within method bodies, doing so before the parameter value is read is likely a bug.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1226', 'Method parameters, caught exceptions and foreach variables'' initial values should not be ignored', 'sonarqube', 'Bug', '<p>While it is technically correct to assign to parameters from within method bodies, doing so before the parameter value is read is likely a bug.
 Instead, initial values of parameters, caught exceptions, and foreach parameters should be, if not treated as <code>final</code>, then at least read
 before reassignment.</p>
 <h2>Noncompliant Code Example</h2>
@@ -3397,7 +3424,7 @@ public void doTheThing(String str, int i, List&lt;String&gt; strings) {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1228', 'Packages should have a javadoc file ''package-info.java''', 'sonarqube', 'Code Smell', '<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1228', 'Packages should have a javadoc file ''package-info.java''', 'sonarqube', 'Code Smell', '<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using
 javadoc and declare package annotations.</p>
 <h2>Compliant Solution</h2>
 <pre>
@@ -3407,7 +3434,7 @@ javadoc and declare package annotations.</p>
 @ParametersAreNonnullByDefault
 package org.foo.bar;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1244', 'Floating point numbers should not be tested for equality', 'sonarqube', 'Bug', '<p>Floating point math is imprecise because of the challenges of storing such values in a binary representation. Even worse, floating point math is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1244', 'Floating point numbers should not be tested for equality', 'sonarqube', 'Bug', '<p>Floating point math is imprecise because of the challenges of storing such values in a binary representation. Even worse, floating point math is
 not associative; push a <code>float</code> or a <code>double</code> through a series of simple mathematical operations and the answer will be
 different based on the order of those operation because of the rounding that takes place at each step.</p>
 <p>Even simple floating point assignments are not simple:</p>
@@ -3453,9 +3480,9 @@ if(f != f) { // Compliant; test for NaN value
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S125', 'Sections of code should not be commented out', 'sonarqube', 'Code Smell', '<p>Programmers should not comment out code as it bloats programs and reduces readability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S125', 'Sections of code should not be commented out', 'sonarqube', 'Code Smell', '<p>Programmers should not comment out code as it bloats programs and reduces readability.</p>
 <p>Unused code should be deleted and can be retrieved from source control history if required.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1258', 'Classes and enums with private members should have a constructor', 'sonarqube', 'Code Smell', '<p>Non-abstract classes and enums with non-<code>static</code>, <code>private</code> members should explicitly initialize those members, either in a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1258', 'Classes and enums with private members should have a constructor', 'sonarqube', 'Code Smell', '<p>Non-abstract classes and enums with non-<code>static</code>, <code>private</code> members should explicitly initialize those members, either in a
 constructor or with a default value.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3502,7 +3529,7 @@ class A {
       href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/annotation/Autowired.html">Autowired</a> </li>
     </ul> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S126', '"if ... else if" constructs should end with "else" clauses', 'sonarqube', 'Code Smell', '<p>This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements; the final <code>else if</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S126', '"if ... else if" constructs should end with "else" clauses', 'sonarqube', 'Code Smell', '<p>This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements; the final <code>else if</code>
 should be followed by an <code>else</code> statement.</p>
 <p>The requirement for a final <code>else</code> statement is defensive programming.</p>
 <p>The <code>else</code> statement should either take appropriate action or contain a suitable comment as to why no action is taken. This is
@@ -3530,7 +3557,7 @@ if (x == 0) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/RtYxBQ">CERT, MSC01-C.</a> - Strive for logical completeness </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/jzZGBQ">CERT, MSC57-J.</a> - Strive for logical completeness </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1264', 'A "while" loop should be used instead of a "for" loop', 'sonarqube', 'Code Smell', '<p>When only the condition expression is defined in a <code>for</code> loop, and the initialization and increment expressions are missing, a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1264', 'A "while" loop should be used instead of a "for" loop', 'sonarqube', 'Code Smell', '<p>When only the condition expression is defined in a <code>for</code> loop, and the initialization and increment expressions are missing, a
 <code>while</code> loop should be used instead to increase readability. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3540,7 +3567,7 @@ for (;condition;) { /*...*/ }
 <pre>
 while (condition) { /*...*/ }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S127', '"for" loop stop conditions should be invariant', 'sonarqube', 'Code Smell', '<p>A <code>for</code> loop stop condition should test the loop counter against an invariant value (i.e. one that is true at both the beginning and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S127', '"for" loop stop conditions should be invariant', 'sonarqube', 'Code Smell', '<p>A <code>for</code> loop stop condition should test the loop counter against an invariant value (i.e. one that is true at both the beginning and
 ending of every loop iteration). Ideally, this means that the stop condition is set to a local variable just before the loop begins. </p>
 <p>Stop conditions that are not invariant are slightly less efficient, as well as being difficult to understand and maintain, and likely lead to the
 introduction of errors in the future.</p>
@@ -3562,7 +3589,7 @@ for (int i = 0; i &lt; 10; i++) {
 <pre>
 for (int i = 0; i &lt; 10; i++) {...}
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S128', 'Switch cases should end with an unconditional "break" statement', 'sonarqube', 'Code Smell', '<p>When the execution is not explicitly terminated at the end of a switch case, it continues to execute the statements of the following case. While
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S128', 'Switch cases should end with an unconditional "break" statement', 'sonarqube', 'Code Smell', '<p>When the execution is not explicitly terminated at the end of a switch case, it continues to execute the statements of the following case. While
 this is sometimes intentional, it often is a mistake which leads to unexpected behavior. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3617,7 +3644,7 @@ switch (myVariable) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/1DdGBQ">CERT, MSC52-J.</a> - Finish every set of statements associated with a case label with a
   break statement </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1301', '"switch" statements should have at least 3 "case" clauses', 'sonarqube', 'Code Smell', '<p><code>switch</code> statements are useful when there are many different cases depending on the value of the same expression.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1301', '"switch" statements should have at least 3 "case" clauses', 'sonarqube', 'Code Smell', '<p><code>switch</code> statements are useful when there are many different cases depending on the value of the same expression.</p>
 <p>For just one or two cases however, the code will be more readable with <code>if</code> statements.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3638,14 +3665,14 @@ if (variable == 0) {
   doSomethingElse();
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1309', 'Track uses of "@SuppressWarnings" annotations', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the usage of the <code>@SuppressWarnings</code> mechanism.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1309', 'Track uses of "@SuppressWarnings" annotations', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the usage of the <code>@SuppressWarnings</code> mechanism.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With a parameter value of "unused" :</p>
 <pre>
 @SuppressWarnings("unused")
 @SuppressWarnings("unchecked")  // Noncompliant
 </pre>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S131', '"switch" statements should have "default" clauses', 'sonarqube', 'Code Smell', '<p>The requirement for a final <code>default</code> clause is defensive programming. The clause should either take appropriate action, or contain a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S131', '"switch" statements should have "default" clauses', 'sonarqube', 'Code Smell', '<p>The requirement for a final <code>default</code> clause is defensive programming. The clause should either take appropriate action, or contain a
 suitable comment as to why no action is taken.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3707,12 +3734,12 @@ switch(day) {
   <li> <a href="http://cwe.mitre.org/data/definitions/478.html">MITRE, CWE-478</a> - Missing Default Case in Switch Statement </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/RtYxBQ">CERT, MSC01-C.</a> - Strive for logical completeness </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1310', 'Track uses of "NOPMD" suppression comments', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the use of the PMD suppression comment mechanism. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1310', 'Track uses of "NOPMD" suppression comments', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the use of the PMD suppression comment mechanism. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 // NOPMD
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1311', 'Cyclomatic Complexity of classes should not be too high', 'sonarqube', 'Code Smell', '<p>The Cyclomatic Complexity is measured by the number of <code>&amp;&amp;</code> and <code>||</code> operators and <code>if</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1311', 'Cyclomatic Complexity of classes should not be too high', 'sonarqube', 'Code Smell', '<p>The Cyclomatic Complexity is measured by the number of <code>&amp;&amp;</code> and <code>||</code> operators and <code>if</code>,
 <code>while</code>, <code>do</code>, <code>for</code>, <code>?:</code>, <code>catch</code>, <code>switch</code>, <code>case</code>,
 <code>return</code> and <code>throw</code> statements in the body of a class plus one for each constructor, method, static initializer, or instance
 initializer in the class. The last return statement in method, if exists, is not taken into account.</p>
@@ -3721,7 +3748,7 @@ time, a very complex class is a class which breaks the Single Responsibility Pri
 classes.</p>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1312', 'Loggers should be "private static final" and should share a naming convention', 'sonarqube', 'Code Smell', '<p>Regardless of the logging framework in use (logback, log4j, commons-logging, java.util.logging, ...), loggers should be:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1312', 'Loggers should be "private static final" and should share a naming convention', 'sonarqube', 'Code Smell', '<p>Regardless of the logging framework in use (logback, log4j, commons-logging, java.util.logging, ...), loggers should be:</p>
 <ul>
   <li> <code>private</code>: never be accessible outside of its parent class. If another class needs to log something, it should instantiate its own
   logger. </li>
@@ -3740,7 +3767,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(Foo.class);
 </pre>
 <h2>Exceptions</h2>
 <p>Variables of type <code>org.apache.maven.plugin.logging.Log</code> are ignored.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1313', 'Using hardcoded IP addresses is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Hardcoding IP addresses is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1313', 'Using hardcoded IP addresses is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Hardcoding IP addresses is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-5901">CVE-2006-5901</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3725">CVE-2005-3725</a> </li>
@@ -3792,7 +3819,7 @@ Socket socket = new Socket(ip, 6667);
   </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/OjdGBQ">CERT, MSC03-J.</a> - Never hard code sensitive information </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1314', 'Octal values should not be used', 'sonarqube', 'Code Smell', '<p>Integer literals starting with a zero are octal rather than decimal values. While using octal values is fully supported, most developers do not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1314', 'Octal values should not be used', 'sonarqube', 'Code Smell', '<p>Integer literals starting with a zero are octal rather than decimal values. While using octal values is fully supported, most developers do not
 have experience with them. They may not recognize octal values as such, mistaking them instead for decimal values.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3808,12 +3835,12 @@ int myNumber = 8;
   value </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/7DZGBQ">CERT, DCL50-J.</a> - Use visually distinct identifiers </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1315', 'Track uses of "CHECKSTYLE:OFF" suppression comments', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the use of the Checkstyle suppression comment mechanism. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1315', 'Track uses of "CHECKSTYLE:OFF" suppression comments', 'sonarqube', 'Code Smell', '<p>This rule allows you to track the use of the Checkstyle suppression comment mechanism. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 // CHECKSTYLE:OFF
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1317', '"StringBuilder" and "StringBuffer" should not be instantiated with a character', 'sonarqube', 'Bug', '<p>Instantiating a <code>StringBuilder</code> or a <code>StringBuffer</code> with a character is misleading because most Java developers would expect
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1317', '"StringBuilder" and "StringBuffer" should not be instantiated with a character', 'sonarqube', 'Bug', '<p>Instantiating a <code>StringBuilder</code> or a <code>StringBuffer</code> with a character is misleading because most Java developers would expect
 the character to be the initial value of the <code>StringBuffer</code>. </p>
 <p>What actually happens is that the int representation of the character is used to determine the initial size of the <code>StringBuffer</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -3824,7 +3851,7 @@ StringBuffer foo = new StringBuffer(''x'');   //equivalent to StringBuffer foo =
 <pre>
 StringBuffer foo = new StringBuffer("x");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1319', 'Declarations should use Java collection interfaces such as "List" rather than specific implementation classes such as "LinkedList"', 'sonarqube', 'Code Smell', '<p>The purpose of the Java Collections API is to provide a well defined hierarchy of interfaces in order to hide implementation details.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1319', 'Declarations should use Java collection interfaces such as "List" rather than specific implementation classes such as "LinkedList"', 'sonarqube', 'Code Smell', '<p>The purpose of the Java Collections API is to provide a well defined hierarchy of interfaces in order to hide implementation details.</p>
 <p>Implementing classes must be used to instantiate new collections, but the result of an instantiation should ideally be stored in a variable whose
 type is a Java Collection interface.</p>
 <p>This rule raises an issue when an implementation class:</p>
@@ -3853,7 +3880,7 @@ public class Employees {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S134', 'Control flow statements "if", "for", "while", "switch" and "try" should not be nested too deeply', 'sonarqube', 'Code Smell', '<p>Nested <code>if</code>, <code>for</code>, <code>while</code>, <code>switch</code>, and <code>try</code> statements are key ingredients for making
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S134', 'Control flow statements "if", "for", "while", "switch" and "try" should not be nested too deeply', 'sonarqube', 'Code Smell', '<p>Nested <code>if</code>, <code>for</code>, <code>while</code>, <code>switch</code>, and <code>try</code> statements are key ingredients for making
 what''s known as "Spaghetti code".</p>
 <p>Such code is hard to read, refactor and therefore maintain.</p>
 <h2>Noncompliant Code Example</h2>
@@ -3875,7 +3902,7 @@ if (condition1) {                  // Compliant - depth = 1
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S135', 'Loops should not contain more than a single "break" or "continue" statement', 'sonarqube', 'Code Smell', '<p>Restricting the number of <code>break</code> and <code>continue</code> statements in a loop is done in the interest of good structured programming.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S135', 'Loops should not contain more than a single "break" or "continue" statement', 'sonarqube', 'Code Smell', '<p>Restricting the number of <code>break</code> and <code>continue</code> statements in a loop is done in the interest of good structured programming.
 </p>
 <p>Only one <code>break</code> or one <code>continue</code> statement is acceptable in a loop, since it facilitates optimal coding. If there is more
 than one, the code should be refactored to increase readability.</p>
@@ -3893,11 +3920,11 @@ for (int i = 1; i &lt;= 10; i++) {     // Noncompliant - 2 continue - one might 
   System.out.println("i = " + i);
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S138', 'Methods should not have too many lines', 'sonarqube', 'Code Smell', '<p>A method that grows too large tends to aggregate too many responsibilities. Such method inevitably become harder to understand and therefore harder
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S138', 'Methods should not have too many lines', 'sonarqube', 'Code Smell', '<p>A method that grows too large tends to aggregate too many responsibilities. Such method inevitably become harder to understand and therefore harder
 to maintain.</p>
 <p>Above a specific threshold, it is strongly advised to refactor into smaller methods which focus on well-defined tasks. Those smaller methods will
 not only be easier to understand, but also probably easier to test.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S139', 'Comments should not be located at the end of lines of code', 'sonarqube', 'Code Smell', '<p>This rule verifies that single-line comments are not located at the ends of lines of code. The main idea behind this rule is that in order to be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S139', 'Comments should not be located at the end of lines of code', 'sonarqube', 'Code Smell', '<p>This rule verifies that single-line comments are not located at the ends of lines of code. The main idea behind this rule is that in order to be
 really readable, trailing comments would have to be properly written and formatted (correct alignment, no interference with the visual structure of
 the code, not too long to be visible) but most often, automatic code formatters would not handle this correctly: the code would end up less readable.
 Comments are far better placed on the previous empty line of code, where they will always be visible and properly formatted.</p>
@@ -3910,7 +3937,7 @@ int a1 = b + c; // This is a trailing comment that can be very very long
 // This very long comment is better placed before the line of code
 int a2 = b + c;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1444', '"public static" fields should be constant', 'sonarqube', 'Code Smell', '<p>There is no good reason to declare a field "public" and "static" without also declaring it "final". Most of the time this is a kludge to share a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1444', '"public static" fields should be constant', 'sonarqube', 'Code Smell', '<p>There is no good reason to declare a field "public" and "static" without also declaring it "final". Most of the time this is a kludge to share a
 state among several objects. But with this approach, any object can do whatever it wants with the shared state, such as setting it to
 <code>null</code>. </p>
 <h2>Noncompliant Code Example</h2>
@@ -3932,9 +3959,9 @@ public class Greeter {
   <li> <a href="http://cwe.mitre.org/data/definitions/500.html">MITRE, CWE-500</a> - Public Static Field Not Marked Final </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/WjdGBQ">CERT OBJ10-J.</a> - Do not use public static nonfinal fields </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1448', 'Classes should not have too many methods', 'sonarqube', 'Code Smell', '<p>A class that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1448', 'Classes should not have too many methods', 'sonarqube', 'Code Smell', '<p>A class that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain.
 Above a specific threshold, it is strongly advised to refactor the class into smaller ones which focus on well defined topics.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1449', 'String operations should not rely on the default system locale', 'sonarqube', 'Code Smell', '<p>Failure to specify a locale when calling the methods <code>toLowerCase()</code>, <code>toUpperCase()</code> or <code>format()</code> on
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1449', 'String operations should not rely on the default system locale', 'sonarqube', 'Code Smell', '<p>Failure to specify a locale when calling the methods <code>toLowerCase()</code>, <code>toUpperCase()</code> or <code>format()</code> on
 <code>String</code> objects means the system default encoding will be used, possibly creating problems with international characters or number
 representations. For instance with the Turkish language, when converting the small letter ''i'' to upper case, the result is capital letter ''I'' with a
 dot over it.</p>
@@ -3954,7 +3981,7 @@ myString.toLowerCase(Locale.TR)
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4zdGBQ">CERT, STR02-J.</a> - Specify an appropriate locale when comparing locale-dependent data
   </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1450', 'Private fields only used as local variables in methods should become local variables', 'sonarqube', 'Code Smell', '<p>When the value of a private field is always assigned to in a class'' methods before being read, then it is not being used to store class
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1450', 'Private fields only used as local variables in methods should become local variables', 'sonarqube', 'Code Smell', '<p>When the value of a private field is always assigned to in a class'' methods before being read, then it is not being used to store class
 information. Therefore, it should become a local variable in the relevant methods to prevent any misunderstanding.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -3997,7 +4024,7 @@ public class Foo {
 </pre>
 <h2>Exceptions</h2>
 <p>This rule doesn''t raise any issue on annotated field.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1451', 'Track lack of copyright and license headers', 'sonarqube', 'Code Smell', '<p>Each source file should start with a header stating file ownership and the license which must be used to distribute the application. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1451', 'Track lack of copyright and license headers', 'sonarqube', 'Code Smell', '<p>Each source file should start with a header stating file ownership and the license which must be used to distribute the application. </p>
 <p>This rule must be fed with the header text that is expected at the beginning of every file.</p>
 <h2>Compliant Solution</h2>
 <pre>
@@ -4021,7 +4048,7 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1452', 'Generic wildcard types should not be used in return types', 'sonarqube', 'Code Smell', '<p>It is highly recommended <strong>not</strong> to use wildcard types as return types. Because the type inference rules are fairly complex it is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1452', 'Generic wildcard types should not be used in return types', 'sonarqube', 'Code Smell', '<p>It is highly recommended <strong>not</strong> to use wildcard types as return types. Because the type inference rules are fairly complex it is
 unlikely the user of that API will know how to use it correctly. </p>
 <p>Let''s take the example of method returning a "List&lt;? extends Animal&gt;". Is it possible on this list to add a Dog, a Cat, ... we simply don''t
 know. And neither does the compiler, which is why it will not allow such a direct use. The use of wildcard types should be limited to method
@@ -4039,11 +4066,11 @@ List&lt;Animal&gt; getAnimals(){...}
 <pre>
 List&lt;Dog&gt; getAnimals(){...}
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1479', '"switch" statements should not have too many "case" clauses', 'sonarqube', 'Code Smell', '<p>When <code>switch</code> statements have large sets of <code>case</code> clauses, it is usually an attempt to map two sets of data. A real map
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1479', '"switch" statements should not have too many "case" clauses', 'sonarqube', 'Code Smell', '<p>When <code>switch</code> statements have large sets of <code>case</code> clauses, it is usually an attempt to map two sets of data. A real map
 structure would be more readable and maintainable, and should be used instead.</p>
 <h2>Exceptions</h2>
 <p>This rule ignores <code>switch</code>es over <code>Enum</code>s and empty, fall-through cases.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1481', 'Unused local variables should be removed', 'sonarqube', 'Code Smell', '<p>If a local variable is declared but not used, it is dead code and should be removed. Doing so will improve maintainability because developers will
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1481', 'Unused local variables should be removed', 'sonarqube', 'Code Smell', '<p>If a local variable is declared but not used, it is dead code and should be removed. Doing so will improve maintainability because developers will
 not wonder what the variable is used for.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4058,7 +4085,7 @@ public int numberOfMinutes(int hours) {
   return hours * 60;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1488', 'Local variables should not be declared and then immediately returned or thrown', 'sonarqube', 'Code Smell', '<p>Declaring a variable only to immediately return or throw it is a bad practice.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1488', 'Local variables should not be declared and then immediately returned or thrown', 'sonarqube', 'Code Smell', '<p>Declaring a variable only to immediately return or throw it is a bad practice.</p>
 <p>Some developers argue that the practice improves code readability, because it enables them to explicitly name what is being returned. However, this
 variable is an internal implementation detail that is not exposed to the callers of the method. The method name should be sufficient for callers to
 know exactly what will be returned.</p>
@@ -4084,12 +4111,12 @@ public void doSomething() {
   throw new RuntimeException();
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1541', 'Methods should not be too complex', 'sonarqube', 'Code Smell', '<p>The cyclomatic complexity of methods should not exceed a defined threshold.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1541', 'Methods should not be too complex', 'sonarqube', 'Code Smell', '<p>The cyclomatic complexity of methods should not exceed a defined threshold.</p>
 <p>Complex code can perform poorly and will in any case be difficult to understand and therefore to maintain.</p>
 <h2>Exceptions</h2>
 <p>While having a large number of fields in a class may indicate that it should be split, this rule nonetheless ignores high complexity in
 <code>equals</code> and <code>hashCode</code> methods.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1596', '"Collections.EMPTY_LIST", "EMPTY_MAP", and "EMPTY_SET" should not be used', 'sonarqube', 'Code Smell', '<p>Since the introduction of generics in Java 5, the use of generic types such as <code>List&lt;String&gt;</code> is recommended over the use of raw
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1596', '"Collections.EMPTY_LIST", "EMPTY_MAP", and "EMPTY_SET" should not be used', 'sonarqube', 'Code Smell', '<p>Since the introduction of generics in Java 5, the use of generic types such as <code>List&lt;String&gt;</code> is recommended over the use of raw
 ones such as <code>List</code>. Assigning a raw type to a generic one is not type safe, and will generate a warning. The old <code>EMPTY_...</code>
 fields of the <code>Collections</code> class return raw types, whereas the newer <code>empty...()</code> methods return generic ones.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4104,7 +4131,7 @@ List&lt;String&gt; collection1 = Collections.emptyList();
 Map&lt;String, String&gt; collection2 = Collections.emptyMap();
 Set&lt;String&gt; collection3 = Collections.emptySet();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1598', 'Package declaration should match source file directory', 'sonarqube', 'Code Smell', '<p>By convention, a Java class'' physical location (source directories) and its logical representation (packages) should be kept in sync. Thus a Java
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1598', 'Package declaration should match source file directory', 'sonarqube', 'Code Smell', '<p>By convention, a Java class'' physical location (source directories) and its logical representation (packages) should be kept in sync. Thus a Java
 file located at <code>"src/org/bar/Foo.java"</code> should have a package of <code>"org.bar"</code>. </p>
 <p>Unfortunately, this convention is not enforced by Java compilers, and nothing prevents a developer from making the "Foo.java" class part of the
 "com.apple" package, which could degrade the maintainability of both the class and its application.</p>
@@ -4112,7 +4139,7 @@ file located at <code>"src/org/bar/Foo.java"</code> should have a package of <co
 time. For instance, code with a package declaration of <code>org.foo.bar</code> that is placed in <code>org/foo.bar</code> will compile, but the
 classloader will always search for the class into the folder based on package structure, and will consequently expect sources to be in
 <code>org/foo/bar</code> folder. <code>foo.bar</code> is therefore not a proper folder name for sources.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1602', 'Lambdas containing only one statement should not nest this statement in a block', 'sonarqube', 'Code Smell', '<p>There are two ways to write lambdas that contain single statement, but one is definitely more compact and readable than the other.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1602', 'Lambdas containing only one statement should not nest this statement in a block', 'sonarqube', 'Code Smell', '<p>There are two ways to write lambdas that contain single statement, but one is definitely more compact and readable than the other.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4124,7 +4151,7 @@ x -&gt; {System.out.println(x+1);}
 x -&gt; System.out.println(x+1)
 (a, b) -&gt; a+b    //For return statement, the return keyword should also be dropped
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1604', 'Anonymous inner classes containing only one method should become lambdas', 'sonarqube', 'Code Smell', '<p>Before Java 8, the only way to partially support closures in Java was by using anonymous inner classes. But the syntax of anonymous classes may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1604', 'Anonymous inner classes containing only one method should become lambdas', 'sonarqube', 'Code Smell', '<p>Before Java 8, the only way to partially support closures in Java was by using anonymous inner classes. But the syntax of anonymous classes may
 seem unwieldy and unclear.</p>
 <p>With Java 8, most uses of anonymous inner classes should be replaced by lambdas to highly increase the readability of the source code.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
@@ -4148,7 +4175,7 @@ myCollection.stream().map(input -&gt; new StringBuilder(input).reverse().toStrin
 
 Predicate&lt;String&gt; isEmpty = myString -&gt; myString.isEmpty();
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1607', 'JUnit4 @Ignored and JUnit5 @Disabled annotations should be used to disable tests and should provide a rationale', 'sonarqube', 'Code Smell', '<p>When a test fails due, for example, to infrastructure issues, you might want to ignore it temporarily. But without some kind of notation about why
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1607', 'JUnit4 @Ignored and JUnit5 @Disabled annotations should be used to disable tests and should provide a rationale', 'sonarqube', 'Code Smell', '<p>When a test fails due, for example, to infrastructure issues, you might want to ignore it temporarily. But without some kind of notation about why
 the test is being ignored, it may never be reactivated. Such tests are difficult to address without comprehensive knowledge of the project, and end up
 polluting their projects.</p>
 <p>This rule raises an issue for each ignored test that does not have any comment about why it is being skipped.</p>
@@ -4178,7 +4205,7 @@ public void testDoTheThing() {
 public void testDoTheThing() {
   // ...
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1609', '@FunctionalInterface annotation should be used to flag Single Abstract Method interfaces', 'sonarqube', 'Code Smell', '<p>A Single Abstract Method (SAM) interface is a Java interface containing only one method. The Java API is full of SAM interfaces, such as
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1609', '@FunctionalInterface annotation should be used to flag Single Abstract Method interfaces', 'sonarqube', 'Code Smell', '<p>A Single Abstract Method (SAM) interface is a Java interface containing only one method. The Java API is full of SAM interfaces, such as
 <code>java.lang.Runnable</code>, <code>java.awt.event.ActionListener</code>, <code>java.util.Comparator</code> and
 <code>java.util.concurrent.Callable</code>. SAM interfaces have a special place in Java 8 because they can be implemented using Lambda expressions or
 Method references. </p>
@@ -4200,7 +4227,7 @@ public interface Changeable&lt;T&gt; {
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1610', 'Abstract classes without fields should be converted to interfaces', 'sonarqube', 'Code Smell', '<p>With Java 8''s "default method" feature, any abstract class without direct or inherited field should be converted into an interface. However, this
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1610', 'Abstract classes without fields should be converted to interfaces', 'sonarqube', 'Code Smell', '<p>With Java 8''s "default method" feature, any abstract class without direct or inherited field should be converted into an interface. However, this
 change may not be appropriate in libraries or other applications where the class is intended to be used as an API.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4223,7 +4250,7 @@ public interface Car {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1611', 'Parentheses should be removed from a single lambda input parameter when its type is inferred', 'sonarqube', 'Code Smell', '<p>There are two possible syntaxes for a lambda having only one input parameter with an inferred type: with and without parentheses around that single
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1611', 'Parentheses should be removed from a single lambda input parameter when its type is inferred', 'sonarqube', 'Code Smell', '<p>There are two possible syntaxes for a lambda having only one input parameter with an inferred type: with and without parentheses around that single
 parameter. The simpler syntax, without parentheses, is more compact and readable than the one with parentheses, and is therefore preferred.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4234,7 +4261,7 @@ parameter. The simpler syntax, without parentheses, is more compact and readable
 <pre>
 x -&gt; x * 2
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1612', 'Lambdas should be replaced with method references', 'sonarqube', 'Code Smell', '<p>Method/constructor references are commonly agreed to be, most of the time, more compact and readable than using lambdas, and are therefore
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1612', 'Lambdas should be replaced with method references', 'sonarqube', 'Code Smell', '<p>Method/constructor references are commonly agreed to be, most of the time, more compact and readable than using lambdas, and are therefore
 preferred. </p>
 <p>In some rare cases, when it is not clear from the context what kind of function is being described and reference would not increase the clarity, it
 might be fine to keep the lambda. </p>
@@ -4278,7 +4305,7 @@ class B extends A {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1640', 'Maps with keys that are enum values should be replaced with EnumMap', 'sonarqube', 'Code Smell', '<p>When all the keys of a Map are values from the same enum, the <code>Map</code> can be replaced with an <code>EnumMap</code>, which can be much more
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1640', 'Maps with keys that are enum values should be replaced with EnumMap', 'sonarqube', 'Code Smell', '<p>When all the keys of a Map are values from the same enum, the <code>Map</code> can be replaced with an <code>EnumMap</code>, which can be much more
 efficient than other sets because the underlying data structure is a simple array.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4306,7 +4333,7 @@ public class MyClass {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1641', 'Sets with elements that are enum values should be replaced with EnumSet', 'sonarqube', 'Code Smell', '<p>When all the elements in a Set are values from the same enum, the Set can be replaced with an EnumSet, which can be much more efficient than other
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1641', 'Sets with elements that are enum values should be replaced with EnumSet', 'sonarqube', 'Code Smell', '<p>When all the elements in a Set are values from the same enum, the Set can be replaced with an EnumSet, which can be much more efficient than other
 sets because the underlying data structure is a simple bitmap.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4336,7 +4363,7 @@ public class MyClass {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1643', 'Strings should not be concatenated using ''+'' in a loop', 'sonarqube', 'Code Smell', '<p>Strings are immutable objects, so concatenation doesn''t simply add the new String to the end of the existing string. Instead, in each loop
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1643', 'Strings should not be concatenated using ''+'' in a loop', 'sonarqube', 'Code Smell', '<p>Strings are immutable objects, so concatenation doesn''t simply add the new String to the end of the existing string. Instead, in each loop
 iteration, the first String is converted to an intermediate object type, the second string is appended, and then the intermediate object is converted
 back to a String. Further, performance of these intermediate operations degrades as the String gets longer. Therefore, the use of StringBuilder is
 preferred.</p>
@@ -4355,7 +4382,7 @@ StringBuilder bld = new StringBuilder();
   }
   String str = bld.toString();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1656', 'Variables should not be self-assigned', 'sonarqube', 'Bug', '<p>There is no reason to re-assign a variable to itself. Either this statement is redundant and should be removed, or the re-assignment is a mistake
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1656', 'Variables should not be self-assigned', 'sonarqube', 'Bug', '<p>There is no reason to re-assign a variable to itself. Either this statement is redundant and should be removed, or the re-assignment is a mistake
 and some other value or variable was intended for the assignment instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4374,7 +4401,7 @@ public void setName(String name) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1659', 'Multiple variables should not be declared on the same line', 'sonarqube', 'Code Smell', '<p>Declaring multiple variables on one line is difficult to read.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1659', 'Multiple variables should not be declared on the same line', 'sonarqube', 'Code Smell', '<p>Declaring multiple variables on one line is difficult to read.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 class MyClass {
@@ -4404,7 +4431,7 @@ class MyClass {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/YTZGBQ">CERT, DCL52-J.</a> - Do not declare more than one variable per declaration </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/EtcxBQ">CERT, DCL04-C.</a> - Do not declare more than one variable per declaration </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1694', 'An abstract class should have both abstract and concrete methods', 'sonarqube', 'Code Smell', '<p>The purpose of an abstract class is to provide some heritable behaviors while also defining methods which must be implemented by sub-classes.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1694', 'An abstract class should have both abstract and concrete methods', 'sonarqube', 'Code Smell', '<p>The purpose of an abstract class is to provide some heritable behaviors while also defining methods which must be implemented by sub-classes.</p>
 <p>A class with no abstract methods that was made abstract purely to prevent instantiation should be converted to a concrete class (i.e. remove the
 <code>abstract</code> keyword) with a private constructor.</p>
 <p>A class with only abstract methods and no inheritable behavior should be converted to an interface.</p>
@@ -4458,7 +4485,7 @@ public abstract class Lamp {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1695', '"NullPointerException" should not be explicitly thrown', 'sonarqube', 'Code Smell', '<p>A <code>NullPointerException</code> should indicate that a <code>null</code> value was unexpectedly encountered. Good programming practice dictates
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1695', '"NullPointerException" should not be explicitly thrown', 'sonarqube', 'Code Smell', '<p>A <code>NullPointerException</code> should indicate that a <code>null</code> value was unexpectedly encountered. Good programming practice dictates
 that code is structured to avoid NPE''s. </p>
 <p>Explicitly throwing <code>NullPointerException</code> forces a method''s callers to explicitly catch it, rather than coding to avoid it. Further, it
 makes it difficult to distinguish between the unexpectedly-encountered <code>null</code> value and the condition which causes the method to purposely
@@ -4476,7 +4503,7 @@ public void doSomething (String aString) throws NullPointerException {
 public void doSomething (@NotNull String aString) {
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1696', '"NullPointerException" should not be caught', 'sonarqube', 'Code Smell', '<p><code>NullPointerException</code> should be avoided, not caught. Any situation in which <code>NullPointerException</code> is explicitly caught can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1696', '"NullPointerException" should not be caught', 'sonarqube', 'Code Smell', '<p><code>NullPointerException</code> should be avoided, not caught. Any situation in which <code>NullPointerException</code> is explicitly caught can
 easily be converted to a <code>null</code> test, and any behavior being carried out in the catch block can easily be moved to the "is null" branch of
 the conditional.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4512,7 +4539,7 @@ public int lengthPlus(String str) {
   Dereference </li>
   <li> <a href="https://tinyurl.com/y6r4amg3">CERT, ERR08-J.</a> - Do not catch NullPointerException or any of its ancestors </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1697', 'Short-circuit logic should be used to prevent null pointer dereferences in conditionals', 'sonarqube', 'Bug', '<p>When either the equality operator in a null test or the logical operator that follows it is reversed, the code has the appearance of safely
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1697', 'Short-circuit logic should be used to prevent null pointer dereferences in conditionals', 'sonarqube', 'Bug', '<p>When either the equality operator in a null test or the logical operator that follows it is reversed, the code has the appearance of safely
 null-testing the object before dereferencing it. Unfortunately the effect is just the opposite - the object is null-tested and then dereferenced
 <em>only</em> if it is null, leading to a guaranteed null pointer dereference.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4537,7 +4564,7 @@ if (str != null &amp;&amp; str.length() &gt; 0) {
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS2259''>S2259</a> instead.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1698', '"==" and "!=" should not be used when "equals" is overridden', 'sonarqube', 'Code Smell', '<p>It is equivalent to use the equality <code>==</code> operator and the <code>equals</code> method to compare two objects if the <code>equals</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1698', '"==" and "!=" should not be used when "equals" is overridden', 'sonarqube', 'Code Smell', '<p>It is equivalent to use the equality <code>==</code> operator and the <code>equals</code> method to compare two objects if the <code>equals</code>
 method inherited from <code>Object</code> has not been overridden. In this case both checks compare the object references.</p>
 <p>But as soon as <code>equals</code> is overridden, two objects not having the same reference but having the same value can be equal. This rule spots
 suspicious uses of <code>==</code> and <code>!=</code> operators on objects whose <code>equals</code> methods are overridden.</p>
@@ -4600,7 +4627,7 @@ void foo(Type other) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/yDdGBQ">CERT, EXP50-J.</a> - Do not confuse abstract object equality with reference equality
   </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1699', 'Constructors should only call non-overridable methods', 'sonarqube', 'Code Smell', '<p>Calling an overridable method from a constructor could result in failures or strange behaviors when instantiating a subclass which overrides the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1699', 'Constructors should only call non-overridable methods', 'sonarqube', 'Code Smell', '<p>Calling an overridable method from a constructor could result in failures or strange behaviors when instantiating a subclass which overrides the
 method.</p>
 <p>For example:</p>
 <ul>
@@ -4643,7 +4670,7 @@ public class Child extends Parent {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/6ns-BQ">CERT, OOP50-CPP.</a> - Do not invoke virtual functions from constructors or destructors
   </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1700', 'A field should not duplicate the name of its containing class', 'sonarqube', 'Code Smell', '<p>It''s confusing to have a class member with the same name (case differences aside) as its enclosing class. This is particularly so when you consider
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1700', 'A field should not duplicate the name of its containing class', 'sonarqube', 'Code Smell', '<p>It''s confusing to have a class member with the same name (case differences aside) as its enclosing class. This is particularly so when you consider
 the common practice of naming a class instance for the class itself.</p>
 <p>Best practice dictates that any field or member with the same name as the enclosing class be renamed to be more descriptive of the particular
 aspect of the class it represents or holds.</p>
@@ -4686,7 +4713,7 @@ public class Foo {
   ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1710', 'Annotation repetitions should not be wrapped', 'sonarqube', 'Code Smell', '<p>Before Java 8 if you needed to use multiple instances of the same annotation, they had to be wrapped in a container annotation. With Java 8, that''s
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1710', 'Annotation repetitions should not be wrapped', 'sonarqube', 'Code Smell', '<p>Before Java 8 if you needed to use multiple instances of the same annotation, they had to be wrapped in a container annotation. With Java 8, that''s
 no longer necessary, allowing for cleaner, more readable code.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4709,7 +4736,7 @@ public class SomeClass {
   ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1711', 'Standard functional interfaces should not be redefined', 'sonarqube', 'Code Smell', '<p>Just as there is little justification for writing your own String class, there is no good reason to re-define one of the existing, standard
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1711', 'Standard functional interfaces should not be redefined', 'sonarqube', 'Code Smell', '<p>Just as there is little justification for writing your own String class, there is no good reason to re-define one of the existing, standard
 functional interfaces.</p>
 <p>Doing so may seem tempting, since it would allow you to specify a little extra context with the name. But in the long run, it will be a source of
 confusion, because maintenance programmers will wonder what is different between the custom functional interface and the standard one.</p>
@@ -4751,7 +4778,7 @@ public class MyClass {
     }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1751', 'Loops with at most one iteration should be refactored', 'sonarqube', 'Bug', '<p>A loop with at most one iteration is equivalent to the use of an <code>if</code> statement to conditionally execute one piece of code. No developer
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1751', 'Loops with at most one iteration should be refactored', 'sonarqube', 'Bug', '<p>A loop with at most one iteration is equivalent to the use of an <code>if</code> statement to conditionally execute one piece of code. No developer
 expects to find such a use of a loop statement. If the initial intention of the author was really to conditionally execute one piece of code, an
 <code>if</code> statement should be used instead.</p>
 <p>At worst that was not the initial intention of the author and so the body of the loop should be fixed to use the nested <code>return</code>,
@@ -4786,7 +4813,7 @@ for (int i = 0; i &lt; 10; i++) {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1764', 'Identical expressions should not be used on both sides of a binary operator', 'sonarqube', 'Bug', '<p>Using the same value on either side of a binary operator is almost always a mistake. In the case of logical operators, it is either a copy/paste
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1764', 'Identical expressions should not be used on both sides of a binary operator', 'sonarqube', 'Bug', '<p>Using the same value on either side of a binary operator is almost always a mistake. In the case of logical operators, it is either a copy/paste
 error and therefore a bug, or it is simply wasted code, and should be simplified. In the case of bitwise operators and most binary mathematical
 operators, having the same value on both sides of an operator yields predictable results, and should be simplified.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4830,7 +4857,7 @@ int j = a &lt;&lt; a; // Noncompliant
   </li>
   <li> <a href=''/coding_rules#rule_key=java%3AS1656''>S1656</a> - Implements a check on <code>=</code>. </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1774', 'The ternary operator should not be used', 'sonarqube', 'Code Smell', '<p>While the ternary operator is pleasingly compact, its use can make code more difficult to read. It should therefore be avoided in favor of the more
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1774', 'The ternary operator should not be used', 'sonarqube', 'Code Smell', '<p>While the ternary operator is pleasingly compact, its use can make code more difficult to read. It should therefore be avoided in favor of the more
 verbose <code>if</code>/<code>else</code> structure.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -4844,10 +4871,10 @@ if (i &gt; 10) {
   System.out.println("no");
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1820', 'Classes should not have too many fields', 'sonarqube', 'Code Smell', '<p>A class that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain, and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1820', 'Classes should not have too many fields', 'sonarqube', 'Code Smell', '<p>A class that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain, and
 having a lot of fields is an indication that a class has grown too large.</p>
 <p>Above a specific threshold, it is strongly advised to refactor the class into smaller ones which focus on well defined topics.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1821', '"switch" statements and expressions should not be nested', 'sonarqube', 'Code Smell', '<p>Nested <code>switch</code> structures are difficult to understand because you can easily confuse the cases of an inner <code>switch</code> as
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1821', '"switch" statements and expressions should not be nested', 'sonarqube', 'Code Smell', '<p>Nested <code>switch</code> structures are difficult to understand because you can easily confuse the cases of an inner <code>switch</code> as
 belonging to an outer statement or expression. Therefore nested <code>switch</code> statements and expressions should be avoided.</p>
 <p>Specifically, you should structure your code to avoid the need for nested <code>switch</code> statements or expressions, but if you cannot, then
 consider moving the inner <code>switch</code> to another method.</p>
@@ -4885,7 +4912,7 @@ void bar(int m){
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1844', '"Object.wait(...)" should never be called on objects that implement "java.util.concurrent.locks.Condition"', 'sonarqube', 'Code Smell', '<p>From the Java API documentation:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1844', '"Object.wait(...)" should never be called on objects that implement "java.util.concurrent.locks.Condition"', 'sonarqube', 'Code Smell', '<p>From the Java API documentation:</p>
 <blockquote>
   <p><code>Condition</code> factors out the <code>Object</code> monitor methods (<code>wait</code>, <code>notify</code> and <code>notifyAll</code>)
   into distinct objects to give the effect of having multiple wait-sets per object, by combining them with the use of arbitrary Lock implementations.
@@ -4908,7 +4935,7 @@ final Condition notFull  = lock.newCondition();
 ...
 notFull.await();
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1845', 'Methods and field names should not be the same or differ only by capitalization', 'sonarqube', 'Code Smell', '<p>Looking at the set of methods in a class, including superclass methods, and finding two methods or fields that differ only by capitalization is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1845', 'Methods and field names should not be the same or differ only by capitalization', 'sonarqube', 'Code Smell', '<p>Looking at the set of methods in a class, including superclass methods, and finding two methods or fields that differ only by capitalization is
 confusing to users of the class. It is similarly confusing to have a method and a field which differ only in capitalization or a method and a field
 with exactly the same name and visibility.</p>
 <p>In the case of methods, it may have been a mistake on the part of the original developer, who intended to override a superclass method, but instead
@@ -4956,7 +4983,7 @@ public class MyCar extends Car{
 
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1849', '"Iterator.hasNext()" should not call "Iterator.next()"', 'sonarqube', 'Bug', '<p>Calling <code>Iterator.hasNext()</code> is not supposed to have any side effects, and therefore should not change the state of the iterator.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1849', '"Iterator.hasNext()" should not call "Iterator.next()"', 'sonarqube', 'Bug', '<p>Calling <code>Iterator.hasNext()</code> is not supposed to have any side effects, and therefore should not change the state of the iterator.
 <code>Iterator.next()</code> advances the iterator by one item. So calling it inside <code>Iterator.hasNext()</code>, breaks the
 <code>hasNext()</code> contract, and will lead to unexpected behavior in production.</p>
 <h2>Noncompliant Code Example</h2>
@@ -4973,7 +5000,7 @@ public boolean hasNext() {
 ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1850', '"instanceof" operators that always return "true" or "false" should be removed', 'sonarqube', 'Bug', '<p><code>instanceof</code> operators that always return <code>true</code> or <code>false</code> are either useless or the result of a misunderstanding
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1850', '"instanceof" operators that always return "true" or "false" should be removed', 'sonarqube', 'Bug', '<p><code>instanceof</code> operators that always return <code>true</code> or <code>false</code> are either useless or the result of a misunderstanding
 which could lead to unexpected behavior in production.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5001,7 +5028,7 @@ public boolean isSuitable(Integer param) {
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS2589''>S2589</a> instead.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1854', 'Unused assignments should be removed', 'sonarqube', 'Code Smell', '<p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1854', 'Unused assignments should be removed', 'sonarqube', 'Code Smell', '<p>A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value
 only to then overwrite it or throw it away, could indicate a serious error in the code. Even if it''s not an error, it is at best a waste of resources.
 Therefore all calculated values should be used.</p>
 <h2>Noncompliant Code Example</h2>
@@ -5022,7 +5049,7 @@ i += compute();
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/39UxBQ">CERT, MSC13-C.</a> - Detect and remove unused values </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/9DZGBQ">CERT, MSC56-J.</a> - Detect and remove superfluous code and values </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1858', '"toString()" should never be called on a String object', 'sonarqube', 'Code Smell', '<p>Invoking a method designed to return a string representation of an object which is already a string is a waste of keystrokes. This redundant
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1858', '"toString()" should never be called on a String object', 'sonarqube', 'Code Smell', '<p>Invoking a method designed to return a string representation of an object which is already a string is a waste of keystrokes. This redundant
 construction may be optimized by the compiler, but will be confusing in the meantime.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5034,7 +5061,7 @@ System.out.println(message.toString()); // Noncompliant;
 String message = "hello world";
 System.out.println(message);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1860', 'Synchronization should not be done on instances of value-based classes', 'sonarqube', 'Bug', '<p>Objects which are pooled and potentially reused should not be used for synchronization. If they are, it can cause unrelated threads to deadlock
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1860', 'Synchronization should not be done on instances of value-based classes', 'sonarqube', 'Bug', '<p>Objects which are pooled and potentially reused should not be used for synchronization. If they are, it can cause unrelated threads to deadlock
 with unhelpful stacktraces. Specifically, <code>String</code> literals, and boxed primitives such as Integers should not be used as lock objects
 because they are pooled and reused. The story is even worse for <code>Boolean</code> objects, because there could possibly be only two instances of
 <code>Boolean</code>, <code>Boolean.TRUE</code> and <code>Boolean.FALSE</code> and every class that uses a Boolean will be referring to one of the
@@ -5099,7 +5126,7 @@ public void doSomething() {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/1zdGBQ">CERT, LCK01-J.</a> - Do not synchronize on objects that may be reused </li>
   <li> <a href="https://openjdk.java.net/jeps/390">JEP-390.</a> - JEP 390: Warnings for Value-Based Classes </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1862', 'Related "if/else if" statements should not have the same condition', 'sonarqube', 'Bug', '<p>A chain of <code>if</code>/<code>else if</code> statements is evaluated from top to bottom. At most, only one branch will be executed: the first
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1862', 'Related "if/else if" statements should not have the same condition', 'sonarqube', 'Bug', '<p>A chain of <code>if</code>/<code>else if</code> statements is evaluated from top to bottom. At most, only one branch will be executed: the first
 one with a condition that evaluates to <code>true</code>. </p>
 <p>Therefore, duplicating a condition automatically leads to dead code. Usually, this is due to a copy/paste error. At best, it''s simply dead code and
 at worst, it''s a bug that is likely to induce further bugs as the code is maintained, and obviously it could lead to unexpected behavior. </p>
@@ -5128,7 +5155,7 @@ else if (param == 3)
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1871', 'Two branches in a conditional structure should not have exactly the same implementation', 'sonarqube', 'Code Smell', '<p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1871', 'Two branches in a conditional structure should not have exactly the same implementation', 'sonarqube', 'Code Smell', '<p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
 best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then in an <code>if</code> chain they should
 be combined, or for a <code>switch</code>, one should fall through to the other. </p>
 <h2>Noncompliant Code Example</h2>
@@ -5186,7 +5213,7 @@ if (a == 1) {
   doSomething();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1872', 'Classes should not be compared by name', 'sonarqube', 'Bug', '<p>There is no requirement that class names be unique, only that they be unique within a package. Therefore trying to determine an object''s type based
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1872', 'Classes should not be compared by name', 'sonarqube', 'Bug', '<p>There is no requirement that class names be unique, only that they be unique within a package. Therefore trying to determine an object''s type based
 on its class name is an exercise fraught with danger. One of those dangers is that a malicious user will send objects of the same name as the trusted
 class and thereby gain trusted access.</p>
 <p>Instead, the <code>instanceof</code> operator or the <code>Class.isAssignableFrom()</code> method should be used to check the object''s underlying
@@ -5240,7 +5267,7 @@ class Store {
   <li> <a href="http://cwe.mitre.org/data/definitions/486.html">MITRE, CWE-486</a> - Comparison of Classes by Name </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/eDdGBQ">CERT, OBJ09-J.</a> - Compare classes and not class names </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1874', '"@Deprecated" code should not be used', 'sonarqube', 'Code Smell', '<p>Once deprecated, classes, and interfaces, and their members should be avoided, rather than used, inherited or extended. Deprecation is a warning
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1874', '"@Deprecated" code should not be used', 'sonarqube', 'Code Smell', '<p>Once deprecated, classes, and interfaces, and their members should be avoided, rather than used, inherited or extended. Deprecation is a warning
 that the class or interface has been superseded, and will eventually be removed. The deprecation period allows you to make a smooth transition away
 from the aging, soon-to-be-retired technology.</p>
 <h2>Noncompliant Code Example</h2>
@@ -5278,7 +5305,7 @@ public class Bar extends Fum {  // Noncompliant; Fum is deprecated
   <li> <a href="http://cwe.mitre.org/data/definitions/477.html">MITRE, CWE-477</a> - Use of Obsolete Functions </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/6TdGBQ">CERT, MET02-J.</a> - Do not use deprecated or obsolete classes or methods </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1905', 'Redundant casts should not be used', 'sonarqube', 'Code Smell', '<p>Unnecessary casting expressions make the code harder to read and understand.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1905', 'Redundant casts should not be used', 'sonarqube', 'Code Smell', '<p>Unnecessary casting expressions make the code harder to read and understand.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 public void example() {
@@ -5320,7 +5347,7 @@ class C {
 
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1939', 'Extensions and implementations should not be redundant', 'sonarqube', 'Code Smell', '<p>All classes extend <code>Object</code> implicitly. Doing so explicitly is redundant.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1939', 'Extensions and implementations should not be redundant', 'sonarqube', 'Code Smell', '<p>All classes extend <code>Object</code> implicitly. Doing so explicitly is redundant.</p>
 <p>Further, declaring the implementation of an interface <em>and</em> one if its parents is also redundant. If you implement the interface, you also
 implicitly implement its parents and there''s no need to do so explicitly.</p>
 <h2>Noncompliant Code Example</h2>
@@ -5353,7 +5380,7 @@ public class Foo implements MyOtherFace {
   //...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1940', 'Boolean checks should not be inverted', 'sonarqube', 'Code Smell', '<p>It is needlessly complex to invert the result of a boolean comparison. The opposite comparison should be made instead.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1940', 'Boolean checks should not be inverted', 'sonarqube', 'Code Smell', '<p>It is needlessly complex to invert the result of a boolean comparison. The opposite comparison should be made instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if ( !(a == 2)) { ...}  // Noncompliant
@@ -5364,7 +5391,7 @@ boolean b = !(i &lt; 10);  // Noncompliant
 if (a != 2) { ...}
 boolean b = (i &gt;= 10);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1941', 'Variables should not be declared before they are relevant', 'sonarqube', 'Code Smell', '<p>For the sake of clarity, variables should be declared as close to where they''re used as possible. This is particularly true when considering
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1941', 'Variables should not be declared before they are relevant', 'sonarqube', 'Code Smell', '<p>For the sake of clarity, variables should be declared as close to where they''re used as possible. This is particularly true when considering
 methods that contain early returns and the potential to throw exceptions. In these cases, it is not only pointless, but also confusing to declare a
 variable that may never be used because conditions for an early return are met first.</p>
 <h2>Noncompliant Code Example</h2>
@@ -5403,7 +5430,7 @@ public boolean isConditionMet(int a, int b) {
   return false;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1942', 'Simple class names should be used', 'sonarqube', 'Code Smell', '<p>Java''s <code>import</code> mechanism allows the use of simple class names. Therefore, using a class'' fully qualified name in a file that
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1942', 'Simple class names should be used', 'sonarqube', 'Code Smell', '<p>Java''s <code>import</code> mechanism allows the use of simple class names. Therefore, using a class'' fully qualified name in a file that
 <code>import</code>s the class is redundant and confusing.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5425,7 +5452,7 @@ import java.sql.Timestamp;
 List&lt;String&gt; myList;
 Timestamp tStamp;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1943', 'Classes and methods that rely on the default system encoding should not be used', 'sonarqube', 'Code Smell', '<p>Using classes and methods that rely on the default system encoding can result in code that works fine in its "home" environment. But that code may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1943', 'Classes and methods that rely on the default system encoding should not be used', 'sonarqube', 'Code Smell', '<p>Using classes and methods that rely on the default system encoding can result in code that works fine in its "home" environment. But that code may
 break for customers who use different encodings in ways that are extremely difficult to diagnose and nearly, if not completely, impossible to
 reproduce when it''s time to fix them.</p>
 <p>This rule detects uses of the following classes and methods:</p>
@@ -5498,7 +5525,7 @@ reproduce when it''s time to fix them.</p>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ujZGBQ">CERT, STR50-J.</a> - Use the appropriate method for counting characters in a string
   </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1948', 'Fields in a "Serializable" class should either be transient or serializable', 'sonarqube', 'Code Smell', '<p>Fields in a <code>Serializable</code> class must themselves be either <code>Serializable</code> or <code>transient</code> even if the class is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1948', 'Fields in a "Serializable" class should either be transient or serializable', 'sonarqube', 'Code Smell', '<p>Fields in a <code>Serializable</code> class must themselves be either <code>Serializable</code> or <code>transient</code> even if the class is
 never explicitly serialized or deserialized. For instance, under load, most J2EE application frameworks flush objects to disk, and an allegedly
 <code>Serializable</code> object with non-transient, non-serializable data members could cause program crashes, and open the door to attackers. In
 general a <code>Serializable</code> class is expected to fulfil its contract and not have an unexpected behaviour when an instance is serialized. </p>
@@ -5546,7 +5573,7 @@ responsibility of properly serializing and de-serializing the object. This rule 
   <li> <a href="https://docs.oracle.com/javase/6/docs/api/java/io/Serializable.html">Oracle Java 6, Serializable</a> </li>
   <li> <a href="https://docs.oracle.com/javase/7/docs/api/java/io/Serializable.html">Oracle Java 7, Serializable</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1989', 'Exceptions should not be thrown from servlet methods', 'sonarqube', 'Vulnerability', '<p>Even though the signatures for methods in a servlet include <code>throws IOException, ServletException</code>, it''s a bad idea to let such
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1989', 'Exceptions should not be thrown from servlet methods', 'sonarqube', 'Vulnerability', '<p>Even though the signatures for methods in a servlet include <code>throws IOException, ServletException</code>, it''s a bad idea to let such
 exceptions be thrown. Failure to catch exceptions in a servlet could leave a system in a vulnerable state, possibly resulting in denial-of-service
 attacks, or the exposure of sensitive information because when a servlet throws an exception, the servlet container typically sends debugging
 information back to the user. And that information could be very valuable to an attacker. </p>
@@ -5581,7 +5608,7 @@ public void doGet(HttpServletRequest request, HttpServletResponse response)
   <li> <a href="http://cwe.mitre.org/data/definitions/600.html">MITRE, CWE-600</a> - Uncaught Exception in Servlet </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/-zZGBQ">CERT, ERR01-J.</a> - Do not allow exceptions to expose sensitive information </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1994', '"for" loop increment clauses should modify the loops'' counters', 'sonarqube', 'Code Smell', '<p>It can be extremely confusing when a <code>for</code> loop''s counter is incremented outside of its increment clause. In such cases, the increment
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1994', '"for" loop increment clauses should modify the loops'' counters', 'sonarqube', 'Code Smell', '<p>It can be extremely confusing when a <code>for</code> loop''s counter is incremented outside of its increment clause. In such cases, the increment
 should be moved to the loop''s increment clause if at all possible.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5603,10 +5630,10 @@ for (i = 0; i &lt; 10; i++) {
   j++;
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1996', 'Files should contain only one top-level class or interface each', 'sonarqube', 'Code Smell', '<p>A file that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain. This
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S1996', 'Files should contain only one top-level class or interface each', 'sonarqube', 'Code Smell', '<p>A file that grows too much tends to aggregate too many responsibilities and inevitably becomes harder to understand and therefore to maintain. This
 is doubly true for a file with multiple top-level classes and interfaces. It is strongly advised to divide the file into one top-level class or
 interface per file.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2039', 'Member variable visibility should be specified', 'sonarqube', 'Code Smell', '<p>Failing to explicitly declare the visibility of a member variable could result it in having a visibility you don''t expect, and potentially leave it
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2039', 'Member variable visibility should be specified', 'sonarqube', 'Code Smell', '<p>Failing to explicitly declare the visibility of a member variable could result it in having a visibility you don''t expect, and potentially leave it
 open to unexpected modification by other classes. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5637,7 +5664,7 @@ class Cone {
   Logger logger; // Compliant
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2047', 'The names of methods with boolean return values should start with "is" or "has"', 'sonarqube', 'Code Smell', '<p>Well-named functions can allow the users of your code to understand at a glance what to expect from the function - even before reading the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2047', 'The names of methods with boolean return values should start with "is" or "has"', 'sonarqube', 'Code Smell', '<p>Well-named functions can allow the users of your code to understand at a glance what to expect from the function - even before reading the
 documentation. Toward that end, methods returning a boolean should have names that start with "is" or "has" rather than with "get".</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5675,7 +5702,7 @@ public boolean getFoo(){
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2053', 'Hashes should include an unpredictable salt', 'sonarqube', 'Vulnerability', '<p>In cryptography, a "salt" is an extra piece of data which is included when hashing a password. This makes <code>rainbow-table attacks</code> more
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2053', 'Hashes should include an unpredictable salt', 'sonarqube', 'Vulnerability', '<p>In cryptography, a "salt" is an extra piece of data which is included when hashing a password. This makes <code>rainbow-table attacks</code> more
 difficult. Using a cryptographic hash function without an unpredictable salt increases the likelihood that an attacker could successfully find the
 hash value in databases of precomputed hashes (called <code>rainbow-tables</code>).</p>
 <p>This rule raises an issue when a hashing function which has been specifically designed for hashing passwords, such as <code>PBKDF2</code>, is used
@@ -5712,7 +5739,7 @@ PBEKeySpec spec = new PBEKeySpec(chars, salt, 10000, 256); // Compliant
   <li> <a href="http://cwe.mitre.org/data/definitions/760.html">MITRE, CWE-760</a> - Use of a One-Way Hash with a Predictable Salt </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2055', 'The non-serializable super class of a "Serializable" class should have a no-argument constructor', 'sonarqube', 'Bug', '<p>When a <code>Serializable</code> object has a non-serializable ancestor in its inheritance chain, object deserialization (re-instantiating the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2055', 'The non-serializable super class of a "Serializable" class should have a no-argument constructor', 'sonarqube', 'Bug', '<p>When a <code>Serializable</code> object has a non-serializable ancestor in its inheritance chain, object deserialization (re-instantiating the
 object from file) starts at the first non-serializable class, and proceeds down the chain, adding the properties of each subsequent child class, until
 the final object has been instantiated. </p>
 <p>In order to create the non-serializable ancestor, its no-argument constructor is called. Therefore the non-serializable ancestor of a
@@ -5760,7 +5787,7 @@ public class Raspberry extends Fruit
   public String getVarity() {...}
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2057', '"Serializable" classes should have a "serialVersionUID"', 'sonarqube', 'Code Smell', '<p>A <code>serialVersionUID</code> field is strongly recommended in all <code>Serializable</code> classes. If you do not provide one, one will be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2057', '"Serializable" classes should have a "serialVersionUID"', 'sonarqube', 'Code Smell', '<p>A <code>serialVersionUID</code> field is strongly recommended in all <code>Serializable</code> classes. If you do not provide one, one will be
 calculated for you by the compiler. The danger in not explicitly choosing the value is that when the class changes, the compiler will generate an
 entirely new id, and you will be suddenly unable to deserialize (read from file) objects that were serialized with the previous version of the
 class.</p>
@@ -5799,7 +5826,7 @@ and classes marked with <code>@SuppressWarnings("serial")</code> are ignored.</p
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ajdGBQ">CERT, SER00-J.</a> - Enable serialization compatibility during class evolution </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2059', '"Serializable" inner classes of "Serializable" classes should be static', 'sonarqube', 'Code Smell', '<p>Serializing a non-<code>static</code> inner class will result in an attempt at serializing the outer class as well. If the outer class is actually
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2059', '"Serializable" inner classes of "Serializable" classes should be static', 'sonarqube', 'Code Smell', '<p>Serializing a non-<code>static</code> inner class will result in an attempt at serializing the outer class as well. If the outer class is actually
 serializable, then the serialization will succeed but possibly write out far more data than was intended. </p>
 <p>Making the inner class <code>static</code> (i.e. "nested") avoids this problem, therefore inner classes should be <code>static</code> if possible.
 However, you should be aware that there are semantic differences between an inner class and a nested one: </p>
@@ -5831,7 +5858,7 @@ public class Raspberry implements Serializable {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ZTdGBQ">CERT, SER05-J.</a> - Do not serialize instances of inner classes </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2060', '"Externalizable" classes should have no-arguments constructors', 'sonarqube', 'Bug', '<p>An <code>Externalizable</code> class is one which handles its own <code>Serialization</code> and deserialization. During deserialization, the first
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2060', '"Externalizable" classes should have no-arguments constructors', 'sonarqube', 'Bug', '<p>An <code>Externalizable</code> class is one which handles its own <code>Serialization</code> and deserialization. During deserialization, the first
 step in the process is a default instantiation using the class'' no-argument constructor. Therefore an <code>Externalizable</code> class without a
 no-arg constructor cannot be deserialized.</p>
 <h2>Noncompliant Code Example</h2>
@@ -5849,7 +5876,7 @@ public class Tomato implements Externalizable {
   public Tomato (String color, int weight) { ... }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2061', 'Custom serialization method signatures should meet requirements', 'sonarqube', 'Bug', '<p>Writers of <code>Serializable</code> classes can choose to let Java''s automatic mechanisms handle serialization and deserialization, or they can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2061', 'Custom serialization method signatures should meet requirements', 'sonarqube', 'Bug', '<p>Writers of <code>Serializable</code> classes can choose to let Java''s automatic mechanisms handle serialization and deserialization, or they can
 choose to handle it themselves by implementing specific methods. However, if the signatures of those methods are not exactly what is expected, they
 will be ignored and the default serialization mechanisms will kick back in. </p>
 <h2>Noncompliant Code Example</h2>
@@ -5899,7 +5926,7 @@ public class Watermelon implements Serializable {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/WTdGBQ">CERT, SER01-J.</a> - Do not deviate from the proper signatures of serialization methods
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2062', '"readResolve" methods should be inheritable', 'sonarqube', 'Code Smell', '<p>The <code>readResolve()</code> method allows final tweaks to the state of an object during deserialization. Non-final classes which implement
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2062', '"readResolve" methods should be inheritable', 'sonarqube', 'Code Smell', '<p>The <code>readResolve()</code> method allows final tweaks to the state of an object during deserialization. Non-final classes which implement
 <code>readResolve()</code>, should not set its visibility to <code>private</code> since it will then be unavailable to child classes.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5931,7 +5958,7 @@ public class Raspberry extends Fruit implements Serializable {
   //...
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2063', 'Comparators should be "Serializable"', 'sonarqube', 'Code Smell', '<p>A non-serializable <code>Comparator</code> can prevent an otherwise-<code>Serializable</code> ordered collection from being serializable. Since the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2063', 'Comparators should be "Serializable"', 'sonarqube', 'Code Smell', '<p>A non-serializable <code>Comparator</code> can prevent an otherwise-<code>Serializable</code> ordered collection from being serializable. Since the
 overhead to make a <code>Comparator</code> serializable is usually low, doing so can be considered good defensive programming.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5949,7 +5976,7 @@ public class FruitComparator implements Comparator&lt;Fruit&gt;, Serializable {
   boolean equals(Object obj) {...}
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2065', 'Fields in non-serializable classes should not be "transient"', 'sonarqube', 'Code Smell', '<p><code>transient</code> is used to mark fields in a <code>Serializable</code> class which will not be written out to file (or stream). In a class
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2065', 'Fields in non-serializable classes should not be "transient"', 'sonarqube', 'Code Smell', '<p><code>transient</code> is used to mark fields in a <code>Serializable</code> class which will not be written out to file (or stream). In a class
 that does not implement <code>Serializable</code>, this modifier is simply wasted keystrokes, and should be removed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -5965,7 +5992,7 @@ class Vegetable {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2066', '"Serializable" inner classes of non-serializable classes should be "static"', 'sonarqube', 'Bug', '<p>Serializing a non-<code>static</code> inner class will result in an attempt at serializing the outer class as well. If the outer class is not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2066', '"Serializable" inner classes of non-serializable classes should be "static"', 'sonarqube', 'Bug', '<p>Serializing a non-<code>static</code> inner class will result in an attempt at serializing the outer class as well. If the outer class is not
 serializable, then serialization will fail, resulting in a runtime error. </p>
 <p>Making the inner class <code>static</code> (i.e. "nested") avoids this problem, therefore inner classes should be <code>static</code> if possible.
 However, you should be aware that there are semantic differences between an inner class and a nested one: </p>
@@ -5997,7 +6024,7 @@ public class Pomegranate {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ZTdGBQ">CERT SER05-J.</a> - Do not serialize instances of inner classes </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2068', 'Hard-coded credentials are security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Because it is easy to extract strings from an application source code or binary, credentials should not be hard-coded. This is particularly true
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2068', 'Hard-coded credentials are security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Because it is easy to extract strings from an application source code or binary, credentials should not be hard-coded. This is particularly true
 for applications that are distributed or that are open-source.</p>
 <p>In the past, it has led to the following vulnerabilities:</p>
 <ul>
@@ -6053,7 +6080,7 @@ try {
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#HARD_CODE_PASSWORD">Hard Coded Password</a> </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2070', 'SHA-1 and Message-Digest hash algorithms should not be used in secure contexts', 'sonarqube', 'Vulnerability', '<p>The MD5 algorithm and its successor, SHA-1, are no longer considered secure, because it is too easy to create hash collisions with them. That is,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2070', 'SHA-1 and Message-Digest hash algorithms should not be used in secure contexts', 'sonarqube', 'Vulnerability', '<p>The MD5 algorithm and its successor, SHA-1, are no longer considered secure, because it is too easy to create hash collisions with them. That is,
 it takes too little computational effort to come up with a different input that produces the same MD5 or SHA-1 hash, and using the new, same-hash
 value gives an attacker the same access as if he had the originally-hashed value. This applies as well to the other Message-Digest algorithms: MD2,
 MD4, MD6, HAVAL-128, HMAC-MD5, DSA (which uses SHA-1), RIPEMD, RIPEMD-128, RIPEMD-160, HMACRIPEMD160.</p>
@@ -6098,7 +6125,7 @@ MessageDigest md = MessageDigest.getInstance("SHA-256");
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS4790''>S4790</a>, <a href=''/coding_rules#rule_key=java%3AS5344''>S5344</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2077', 'Formatting SQL queries is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Formatted SQL queries can be difficult to maintain, debug and can increase the risk of SQL injection when concatenating untrusted values into the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2077', 'Formatting SQL queries is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Formatted SQL queries can be difficult to maintain, debug and can increase the risk of SQL injection when concatenating untrusted values into the
 query. However, this rule doesn''t detect SQL injections (unlike rule s3649), the goal is only to highlight complex/formatted queries.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -6185,7 +6212,7 @@ public User getUserHibernate(org.hibernate.Session session, String data) {
   (JPA)</a>, <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#SQL_INJECTION_JDO">Potential SQL/JDOQL Injection (JDO)</a>, <a
   href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#SQL_INJECTION_HIBERNATE">Potential SQL/HQL Injection (Hibernate)</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2089', 'HTTP referers should not be relied on', 'sonarqube', 'Vulnerability', '<p>The fields in an HTTP request are putty in the hands of an attacker, and you cannot rely on them to tell you the truth about anything. While it may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2089', 'HTTP referers should not be relied on', 'sonarqube', 'Vulnerability', '<p>The fields in an HTTP request are putty in the hands of an attacker, and you cannot rely on them to tell you the truth about anything. While it may
 be safe to store such values after they have been neutralized, decisions should never be made based on their contents.</p>
 <p>This rule flags uses of the referer header field.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6210,7 +6237,7 @@ public class MyServlet extends HttpServlet {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2092', 'Creating cookies without the "secure" flag is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When a cookie is protected with the <code>secure</code> attribute set to <em>true</em> it will not be send by the browser over an unencrypted HTTP
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2092', 'Creating cookies without the "secure" flag is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When a cookie is protected with the <code>secure</code> attribute set to <em>true</em> it will not be send by the browser over an unencrypted HTTP
 request and thus cannot be observed by an unauthorized person during a man-in-the-middle attack. </p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -6250,7 +6277,7 @@ c.setSecure(true); // Compliant: the sensitive cookie will not be send during an
   <li> <a href="http://cwe.mitre.org/data/definitions/614">MITRE, CWE-614</a> - Sensitive Cookie in HTTPS Session Without ''Secure'' Attribute </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2093', 'Try-with-resources should be used', 'sonarqube', 'Code Smell', '<p>Java 7 introduced the try-with-resources statement, which guarantees that the resource in question will be closed. Since the new syntax is closer
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2093', 'Try-with-resources should be used', 'sonarqube', 'Code Smell', '<p>Java 7 introduced the try-with-resources statement, which guarantees that the resource in question will be closed. Since the new syntax is closer
 to bullet-proof, it should be preferred over the older <code>try</code>/<code>catch</code>/<code>finally</code> version.</p>
 <p>This rule checks that <code>close</code>-able resources are opened in a try-with-resources statement.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>7</code>.</p>
@@ -6299,7 +6326,7 @@ catch (...) {}
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/6DZGBQ">CERT, ERR54-J.</a> - Use a try-with-resources statement to safely handle closeable
   resources </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2094', 'Classes should not be empty', 'sonarqube', 'Code Smell', '<p>There is no good excuse for an empty class. If it''s being used simply as a common extension point, it should be replaced with an
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2094', 'Classes should not be empty', 'sonarqube', 'Code Smell', '<p>There is no good excuse for an empty class. If it''s being used simply as a common extension point, it should be replaced with an
 <code>interface</code>. If it was stubbed in as a placeholder for future development it should be fleshed-out. In any other case, it should be
 eliminated.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6321,7 +6348,7 @@ public final class ApplicationConfiguration {
 
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2095', 'Resources should be closed', 'sonarqube', 'Bug', '<p>Connections, streams, files, and other classes that implement the <code>Closeable</code> interface or its super-interface,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2095', 'Resources should be closed', 'sonarqube', 'Bug', '<p>Connections, streams, files, and other classes that implement the <code>Closeable</code> interface or its super-interface,
 <code>AutoCloseable</code>, needs to be closed after use. Further, that <code>close</code> call must be made in a <code>finally</code> block otherwise
 an exception could keep the call from being made. Preferably, when class implements <code>AutoCloseable</code>, resource should be created using
 "try-with-resources" pattern and will be closed automatically.</p>
@@ -6408,7 +6435,7 @@ catch ( ... ) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/QtUxBQ">CERT, FIO42-C.</a> - Close files when they are no longer needed </li>
   <li> <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html">Try With Resources</a> </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2096', '"main" should not "throw" anything', 'sonarqube', 'Code Smell', '<p>There''s no reason for a <code>main</code> method to <code>throw</code> anything. After all, what''s going to catch it? </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2096', '"main" should not "throw" anything', 'sonarqube', 'Code Smell', '<p>There''s no reason for a <code>main</code> method to <code>throw</code> anything. After all, what''s going to catch it? </p>
 <p>Instead, the method should itself gracefully handle any exceptions that may bubble up to it, attach as much contextual information as possible, and
 perform whatever logging or user communication is necessary, and <code>exit</code> with a non-zero (i.e. non-success) exit code if necessary.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6428,7 +6455,7 @@ public static void main(String args[]) {
   }
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2097', '"equals(Object obj)" should test argument type', 'sonarqube', 'Bug', '<p>Because the <code>equals</code> method takes a generic <code>Object</code> as a parameter, any type of object may be passed to it. The method
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2097', '"equals(Object obj)" should test argument type', 'sonarqube', 'Bug', '<p>Because the <code>equals</code> method takes a generic <code>Object</code> as a parameter, any type of object may be passed to it. The method
 should not assume it will only be used to test objects of its class type. It must instead check the parameter''s type.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -6450,7 +6477,7 @@ public boolean equals(Object obj) {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2109', 'Reflection should not be used to check non-runtime annotations', 'sonarqube', 'Bug', '<p>The writer of an annotation can set one of three retention policies for it:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2109', 'Reflection should not be used to check non-runtime annotations', 'sonarqube', 'Bug', '<p>The writer of an annotation can set one of three retention policies for it:</p>
 <ul>
   <li> <code>RetentionPolicy.SOURCE</code> - these annotations are dropped during compilation, E.G. <code>@Override</code>,
   <code>@SuppressWarnings</code>. </li>
@@ -6467,7 +6494,7 @@ Method m = String.class.getMethod("getBytes", new Class[] {int.class,
 int.class, byte[].class, int.class});
 if (m.isAnnotationPresent(Override.class)) {  // Noncompliant; test will always return false, even when @Override is present in the code
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2110', 'Invalid "Date" values should not be used', 'sonarqube', 'Bug', '<p>Whether the valid value ranges for <code>Date</code> fields start with 0 or 1 varies by field. For instance, month starts at 0, and day of month
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2110', 'Invalid "Date" values should not be used', 'sonarqube', 'Bug', '<p>Whether the valid value ranges for <code>Date</code> fields start with 0 or 1 varies by field. For instance, month starts at 0, and day of month
 starts at 1. Enter a date value that goes past the end of the valid range, and the date will roll without error or exception. For instance, enter 12
 for month, and you''ll get January of the following year.</p>
 <p>This rule checks for bad values used in conjunction with <code>java.util.Date</code>, <code>java.sql.Date</code>, and
@@ -6525,7 +6552,7 @@ if (c.get(Calendar.MONTH) == 11) {
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2111', '"BigDecimal(double)" should not be used', 'sonarqube', 'Bug', '<p>Because of floating point imprecision, you''re unlikely to get the value you expect from the <code>BigDecimal(double)</code> constructor. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2111', '"BigDecimal(double)" should not be used', 'sonarqube', 'Bug', '<p>Because of floating point imprecision, you''re unlikely to get the value you expect from the <code>BigDecimal(double)</code> constructor. </p>
 <p>From <a href="http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#BigDecimal(double)">the JavaDocs</a>:</p>
 <blockquote>
   The results of this constructor can be somewhat unpredictable. One might assume that writing new BigDecimal(0.1) in Java creates a BigDecimal which
@@ -6555,7 +6582,7 @@ BigDecimal bd2 = new BigDecimal("1.1"); // using String constructor will result 
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/kzdGBQ">CERT, NUM10-J.</a> - Do not construct BigDecimal objects from floating-point literals
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2112', '"URL.hashCode" and "URL.equals" should be avoided', 'sonarqube', 'Code Smell', '<p>The <code>equals</code> and <code>hashCode</code> methods of <code>java.net.URL</code> both may trigger a name service (usually DNS) lookup to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2112', '"URL.hashCode" and "URL.equals" should be avoided', 'sonarqube', 'Code Smell', '<p>The <code>equals</code> and <code>hashCode</code> methods of <code>java.net.URL</code> both may trigger a name service (usually DNS) lookup to
 resolve the host name or IP address. Depending on the configuration, and network status, that can take a long time. <code>URI</code> on the other hand
 makes no such calls and should be used instead unless the specific <code>URL</code> functionality is required.</p>
 <p>In general it is better to use the <code>URI</code> class until access to the resource is actually needed, at which point you can just convert the
@@ -6585,7 +6612,7 @@ public void checkUrl(URL url) {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2114', 'Collections should not be passed as arguments to their own methods', 'sonarqube', 'Bug', '<p>Passing a collection as an argument to the collection''s own method is either an error - some other argument was intended - or simply nonsensical
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2114', 'Collections should not be passed as arguments to their own methods', 'sonarqube', 'Bug', '<p>Passing a collection as an argument to the collection''s own method is either an error - some other argument was intended - or simply nonsensical
 code. </p>
 <p>Further, because some methods require that the argument remain unmodified during the execution, passing a collection to itself can result in
 undefined behavior. </p>
@@ -6600,7 +6627,7 @@ objs.containsAll(objs); // Noncompliant; always true
 objs.removeAll(objs); // Noncompliant; confusing. Use clear() instead
 objs.retainAll(objs); // Noncompliant; NOOP
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2115', 'A secure password should be used when connecting to a database', 'sonarqube', 'Vulnerability', '<p>When relying on the password authentication mode for the database connection, a secure password should be chosen.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2115', 'A secure password should be used when connecting to a database', 'sonarqube', 'Vulnerability', '<p>When relying on the password authentication mode for the database connection, a secure password should be chosen.</p>
 <p>This rule raises an issue when an empty password is used.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -6619,7 +6646,7 @@ Connection conn = DriverManager.getConnection("jdbc:derby:memory:myDB;create=tru
   Exposure </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/521.html">MITRE, CWE-521</a> - Weak Password Requirements </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2116', '"hashCode" and "toString" should not be called on array instances', 'sonarqube', 'Bug', '<p>While <code>hashCode</code> and <code>toString</code> are available on arrays, they are largely useless. <code>hashCode</code> returns the array''s
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2116', '"hashCode" and "toString" should not be called on array instances', 'sonarqube', 'Bug', '<p>While <code>hashCode</code> and <code>toString</code> are available on arrays, they are largely useless. <code>hashCode</code> returns the array''s
 "identity hash code", and <code>toString</code> returns nearly the same value. Neither method''s output actually reflects the array''s contents.
 Instead, you should pass the array to the relevant static <code>Arrays</code> method.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6636,7 +6663,7 @@ public static void main( String[] args )
     String argStr = Arrays.toString(args);
     int argHash = Arrays.hashCode(args);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2118', 'Non-serializable classes should not be written', 'sonarqube', 'Bug', '<p>Nothing in a non-serializable class will be written out to file, and attempting to serialize such a class will result in an exception being thrown.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2118', 'Non-serializable classes should not be written', 'sonarqube', 'Bug', '<p>Nothing in a non-serializable class will be written out to file, and attempting to serialize such a class will result in an exception being thrown.
 Only a class that <code>implements Serializable</code> or one that extends such a class can successfully be serialized (or de-serialized). </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -6670,7 +6697,7 @@ public class Menu {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2119', '"Random" objects should be reused', 'sonarqube', 'Bug', '<p>Creating a new <code>Random</code> object each time a random value is needed is inefficient and may produce numbers which are not random depending
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2119', '"Random" objects should be reused', 'sonarqube', 'Bug', '<p>Creating a new <code>Random</code> object each time a random value is needed is inefficient and may produce numbers which are not random depending
 on the JDK. For better efficiency and randomness, create a single <code>Random</code>, then store, and reuse it.</p>
 <p>The <code>Random()</code> constructor tries to set the seed with a distinct value every time. However there is no guarantee that the seed will be
 random or even uniformly distributed. Some JDK will use the current time as seed, which makes the generated numbers not random at all.</p>
@@ -6698,7 +6725,7 @@ rule.</p>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2121', 'Silly String operations should not be made', 'sonarqube', 'Bug', '<p>Creating a substring from 0 to the end is silly. You''ll end up with the same string you started with. Using the value of <code>String.length</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2121', 'Silly String operations should not be made', 'sonarqube', 'Bug', '<p>Creating a substring from 0 to the end is silly. You''ll end up with the same string you started with. Using the value of <code>String.length</code>
 as either the start or end of a substring has similarly predictable results.</p>
 <p>Calling <code>String.contains</code> with the argument being identical to the String on which contains is invoked doesn''t make sense.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6721,7 +6748,7 @@ String s1 = speech;
 String s2 = "";
 String s3 = speech.substring(5);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2122', '"ScheduledThreadPoolExecutor" should not have 0 core threads', 'sonarqube', 'Bug', '<p><code>java.util.concurrent.ScheduledThreadPoolExecutor</code>''s pool is sized with <code>corePoolSize</code>, so setting <code>corePoolSize</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2122', '"ScheduledThreadPoolExecutor" should not have 0 core threads', 'sonarqube', 'Bug', '<p><code>java.util.concurrent.ScheduledThreadPoolExecutor</code>''s pool is sized with <code>corePoolSize</code>, so setting <code>corePoolSize</code>
 to zero means the executor will have no threads and run nothing.</p>
 <p>This rule detects instances where <code>corePoolSize</code> is set to zero, via either its setter or the object constructor.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6733,7 +6760,7 @@ public void do(){
   ScheduledThreadPoolExecutor stpe2 = new ScheduledThreadPoolExecutor(POOL_SIZE);
   stpe2.setCorePoolSize(0);  // Noncompliant
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2123', 'Values should not be uselessly incremented', 'sonarqube', 'Bug', '<p>A value that is incremented or decremented and then not stored is at best wasted code and at worst a bug.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2123', 'Values should not be uselessly incremented', 'sonarqube', 'Bug', '<p>A value that is incremented or decremented and then not stored is at best wasted code and at worst a bug.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 public int pickNumber() {
@@ -6755,7 +6782,7 @@ public int pickNumber() {
   return ++j;
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2127', '"Double.longBitsToDouble" should not be used for "int"', 'sonarqube', 'Bug', '<p><code>Double.longBitsToDouble</code> expects a 64-bit, <code>long</code> argument. Pass it a smaller value, such as an <code>int</code> and the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2127', '"Double.longBitsToDouble" should not be used for "int"', 'sonarqube', 'Bug', '<p><code>Double.longBitsToDouble</code> expects a 64-bit, <code>long</code> argument. Pass it a smaller value, such as an <code>int</code> and the
 mathematical conversion into a <code>double</code> simply won''t work as anticipated because the layout of the bits will be interpreted incorrectly, as
 if a child were trying to use an adult''s gloves.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6763,7 +6790,7 @@ if a child were trying to use an adult''s gloves.</p>
 int i = 42;
 double d = Double.longBitsToDouble(i);  // Noncompliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2129', 'Constructors should not be used to instantiate "String", "BigInteger", "BigDecimal" and primitive-wrapper classes', 'sonarqube', 'Code Smell', '<p>Constructors for <code>String</code>, <code>BigInteger</code>, <code>BigDecimal</code> and the objects used to wrap primitives should never be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2129', 'Constructors should not be used to instantiate "String", "BigInteger", "BigDecimal" and primitive-wrapper classes', 'sonarqube', 'Code Smell', '<p>Constructors for <code>String</code>, <code>BigInteger</code>, <code>BigDecimal</code> and the objects used to wrap primitives should never be
 used. Doing so is less clear and uses more memory than simply using the desired value in the case of strings, and using <code>valueOf</code> for
 everything else.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6791,7 +6818,7 @@ BigInteger bigInteger3 = new BigInteger("111222333444555666777888999");
 <h2>Exceptions</h2>
 <p><code>BigDecimal</code> constructor with <code>double</code> argument is ignored as using <code>valueOf</code> instead might change resulting
 value. See <a href=''/coding_rules#rule_key=java%3AS2111''>S2111</a> .</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2130', 'Parsing should be used to convert "Strings" to primitives', 'sonarqube', 'Code Smell', '<p>Rather than creating a boxed primitive from a <code>String</code> to extract the primitive value, use the relevant <code>parse</code> method
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2130', 'Parsing should be used to convert "Strings" to primitives', 'sonarqube', 'Code Smell', '<p>Rather than creating a boxed primitive from a <code>String</code> to extract the primitive value, use the relevant <code>parse</code> method
 instead. It will be clearer and more efficient.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -6805,7 +6832,7 @@ String myNum = "12.2";
 
 float f = Float.parseFloat(myNum);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2131', 'Primitives should not be boxed just for "String" conversion', 'sonarqube', 'Code Smell', '<p>"Boxing" is the process of putting a primitive value into a primitive-wrapper object. When that''s done purely to use the wrapper class''
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2131', 'Primitives should not be boxed just for "String" conversion', 'sonarqube', 'Code Smell', '<p>"Boxing" is the process of putting a primitive value into a primitive-wrapper object. When that''s done purely to use the wrapper class''
 <code>toString</code> method, it''s a waste of memory and cycles because those methods are <code>static</code>, and can therefore be used without a
 class instance. Similarly, using the <code>static</code> method <code>valueOf</code> in the primitive-wrapper classes with a non-<code>String</code>
 argument should be avoided.</p>
@@ -6820,7 +6847,7 @@ myIntString = Integer.valueOf(myInt).toString(); // Noncompliant
 int myInt = 4;
 String myIntString = Integer.toString(myInt);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2133', 'Objects should not be created only to "getClass"', 'sonarqube', 'Code Smell', '<p>Creating an object for the sole purpose of calling <code>getClass</code> on it is a waste of memory and cycles. Instead, simply use the class''
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2133', 'Objects should not be created only to "getClass"', 'sonarqube', 'Code Smell', '<p>Creating an object for the sole purpose of calling <code>getClass</code> on it is a waste of memory and cycles. Instead, simply use the class''
 <code>.class</code> property.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -6831,7 +6858,7 @@ Class c = myOb.getClass();
 <pre>
 Class c = MyObject.class;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2134', 'Classes extending java.lang.Thread should override the "run" method', 'sonarqube', 'Bug', '<p>According to the Java API documentation:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2134', 'Classes extending java.lang.Thread should override the "run" method', 'sonarqube', 'Bug', '<p>According to the Java API documentation:</p>
 <blockquote>
   <p>There are two ways to create a new thread of execution. One is to declare a class to be a subclass of Thread. This subclass should override the
   run method of class Thread. An instance of the subclass can then be allocated and started...</p>
@@ -6860,7 +6887,7 @@ class MyThread extends Thread { // Compliant - calling super constructor with a 
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2139', 'Exceptions should be either logged or rethrown but not both', 'sonarqube', 'Code Smell', '<p>In applications where the accepted practice is to log an <code>Exception</code> and then rethrow it, you end up with miles-long logs that contain
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2139', 'Exceptions should be either logged or rethrown but not both', 'sonarqube', 'Code Smell', '<p>In applications where the accepted practice is to log an <code>Exception</code> and then rethrow it, you end up with miles-long logs that contain
 multiple instances of the same exception. In multi-threaded applications debugging this type of log can be particularly hellish because messages from
 other threads will be interwoven with the repetitions of the logged-and-thrown <code>Exception</code>. Instead, exceptions should be either logged or
 rethrown, not both.</p>
@@ -6887,7 +6914,7 @@ catch (SQLException e) {
   // handle exception...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2140', 'Methods of "Random" that return floating point values should not be used in random integer generation', 'sonarqube', 'Code Smell', '<p>There is no need to multiply the output of <code>Random</code>''s <code>nextDouble</code> method to get a random integer. Use the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2140', 'Methods of "Random" that return floating point values should not be used in random integer generation', 'sonarqube', 'Code Smell', '<p>There is no need to multiply the output of <code>Random</code>''s <code>nextDouble</code> method to get a random integer. Use the
 <code>nextInt</code> method instead.</p>
 <p>This rule raises an issue when the return value of any of <code>Random</code>''s methods that return a floating point value is converted to an
 integer.</p>
@@ -6902,7 +6929,7 @@ int rand2 = (int)r.nextFloat(); // Noncompliant; will always be 0;
 Random r = new Random();
 int rand = r.nextInt(50);  // returns pseudo-random value between 0 and 50
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2141', 'Classes that don''t define "hashCode()" should not be used in hashes', 'sonarqube', 'Bug', '<p>Because <code>Object</code> implements <code>hashCode</code>, any Java class can be put into a hash structure. However, classes that define
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2141', 'Classes that don''t define "hashCode()" should not be used in hashes', 'sonarqube', 'Bug', '<p>Because <code>Object</code> implements <code>hashCode</code>, any Java class can be put into a hash structure. However, classes that define
 <code>equals(Object)</code> but not <code>hashCode()</code> aren''t truly hash-able because instances that are equivalent according to the
 <code>equals</code> method can return different hashes.</p>
 <h2>Noncompliant Code Example</h2>
@@ -6939,7 +6966,7 @@ public class School {
 
   // ...
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2142', '"InterruptedException" should not be ignored', 'sonarqube', 'Bug', '<p><code>InterruptedExceptions</code> should never be ignored in the code, and simply logging the exception counts in this case as "ignoring". The
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2142', '"InterruptedException" should not be ignored', 'sonarqube', 'Bug', '<p><code>InterruptedExceptions</code> should never be ignored in the code, and simply logging the exception counts in this case as "ignoring". The
 throwing of the <code>InterruptedException</code> clears the interrupted state of the Thread, so if the exception is not handled properly the fact
 that the thread was interrupted will be lost. Instead, <code>InterruptedExceptions</code> should either be rethrown - immediately or after cleaning up
 the method''s state - or the thread should be re-interrupted by calling <code>Thread.interrupt()</code> even if this is supposed to be a
@@ -6980,7 +7007,7 @@ public void run () {
   <li> <a href="http://cwe.mitre.org/data/definitions/391.html">MITRE, CWE-391</a> - Unchecked Error Condition </li>
   <li> <a href="https://www.ibm.com/developerworks/java/library/j-jtp05236/index.html?ca=drs-#2.1">Dealing with InterruptedException</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2143', '"java.time" classes should be used for dates and times', 'sonarqube', 'Code Smell', '<p>The old, much-derided <code>Date</code> and <code>Calendar</code> classes have always been confusing and difficult to use properly, particularly in
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2143', '"java.time" classes should be used for dates and times', 'sonarqube', 'Code Smell', '<p>The old, much-derided <code>Date</code> and <code>Calendar</code> classes have always been confusing and difficult to use properly, particularly in
 a multi-threaded context. <code>JodaTime</code> has long been a popular alternative, but now an even better option is built-in. Java 8''s JSR 310
 implementation offers specific classes for:</p>
 <table>
@@ -7056,7 +7083,7 @@ LocalDate now = LocalDate.now();  // gets calendar date. no time component
 LocalTime now2 = LocalTime.now(); // gets current time. no date component
 LocalDate christmas = LocalDate.of(2020,12,25);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2147', 'Catches should be combined', 'sonarqube', 'Code Smell', '<p>Since Java 7 it has been possible to catch multiple exceptions at once. Therefore, when multiple <code>catch</code> blocks have the same code, they
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2147', 'Catches should be combined', 'sonarqube', 'Code Smell', '<p>Since Java 7 it has been possible to catch multiple exceptions at once. Therefore, when multiple <code>catch</code> blocks have the same code, they
 should be combined for better readability.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>7</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -7085,7 +7112,7 @@ catch (TimeoutException e) {
   throw e;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2148', 'Underscores should be used to make large numbers readable', 'sonarqube', 'Code Smell', '<p>Beginning with Java 7, it is possible to add underscores (''_'') to numeric literals to enhance readability. The addition of underscores in this
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2148', 'Underscores should be used to make large numbers readable', 'sonarqube', 'Code Smell', '<p>Beginning with Java 7, it is possible to add underscores (''_'') to numeric literals to enhance readability. The addition of underscores in this
 manner has no semantic meaning, but makes it easier for maintainers to understand the code.</p>
 <p>The number of digits to the left of a decimal point needed to trigger this rule varies by base.</p>
 <table>
@@ -7126,7 +7153,7 @@ int i = 10_000_000;
 int  j = 0b01101001_01001101_11100101_01011110;
 long l = 0x7fff_ffff_ffff_ffffL;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2151', '"runFinalizersOnExit" should not be called', 'sonarqube', 'Bug', '<p>Running finalizers on JVM exit is disabled by default. It can be enabled with <code>System.runFinalizersOnExit</code> and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2151', '"runFinalizersOnExit" should not be called', 'sonarqube', 'Bug', '<p>Running finalizers on JVM exit is disabled by default. It can be enabled with <code>System.runFinalizersOnExit</code> and
 <code>Runtime.runFinalizersOnExit</code>, but both methods are deprecated because they are are inherently unsafe. </p>
 <p>According to the Oracle Javadoc:</p>
 <blockquote>
@@ -7160,7 +7187,7 @@ public static void main(String [] args) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jZGBQ">CERT, MET12-J.</a> - Do not use finalizers </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2153', 'Boxing and unboxing should not be immediately reversed', 'sonarqube', 'Bug', '<p>Boxing is the process of putting a primitive value into an analogous object, such as creating an <code>Integer</code> to hold an <code>int</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2153', 'Boxing and unboxing should not be immediately reversed', 'sonarqube', 'Bug', '<p>Boxing is the process of putting a primitive value into an analogous object, such as creating an <code>Integer</code> to hold an <code>int</code>
 value. Unboxing is the process of retrieving the primitive value from such an object.</p>
 <p>Since the original value is unchanged during boxing and unboxing, there''s no point in doing either when not needed. This also applies to autoboxing
 and auto-unboxing (when Java implicitly handles the primitive/object transition for you).</p>
@@ -7213,7 +7240,7 @@ public void func() {
   examineInteger(iger1);
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2154', 'Dissimilar primitive wrappers should not be used with the ternary operator without explicit casting', 'sonarqube', 'Bug', '<p>If wrapped primitive values (e.g. <code>Integers</code> and <code>Floats</code>) are used in a ternary operator (e.g. <code>a?b:c</code>), both
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2154', 'Dissimilar primitive wrappers should not be used with the ternary operator without explicit casting', 'sonarqube', 'Bug', '<p>If wrapped primitive values (e.g. <code>Integers</code> and <code>Floats</code>) are used in a ternary operator (e.g. <code>a?b:c</code>), both
 values will be unboxed and coerced to a common type, potentially leading to unexpected results. To avoid this, add an explicit cast to a compatible
 type.</p>
 <h2>Noncompliant Code Example</h2>
@@ -7228,7 +7255,7 @@ Integer i = 123456789;
 Float f = 1.0f;
 Number n = condition ? (Number) i : f;  // n = 123456789
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2156', '"final" classes should not have "protected" members', 'sonarqube', 'Code Smell', '<p>The difference between <code>private</code> and <code>protected</code> visibility is that child classes can see and use <code>protected</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2156', '"final" classes should not have "protected" members', 'sonarqube', 'Code Smell', '<p>The difference between <code>private</code> and <code>protected</code> visibility is that child classes can see and use <code>protected</code>
 members, but they cannot see <code>private</code> ones. Since a <code>final</code> class will have no children, marking the members of a
 <code>final</code> class <code>protected</code> is confusingly pointless.</p>
 <p>Note that the <code>protected</code> members of a class can also be seen and used by other classes that are placed within the same package, this
@@ -7265,7 +7292,7 @@ public final class MyFinalClass {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2157', '"Cloneables" should implement "clone"', 'sonarqube', 'Code Smell', '<p>Simply implementing <code>Cloneable</code> without also overriding <code>Object.clone()</code> does not necessarily make the class cloneable. While
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2157', '"Cloneables" should implement "clone"', 'sonarqube', 'Code Smell', '<p>Simply implementing <code>Cloneable</code> without also overriding <code>Object.clone()</code> does not necessarily make the class cloneable. While
 the <code>Cloneable</code> interface does not include a <code>clone</code> method, it is required by convention, and ensures true cloneability.
 Otherwise the default JVM <code>clone</code> will be used, which copies primitive values and object references from the source to the target. I.e.
 without overriding <code>clone</code>, any cloned instances will potentially share members with the source instance.</p>
@@ -7295,7 +7322,7 @@ class Team implements Cloneable {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2159', 'Silly equality checks should not be made', 'sonarqube', 'Bug', '<p>Comparisons of dissimilar types will always return false. The comparison and all its dependent code can simply be removed. This includes:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2159', 'Silly equality checks should not be made', 'sonarqube', 'Bug', '<p>Comparisons of dissimilar types will always return false. The comparison and all its dependent code can simply be removed. This includes:</p>
 <ul>
   <li> comparing an object with null </li>
   <li> comparing an object with an unrelated primitive (E.G. a string with an int) </li>
@@ -7351,7 +7378,7 @@ else if (tree.equals(null)) { // Noncompliant
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5zdGBQ">CERT, EXP02-J.</a> - Do not use the Object.equals() method to compare two arrays </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2160', 'Subclasses that add fields should override "equals"', 'sonarqube', 'Code Smell', '<p>Extend a class that overrides <code>equals</code> and add fields without overriding <code>equals</code> in the subclass, and you run the risk of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2160', 'Subclasses that add fields should override "equals"', 'sonarqube', 'Code Smell', '<p>Extend a class that overrides <code>equals</code> and add fields without overriding <code>equals</code> in the subclass, and you run the risk of
 non-equivalent instances of your subclass being seen as equal, because only the superclass fields will be considered in the equality test.</p>
 <p>This rule looks for classes that do all of the following:</p>
 <ul>
@@ -7418,7 +7445,7 @@ public class Raspberry extends Fruit {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2162', '"equals" methods should be symmetric and work for subclasses', 'sonarqube', 'Bug', '<p>A key facet of the <code>equals</code> contract is that if <code>a.equals(b)</code> then <code>b.equals(a)</code>, i.e. that the relationship is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2162', '"equals" methods should be symmetric and work for subclasses', 'sonarqube', 'Bug', '<p>A key facet of the <code>equals</code> contract is that if <code>a.equals(b)</code> then <code>b.equals(a)</code>, i.e. that the relationship is
 symmetric. </p>
 <p>Using <code>instanceof</code> breaks the contract when there are subclasses, because while the child is an <code>instanceof</code> the parent, the
 parent is not an <code>instanceof</code> the child. For instance, assume that <code>Raspberry extends Fruit</code> and adds some fields (requiring a
@@ -7485,7 +7512,7 @@ public class Fruit extends Food {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/AzZGBQ">CERT, MET08-J.</a> - Preserve the equality contract when overriding the equals() method
   </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2164', 'Math should not be performed on floats', 'sonarqube', 'Bug', '<p>For small numbers, <code>float</code> math has enough precision to yield the expected value, but for larger numbers, it does not.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2164', 'Math should not be performed on floats', 'sonarqube', 'Bug', '<p>For small numbers, <code>float</code> math has enough precision to yield the expected value, but for larger numbers, it does not.
 <code>BigDecimal</code> is the best alternative, but if a primitive is required, use a <code>double</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -7515,7 +7542,7 @@ System.out.println("["+getName()+"] " +
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/CtcxBQ">CERT, FLP02-C.</a> - Avoid using floating-point numbers when precise computation is
   needed </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2165', '"finalize" should not set fields to "null"', 'sonarqube', 'Code Smell', '<p>There is no point in setting class fields to <code>null</code> in a finalizer. If this this is a hint to the garbage collector, it is unnecessary -
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2165', '"finalize" should not set fields to "null"', 'sonarqube', 'Code Smell', '<p>There is no point in setting class fields to <code>null</code> in a finalizer. If this this is a hint to the garbage collector, it is unnecessary -
 the object will be garbage collected anyway - and doing so may actually cause extra work for the garbage collector.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -7528,7 +7555,7 @@ public class Foo {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2166', 'Classes named like "Exception" should extend "Exception" or a subclass', 'sonarqube', 'Code Smell', '<p>Clear, communicative naming is important in code. It helps maintainers and API users understand the intentions for and uses of a unit of code.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2166', 'Classes named like "Exception" should extend "Exception" or a subclass', 'sonarqube', 'Code Smell', '<p>Clear, communicative naming is important in code. It helps maintainers and API users understand the intentions for and uses of a unit of code.
 Using "exception" in the name of a class that does not extend <code>Exception</code> or one of its subclasses is a clear violation of the expectation
 that a class'' name will indicate what it is and/or does.</p>
 <h2>Noncompliant Code Example</h2>
@@ -7557,7 +7584,7 @@ public class CarException extends Exception {
   public CarException(String message, Throwable cause) {
   // ...
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2167', '"compareTo" should not return "Integer.MIN_VALUE"', 'sonarqube', 'Bug', '<p>It is the sign, rather than the magnitude of the value returned from <code>compareTo</code> that matters. Returning <code>Integer.MIN_VALUE</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2167', '"compareTo" should not return "Integer.MIN_VALUE"', 'sonarqube', 'Bug', '<p>It is the sign, rather than the magnitude of the value returned from <code>compareTo</code> that matters. Returning <code>Integer.MIN_VALUE</code>
 does <em>not</em> convey a higher degree of inequality, and doing so can cause errors because the return value of <code>compareTo</code> is sometimes
 inversed, with the expectation that negative values become positive. However, inversing <code>Integer.MIN_VALUE</code> yields
 <code>Integer.MIN_VALUE</code> rather than <code>Integer.MAX_VALUE</code>.</p>
@@ -7575,7 +7602,7 @@ public int compareTo(MyClass) {
     return -1;
   }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2168', 'Double-checked locking should not be used', 'sonarqube', 'Bug', '<p>Double-checked locking is the practice of checking a lazy-initialized object''s state both before and after a <code>synchronized</code> block is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2168', 'Double-checked locking should not be used', 'sonarqube', 'Bug', '<p>Double-checked locking is the practice of checking a lazy-initialized object''s state both before and after a <code>synchronized</code> block is
 entered to determine whether or not to initialize the object.</p>
 <p>It does not work reliably in a platform-independent manner without additional synchronization for mutable instances of anything other than
 <code>float</code> or <code>int</code>. Using double-checked locking for the lazy initialization of any other type of primitive or mutable object
@@ -7668,7 +7695,7 @@ class ResourceFactory {
   <li> <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-12.html#jls-12.4">JLS 12.4</a> - Initialization of Classes and Interfaces </li>
   <li> Wikipedia: <a href="https://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java">Double-checked locking</a> </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2175', 'Inappropriate "Collection" calls should not be made', 'sonarqube', 'Bug', '<p>The <code>java.util.Collection</code> API has methods that accept <code>Object</code> parameters such as <code>Collection.remove(Object o)</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2175', 'Inappropriate "Collection" calls should not be made', 'sonarqube', 'Bug', '<p>The <code>java.util.Collection</code> API has methods that accept <code>Object</code> parameters such as <code>Collection.remove(Object o)</code>,
 and <code>Collection.contains(Object o)</code>. When the actual type of the object provided to these methods is not consistent with the type declared
 on the <code>Collection</code> instantiation, those methods will always return <code>false</code> or <code>null</code>. This is most likely unintended
 and hides a design problem.</p>
@@ -7712,7 +7739,7 @@ public class S2175 {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/uDdGBQ">CERT, EXP04-J.</a> - Do not pass arguments to certain Java Collections Framework methods
   that are a different type than the collection parameter type </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2176', 'Class names should not shadow interfaces or superclasses', 'sonarqube', 'Code Smell', '<p>While it''s perfectly legal to give a class the same simple name as a class in another package that it extends or interface it implements, it''s
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2176', 'Class names should not shadow interfaces or superclasses', 'sonarqube', 'Code Smell', '<p>While it''s perfectly legal to give a class the same simple name as a class in another package that it extends or interface it implements, it''s
 confusing and could cause problems in the future. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -7726,7 +7753,7 @@ package my.mypackage;
 
 public class FooJr implements a.b.Foo {
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2177', 'Child class methods named for parent class methods should be overrides', 'sonarqube', 'Bug', '<p>When a method in a child class has the same signature as a method in a parent class, it is assumed to be an override. However, that''s not the case
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2177', 'Child class methods named for parent class methods should be overrides', 'sonarqube', 'Bug', '<p>When a method in a child class has the same signature as a method in a parent class, it is assumed to be an override. However, that''s not the case
 when:</p>
 <ul>
   <li> the parent class method is <code>static</code> and the child class method is not. </li>
@@ -7793,7 +7820,7 @@ public class Child extends Parent {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2178', 'Short-circuit logic should be used in boolean contexts', 'sonarqube', 'Code Smell', '<p>The use of non-short-circuit logic in a boolean context is likely a mistake - one that could cause serious program errors as conditions are
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2178', 'Short-circuit logic should be used in boolean contexts', 'sonarqube', 'Code Smell', '<p>The use of non-short-circuit logic in a boolean context is likely a mistake - one that could cause serious program errors as conditions are
 evaluated under the wrong circumstances. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -7807,7 +7834,7 @@ if(getTrue() || getFalse()) { ... } // true short-circuit logic
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/WNYxBQ">CERT, EXP46-C.</a> - Do not use a bitwise operator with a Boolean-like operand </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2183', 'Ints and longs should not be shifted by zero or more than their number of bits-1', 'sonarqube', 'Bug', '<p>Since an <code>int</code> is a 32-bit variable, shifting by more than +/-31 is confusing at best and an error at worst. When the runtime shifts
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2183', 'Ints and longs should not be shifted by zero or more than their number of bits-1', 'sonarqube', 'Bug', '<p>Since an <code>int</code> is a 32-bit variable, shifting by more than +/-31 is confusing at best and an error at worst. When the runtime shifts
 32-bit integers, it uses the lowest 5 bits of the shift count operand. In other words, shifting an <code>int</code> by 32 is the same as shifting it
 by 0, and shifting it by 33 is the same as shifting it by 1.</p>
 <p>Similarly, when shifting 64-bit integers, the runtime uses the lowest 6 bits of the shift count operand and shifting <code>long</code> by 64 is the
@@ -7836,7 +7863,7 @@ public int shift(int a) {
 bytes[loc+0] = (byte)(value &gt;&gt; 8);
 bytes[loc+1] = (byte)(value &gt;&gt; 0);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2184', 'Math operands should be cast before assignment', 'sonarqube', 'Bug', '<p>When arithmetic is performed on integers, the result will always be an integer. You can assign that result to a <code>long</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2184', 'Math operands should be cast before assignment', 'sonarqube', 'Bug', '<p>When arithmetic is performed on integers, the result will always be an integer. You can assign that result to a <code>long</code>,
 <code>double</code>, or <code>float</code> with automatic type conversion, but having started as an <code>int</code> or <code>long</code>, the result
 will likely not be what you expect. </p>
 <p>For instance, if the result of <code>int</code> division is assigned to a floating-point variable, precision will have been lost before the
@@ -7900,7 +7927,7 @@ public float compute2(float factor){
   assigning to that size </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat2">SANS Top 25</a> - Risky Resource Management </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2185', 'Silly math should not be performed', 'sonarqube', 'Code Smell', '<p>Certain math operations are just silly and should not be performed because their results are predictable.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2185', 'Silly math should not be performed', 'sonarqube', 'Code Smell', '<p>Certain math operations are just silly and should not be performed because their results are predictable.</p>
 <p>In particular, <code>anyValue % 1</code> is silly because it will always return 0.</p>
 <p>Casting a non-floating-point value to floating-point and then passing it to <code>Math.round</code>, <code>Math.ceil</code>, or
 <code>Math.floor</code> is silly because the result will always be the original value. </p>
@@ -7995,7 +8022,7 @@ public void doMath(int a) {
   double arcTan = Math.atan(0.0);  // Noncompliant
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2186', 'JUnit assertions should not be used in "run" methods', 'sonarqube', 'Code Smell', '<p>JUnit assertions should not be made from the <code>run</code> method of a <code>Runnable</code>, because failed assertions result in
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2186', 'JUnit assertions should not be used in "run" methods', 'sonarqube', 'Code Smell', '<p>JUnit assertions should not be made from the <code>run</code> method of a <code>Runnable</code>, because failed assertions result in
 <code>AssertionError</code>s being thrown. If the error is thrown from a thread other than the one that ran the test, the thread will exit but the
 test won''t fail.</p>
 <h2>Noncompliant Code Example</h2>
@@ -8005,7 +8032,7 @@ public void run() {
   Assert.assertEquals(expected, actual);  // Noncompliant
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2187', 'TestCases should contain tests', 'sonarqube', 'Code Smell', '<p>There''s no point in having a JUnit <code>TestCase</code> without any test methods. Similarly, you shouldn''t have a file in the tests directory
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2187', 'TestCases should contain tests', 'sonarqube', 'Code Smell', '<p>There''s no point in having a JUnit <code>TestCase</code> without any test methods. Similarly, you shouldn''t have a file in the tests directory
 named <code>*Test</code>, <code>*Tests</code>, or <code>*TestCase</code>, but no tests in the file. Doing either of these things may lead someone to
 think that uncovered classes have been tested.</p>
 <p>This rule raises an issue when files in the test directory are named <code>*Test</code>, <code>*Tests</code>, or <code>*TestCase</code> or
@@ -8020,7 +8047,7 @@ implement <code>TestCase</code> but don''t contain any tests.</p>
   <li> ArchUnit </li>
   <li> Pact </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2188', 'JUnit test cases should call super methods', 'sonarqube', 'Code Smell', '<p>Overriding a parent class method prevents that method from being called unless an explicit <code>super</code> call is made in the overriding
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2188', 'JUnit test cases should call super methods', 'sonarqube', 'Code Smell', '<p>Overriding a parent class method prevents that method from being called unless an explicit <code>super</code> call is made in the overriding
 method. In some cases not calling the <code>super</code> method is acceptable, but not with <code>setUp</code> and <code>tearDown</code> in a JUnit 3
 <code>TestCase</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -8044,7 +8071,7 @@ public class MyClassTest extends MyAbstractTestCase {
       myClass = new MyClass();
     }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2189', 'Loops should not be infinite', 'sonarqube', 'Bug', '<p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2189', 'Loops should not be infinite', 'sonarqube', 'Bug', '<p>An infinite loop is one that will never end while the program is running, i.e., you have to kill the program to get out of the loop. Whether it is
 by meeting the loop''s end condition or via a <code>break</code>, every loop should have an end condition.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8084,7 +8111,7 @@ while (b) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/lzZGBQ">CERT, MSC01-J.</a> - Do not use an empty infinite loop </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2196', 'Switches should be used for sequences of simple "String" tests', 'sonarqube', 'Code Smell', '<p>Since Java 7, <code>String</code>s can be used as <code>switch</code> arguments. So when a single <code>String</code> is tested against three or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2196', 'Switches should be used for sequences of simple "String" tests', 'sonarqube', 'Code Smell', '<p>Since Java 7, <code>String</code>s can be used as <code>switch</code> arguments. So when a single <code>String</code> is tested against three or
 more values in an <code>if</code>/<code>else if</code> structure, it should be converted to a switch instead for greater readability.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>7</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -8116,7 +8143,7 @@ switch(choice) {
     break;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2197', 'Modulus results should not be checked for direct equality', 'sonarqube', 'Code Smell', '<p>When the modulus of a negative number is calculated, the result will either be negative or zero. Thus, comparing the modulus of a variable for
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2197', 'Modulus results should not be checked for direct equality', 'sonarqube', 'Code Smell', '<p>When the modulus of a negative number is calculated, the result will either be negative or zero. Thus, comparing the modulus of a variable for
 equality with a positive number (or a negative one) could result in unexpected results. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8136,7 +8163,7 @@ public boolean isOdd(int x) {
   nonnegative result for integral operands </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/_NUxBQ">CERT, INT10-C</a> - Do not assume a positive remainder when using the % operator </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2200', '"compareTo" results should not be checked for specific values', 'sonarqube', 'Bug', '<p>While most <code>compareTo</code> methods return -1, 0, or 1, some do not, and testing the result of a <code>compareTo</code> against a specific
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2200', '"compareTo" results should not be checked for specific values', 'sonarqube', 'Bug', '<p>While most <code>compareTo</code> methods return -1, 0, or 1, some do not, and testing the result of a <code>compareTo</code> against a specific
 value other than 0 could result in false negatives.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8150,7 +8177,7 @@ if (myClass.compareTo(arg) &lt; 0) {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2201', 'Return values from functions without side effects should not be ignored', 'sonarqube', 'Bug', '<p>When the call to a function doesn''t have any side effects, what is the point of making the call if the results are ignored? In such case, either
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2201', 'Return values from functions without side effects should not be ignored', 'sonarqube', 'Bug', '<p>When the call to a function doesn''t have any side effects, what is the point of making the call if the results are ignored? In such case, either
 the function call is useless and should be dropped or the source code doesn''t behave as expected.</p>
 <p>To prevent generating any false-positives, this rule triggers an issue only on the following predefined list of immutable classes in the Java API
 :</p>
@@ -8241,7 +8268,7 @@ private boolean textIsInteger(String textToCheck) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/xzdGBQ">CERT, EXP00-J.</a> - Do not ignore values returned by methods </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2203', '"collect" should be used with "Streams" instead of "list::add"', 'sonarqube', 'Code Smell', '<p>While you can use either <code>forEach(list::add)</code> or <code>collect</code> with a <code>Stream</code>, <code>collect</code> is by far the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2203', '"collect" should be used with "Streams" instead of "list::add"', 'sonarqube', 'Code Smell', '<p>While you can use either <code>forEach(list::add)</code> or <code>collect</code> with a <code>Stream</code>, <code>collect</code> is by far the
 better choice because it''s automatically thread-safe and parallellizable. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8256,7 +8283,7 @@ List&lt;String&gt; bookNames = books.stream().filter(book -&gt; book.getIsbn().s
                 .map(Book::getTitle)
                 .collect(Collectors.toList());
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2204', '".equals()" should not be used to test the values of "Atomic" classes', 'sonarqube', 'Bug', '<p><code>AtomicInteger</code>, and <code>AtomicLong</code> extend <code>Number</code>, but they''re distinct from <code>Integer</code> and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2204', '".equals()" should not be used to test the values of "Atomic" classes', 'sonarqube', 'Bug', '<p><code>AtomicInteger</code>, and <code>AtomicLong</code> extend <code>Number</code>, but they''re distinct from <code>Integer</code> and
 <code>Long</code> and should be handled differently. <code>AtomicInteger</code> and <code>AtomicLong</code> are designed to support lock-free,
 thread-safe programming on single variables. As such, an <code>AtomicInteger</code> will only ever be "equal" to itself. Instead, you should
 <code>.get()</code> the value and make comparisons on it.</p>
@@ -8276,7 +8303,7 @@ AtomicInteger aInt2 = new AtomicInteger(0);
 
 if (aInt1.get() == aInt2.get()) { ... }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2208', 'Wildcard imports should not be used', 'sonarqube', 'Code Smell', '<p>Blindly importing all the classes in a package clutters the class namespace and could lead to conflicts between classes in different packages with
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2208', 'Wildcard imports should not be used', 'sonarqube', 'Code Smell', '<p>Blindly importing all the classes in a package clutters the class namespace and could lead to conflicts between classes in different packages with
 the same name. On the other hand, specifically listing the necessary classes avoids that problem and makes clear which versions were wanted.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8298,7 +8325,7 @@ private Date date;
 <pre>
 import static java.lang.Math.*;
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2209', '"static" members should be accessed statically', 'sonarqube', 'Code Smell', '<p>While it is <em>possible</em> to access <code>static</code> members from a class instance, it''s bad form, and considered by most to be misleading
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2209', '"static" members should be accessed statically', 'sonarqube', 'Code Smell', '<p>While it is <em>possible</em> to access <code>static</code> members from a class instance, it''s bad form, and considered by most to be misleading
 because it implies to the readers of your code that there''s an instance of the member per class instance.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8332,7 +8359,7 @@ public class B {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2211', 'Types should be used in lambdas', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate effectively. While types for lambda arguments are optional, specifying them anyway makes the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2211', 'Types should be used in lambdas', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate effectively. While types for lambda arguments are optional, specifying them anyway makes the
 code clearer and easier to read.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8356,7 +8383,7 @@ those cases.</p>
 <pre>
 stream.map((a, b) -&gt; a.length); // compliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2221', '"Exception" should not be caught when not required by called methods', 'sonarqube', 'Code Smell', '<p>Catching <code>Exception</code> seems like an efficient way to handle multiple possible exceptions. Unfortunately, it traps all exception types,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2221', '"Exception" should not be caught when not required by called methods', 'sonarqube', 'Code Smell', '<p>Catching <code>Exception</code> seems like an efficient way to handle multiple possible exceptions. Unfortunately, it traps all exception types,
 both checked and runtime exceptions, thereby casting too broad a net. Indeed, was it really the intention of developers to also catch runtime
 exceptions? To prevent any misunderstanding, if both checked and runtime exceptions are really expected to be caught, they should be explicitly listed
 in the <code>catch</code> clause.</p>
@@ -8389,7 +8416,7 @@ try {
 <ul>
   <li> <a href="http://cwe.mitre.org/data/definitions/396.html">MITRE, CWE-396</a> - Declaration of Catch for Generic Exception </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2222', 'Locks should be released', 'sonarqube', 'Bug', '<p>If a lock is acquired and released within a method, then it must be released along all execution paths of that method.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2222', 'Locks should be released', 'sonarqube', 'Bug', '<p>If a lock is acquired and released within a method, then it must be released along all execution paths of that method.</p>
 <p>Failing to do so will expose the conditional locking logic to the method''s callers and hence be deadlock-prone.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8421,7 +8448,7 @@ public class MyClass {
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/459.html">MITRE, CWE-459</a> - Incomplete Cleanup </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2225', '"toString()" and "clone()" methods should not return null', 'sonarqube', 'Bug', '<p>Calling <code>toString()</code> or <code>clone()</code> on an object should always return a string or an object. Returning <code>null</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2225', '"toString()" and "clone()" methods should not return null', 'sonarqube', 'Bug', '<p>Calling <code>toString()</code> or <code>clone()</code> on an object should always return a string or an object. Returning <code>null</code>
 instead contravenes the method''s implicit contract.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8444,7 +8471,7 @@ public String toString () {
   <li> <a href="http://cwe.mitre.org/data/definitions/476.html">MITRE CWE-476</a> - NULL Pointer Dereference </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aDdGBQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2226', 'Servlets should not have mutable instance fields', 'sonarqube', 'Bug', '<p>By contract, a servlet container creates one instance of each servlet and then a dedicated thread is attached to each new incoming HTTP request to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2226', 'Servlets should not have mutable instance fields', 'sonarqube', 'Bug', '<p>By contract, a servlet container creates one instance of each servlet and then a dedicated thread is attached to each new incoming HTTP request to
 process the request. So all threads share the servlet instances and by extension their instance fields. To prevent any misunderstanding and unexpected
 behavior at runtime, all servlet fields should then be either <code>static</code> and/or <code>final</code>, or simply removed.</p>
 <p>With Struts 1.X, the same constraint exists on <code>org.apache.struts.action.Action</code>.</p>
@@ -8472,7 +8499,7 @@ public class MyAction extends Action {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/2TZGBQ">CERT, MSC11-J.</a> - Do not let session information leak within a servlet </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2229', 'Methods should not call same-class methods with incompatible "@Transactional" values', 'sonarqube', 'Bug', '<p>When using Spring proxies, calling a method in the same class (e.g. <code>this.aMethod()</code>) with an incompatible <code>@Transactional</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2229', 'Methods should not call same-class methods with incompatible "@Transactional" values', 'sonarqube', 'Bug', '<p>When using Spring proxies, calling a method in the same class (e.g. <code>this.aMethod()</code>) with an incompatible <code>@Transactional</code>
 requirement will result in runtime exceptions because Spring only "sees" the caller and makes no provisions for properly invoking the callee. </p>
 <p>Therefore, certain calls should never be made within the same class:</p>
 <table>
@@ -8530,7 +8557,7 @@ public void actuallyDoTheThing() {
   // ...
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2230', 'Non-public methods should not be "@Transactional"', 'sonarqube', 'Bug', '<p>Marking a non-public method <code>@Transactional</code> is both useless and misleading because Spring doesn''t "see" non-<code>public</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2230', 'Non-public methods should not be "@Transactional"', 'sonarqube', 'Bug', '<p>Marking a non-public method <code>@Transactional</code> is both useless and misleading because Spring doesn''t "see" non-<code>public</code>
 methods, and so makes no provision for their proper invocation. Nor does Spring make provision for the methods invoked by the method it called.</p>
 <p>Therefore marking a <code>private</code> method, for instance, <code>@Transactional</code> can only result in a runtime error or exception if the
 method is actually written to be <code>@Transactional</code>.</p>
@@ -8541,7 +8568,7 @@ private void doTheThing(ArgClass arg) {
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2232', '"ResultSet.isLast()" should not be used', 'sonarqube', 'Code Smell', '<p>There are several reasons to avoid <code>ResultSet.isLast()</code>. First, support for this method is optional for <code>TYPE_FORWARD_ONLY</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2232', '"ResultSet.isLast()" should not be used', 'sonarqube', 'Code Smell', '<p>There are several reasons to avoid <code>ResultSet.isLast()</code>. First, support for this method is optional for <code>TYPE_FORWARD_ONLY</code>
 result sets. Second, it can be expensive (the driver may need to fetch the next row to answer the question). Finally, the specification is not clear
 on what should be returned when the <code>ResultSet</code> is empty, so some drivers may return the opposite of what is expected.</p>
 <h2>Noncompliant Code Example</h2>
@@ -8559,7 +8586,7 @@ while (rs.next()) {
   // process row
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2234', 'Parameters should be passed in the correct order', 'sonarqube', 'Code Smell', '<p>When the names of parameters in a method call match the names of the method arguments, it contributes to clearer, more readable code. However, when
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2234', 'Parameters should be passed in the correct order', 'sonarqube', 'Code Smell', '<p>When the names of parameters in a method call match the names of the method arguments, it contributes to clearer, more readable code. However, when
 the names match, but are passed in a different order than the method arguments, it indicates a mistake in the parameter order which will likely lead
 to unexpected results.</p>
 <h2>Noncompliant Code Example</h2>
@@ -8590,7 +8617,7 @@ public void doTheThing() {
   //...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2235', 'IllegalMonitorStateException should not be caught', 'sonarqube', 'Code Smell', '<p>According to Oracle Javadoc:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2235', 'IllegalMonitorStateException should not be caught', 'sonarqube', 'Code Smell', '<p>According to Oracle Javadoc:</p>
 <blockquote>
   <p><code>IllegalMonitorStateException</code> is thrown when a thread has attempted to wait on an object''s monitor or to notify other threads waiting
   on an object''s monitor without owning the specified monitor.</p>
@@ -8621,7 +8648,7 @@ public void doSomething(){
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2236', 'Methods "wait(...)", "notify()" and "notifyAll()" should not be called on Thread instances', 'sonarqube', 'Bug', '<p>The methods <code>wait(...)</code>, <code>notify()</code> and <code>notifyAll()</code> are available on a <code>Thread</code> instance, but only
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2236', 'Methods "wait(...)", "notify()" and "notifyAll()" should not be called on Thread instances', 'sonarqube', 'Bug', '<p>The methods <code>wait(...)</code>, <code>notify()</code> and <code>notifyAll()</code> are available on a <code>Thread</code> instance, but only
 because all classes in Java extend <code>Object</code> and therefore automatically inherit those methods. But there are two very good reasons for not
 calling them on a <code>Thread</code>:</p>
 <ul>
@@ -8636,7 +8663,7 @@ Thread myThread = new Thread(new RunnableJob());
 ...
 myThread.wait(2000);
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2245', 'Using pseudorandom number generators (PRNGs) is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using pseudorandom number generators (PRNGs) is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2245', 'Using pseudorandom number generators (PRNGs) is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using pseudorandom number generators (PRNGs) is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-6386">CVE-2013-6386</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-3419">CVE-2006-3419</a> </li>
@@ -8689,7 +8716,7 @@ random.nextBytes(bytes);
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#PREDICTABLE_RANDOM">Predictable Pseudo Random Number
   Generator</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2250', 'Collection methods with O(n) performance should be used carefully', 'sonarqube', 'Code Smell', '<p>The time complexity of method calls on collections is not always obvious. For instance, for most collections the <code>size()</code> method takes
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2250', 'Collection methods with O(n) performance should be used carefully', 'sonarqube', 'Code Smell', '<p>The time complexity of method calls on collections is not always obvious. For instance, for most collections the <code>size()</code> method takes
 constant time, but the time required to execute <code>ConcurrentLinkedQueue.size()</code> is O(n), i.e. directly proportional to the number of
 elements in the collection. When the collection is large, this could therefore be an expensive operation. </p>
 <p>This rule raises an issue when the following O(n) methods are called outside of constructors on class fields:</p>
@@ -8733,7 +8760,7 @@ ConcurrentLinkedQueue queue = new ConcurrentLinkedQueue();
 //...
 log.info("Queue contains " + queue.size() + " elements");  // Noncompliant
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2251', 'A "for" loop update clause should move the counter in the right direction', 'sonarqube', 'Bug', '<p>A <code>for</code> loop with a counter that moves in the wrong direction is not an infinite loop. Because of wraparound, the loop will eventually
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2251', 'A "for" loop update clause should move the counter in the right direction', 'sonarqube', 'Bug', '<p>A <code>for</code> loop with a counter that moves in the wrong direction is not an infinite loop. Because of wraparound, the loop will eventually
 reach its stop condition, but in doing so, it will run many, many more times than anticipated, potentially causing unexpected behavior. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8755,14 +8782,14 @@ public void doSomething(String [] strings) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aTdGBQ">CERT, MSC54-J.</a> - Avoid inadvertent wrapping of loop counters </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2252', 'Loop conditions should be true at least once', 'sonarqube', 'Bug', '<p>If a <code>for</code> loop''s condition is false before the first loop iteration, the loop will never be executed. Such loops are almost always
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2252', 'Loop conditions should be true at least once', 'sonarqube', 'Bug', '<p>If a <code>for</code> loop''s condition is false before the first loop iteration, the loop will never be executed. Such loops are almost always
 bugs, particularly when the initial value and stop conditions are hard-coded.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (int i = 10; i &lt; 10; i++) {  // Noncompliant
   // ...
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2254', '"HttpServletRequest.getRequestedSessionId()" should not be used', 'sonarqube', 'Vulnerability', '<p>According to the Oracle Java API, the <code>HttpServletRequest.getRequestedSessionId()</code> method:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2254', '"HttpServletRequest.getRequestedSessionId()" should not be used', 'sonarqube', 'Vulnerability', '<p>According to the Oracle Java API, the <code>HttpServletRequest.getRequestedSessionId()</code> method:</p>
 <blockquote>
   <p>Returns the session ID specified by the client. This may not be the same as the ID of the current valid session for this request. If the client
   did not specify a session ID, this method returns null.</p>
@@ -8791,7 +8818,7 @@ if(isActiveSession(request.getRequestedSessionId()) ){
   <li> <a href="http://cwe.mitre.org/data/definitions/807">MITRE, CWE-807</a> - Reliance on Untrusted Inputs in a Security Decision </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2255', 'Writing cookies is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using cookies is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2255', 'Writing cookies is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using cookies is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-11639">CVE-2018-11639</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6537">CVE-2016-6537</a> </li>
@@ -8900,7 +8927,7 @@ class Play {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2257', 'Using non-standard cryptographic algorithms is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>The use of a non-standard algorithm is dangerous because a determined attacker may be able to break the algorithm and compromise whatever data has
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2257', 'Using non-standard cryptographic algorithms is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>The use of a non-standard algorithm is dangerous because a determined attacker may be able to break the algorithm and compromise whatever data has
 been protected. Standard algorithms like <code>SHA-256</code>, <code>SHA-384</code>, <code>SHA-512</code>, ... should be used instead.</p>
 <p>This rule tracks creation of <code>java.security.MessageDigest</code> subclasses.</p>
 <h2>Recommended Secure Coding Practices</h2>
@@ -8926,7 +8953,7 @@ MessageDigest digest = MessageDigest.getInstance("SHA-256");
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#CUSTOM_MESSAGE_DIGEST">MessageDigest is Custom</a>
   </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2258', '"javax.crypto.NullCipher" should not be used for anything other than testing', 'sonarqube', 'Vulnerability', '<p>By contract, the <code>NullCipher</code> class provides an "identity cipher" - one that does not transform or encrypt the plaintext in any way. As
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2258', '"javax.crypto.NullCipher" should not be used for anything other than testing', 'sonarqube', 'Vulnerability', '<p>By contract, the <code>NullCipher</code> class provides an "identity cipher" - one that does not transform or encrypt the plaintext in any way. As
 a consequence, the ciphertext is identical to the plaintext. So this class should be used for testing, and never in production code.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -8941,7 +8968,7 @@ NullCipher nc = new NullCipher();
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5547''>S5547</a> instead.</p>', 'java', 'DEPRECATED', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2259', 'Null pointers should not be dereferenced', 'sonarqube', 'Bug', '<p>A reference to <code>null</code> should never be dereferenced/accessed. Doing so will cause a <code>NullPointerException</code> to be thrown. At
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2259', 'Null pointers should not be dereferenced', 'sonarqube', 'Bug', '<p>A reference to <code>null</code> should never be dereferenced/accessed. Doing so will cause a <code>NullPointerException</code> to be thrown. At
 best, such an exception will cause abrupt program termination. At worst, it could expose debugging information that would be useful to an attacker, or
 it could allow an attacker to bypass security measures.</p>
 <p>Note that when they are present, this rule takes advantage of <code>@CheckForNull</code> and <code>@Nonnull</code> annotations defined in <a
@@ -8993,9 +9020,9 @@ void paint(Color color) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/QdcxBQ">CERT, EXP34-C.</a> - Do not dereference null pointers </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aDdGBQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2260', 'Java parser failure', 'sonarqube', 'Code Smell', '<p>When the Java parser fails, it is possible to record the failure as a violation on the file. This way, not only it is possible to track the number
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2260', 'Java parser failure', 'sonarqube', 'Code Smell', '<p>When the Java parser fails, it is possible to record the failure as a violation on the file. This way, not only it is possible to track the number
 of files that do not parse but also to easily find out why they do not parse.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2272', '"Iterator.next()" methods should throw "NoSuchElementException"', 'sonarqube', 'Bug', '<p>By contract, any implementation of the <code>java.util.Iterator.next()</code> method should throw a <code>NoSuchElementException</code> exception
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2272', '"Iterator.next()" methods should throw "NoSuchElementException"', 'sonarqube', 'Bug', '<p>By contract, any implementation of the <code>java.util.Iterator.next()</code> method should throw a <code>NoSuchElementException</code> exception
 when the iteration has no more elements. Any other behavior when the iteration is done could lead to unexpected behavior for users of this
 <code>Iterator</code>. </p>
 <h2>Noncompliant Code Example</h2>
@@ -9022,7 +9049,7 @@ public class MyIterator implements Iterator&lt;String&gt;{
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2273', '"wait", "notify" and "notifyAll" should only be called when a lock is obviously held on an object', 'sonarqube', 'Bug', '<p>By contract, the method <code>Object.wait(...)</code>, <code>Object.notify()</code> and <code>Object.notifyAll()</code> should be called by a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2273', '"wait", "notify" and "notifyAll" should only be called when a lock is obviously held on an object', 'sonarqube', 'Bug', '<p>By contract, the method <code>Object.wait(...)</code>, <code>Object.notify()</code> and <code>Object.notifyAll()</code> should be called by a
 thread that is the owner of the object''s monitor. If this is not the case an <code>IllegalMonitorStateException</code> exception is thrown. This rule
 reinforces this constraint by making it mandatory to call one of these methods only inside a <code>synchronized</code> method or statement. </p>
 <h2>Noncompliant Code Example</h2>
@@ -9063,7 +9090,7 @@ private synchronized void removeElement() {
   ... // Perform removal
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2274', '"Object.wait(...)" and "Condition.await(...)" should be called inside a "while" loop', 'sonarqube', 'Code Smell', '<p>According to the documentation of the Java <code>Condition</code> interface:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2274', '"Object.wait(...)" and "Condition.await(...)" should be called inside a "while" loop', 'sonarqube', 'Code Smell', '<p>According to the documentation of the Java <code>Condition</code> interface:</p>
 <blockquote>
   <p>When waiting upon a <code>Condition</code>, a "spurious wakeup" is permitted to occur, in general, as a concession to the underlying platform
   semantics. This has little practical impact on most application programs as a Condition should always be waited upon in a loop, testing the state
@@ -9104,7 +9131,7 @@ synchronized (obj) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/EzdGBQ">CERT THI03-J.</a> - Always invoke wait() and await() methods inside a loop </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2275', 'Printf-style format strings should not lead to unexpected behavior at runtime', 'sonarqube', 'Bug', '<p>Because <code>printf</code>-style format strings are interpreted at runtime, rather than validated by the Java compiler, they can contain errors
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2275', 'Printf-style format strings should not lead to unexpected behavior at runtime', 'sonarqube', 'Bug', '<p>Because <code>printf</code>-style format strings are interpreted at runtime, rather than validated by the Java compiler, they can contain errors
 that lead to unexpected behavior or runtime errors. This rule statically validates the good behavior of <code>printf</code>-style formats when calling
 the <code>format(...)</code> methods of <code>java.util.Formatter</code>, <code>java.lang.String</code>, <code>java.io.PrintStream</code>,
 <code>MessageFormat</code>, and <code>java.io.PrintWriter</code> classes and the <code>printf(...)</code> methods of <code>java.io.PrintStream</code>
@@ -9159,7 +9186,7 @@ log4jLog.debug("message {}", 1);
 <ul>
   <li> <a href="https://www.securecoding.cert.org/confluence/x/wQA1">CERT, FIO47-C.</a> - Use valid format strings </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2276', '"wait(...)" should be used instead of "Thread.sleep(...)" when a lock is held', 'sonarqube', 'Bug', '<p>If <code>Thread.sleep(...)</code> is called when the current thread holds a lock, it could lead to performance and scalability issues, or even
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2276', '"wait(...)" should be used instead of "Thread.sleep(...)" when a lock is held', 'sonarqube', 'Bug', '<p>If <code>Thread.sleep(...)</code> is called when the current thread holds a lock, it could lead to performance and scalability issues, or even
 worse to deadlocks because the execution of the thread holding the lock is frozen. It''s better to call <code>wait(...)</code> on the monitor object to
 temporarily release the lock and allow other threads to run.</p>
 <h2>Noncompliant Code Example</h2>
@@ -9190,7 +9217,7 @@ public void doSomething(){
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/YTdGBQ">CERT, LCK09-J.</a> - Do not perform operations that can block while holding a lock </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2277', 'Cryptographic RSA algorithms should always incorporate OAEP (Optimal Asymmetric Encryption Padding)', 'sonarqube', 'Vulnerability', '<p>Without OAEP in RSA encryption, it takes less work for an attacker to decrypt the data or infer patterns from the ciphertext. This rule logs an
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2277', 'Cryptographic RSA algorithms should always incorporate OAEP (Optimal Asymmetric Encryption Padding)', 'sonarqube', 'Vulnerability', '<p>Without OAEP in RSA encryption, it takes less work for an attacker to decrypt the data or infer patterns from the ciphertext. This rule logs an
 issue as soon as a literal value starts with <code>RSA/NONE</code>. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9213,7 +9240,7 @@ Cipher rsa = javax.crypto.Cipher.getInstance("RSA/ECB/OAEPWITHSHA-256ANDMGF1PADD
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5542''>S5542</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2278', 'Neither DES (Data Encryption Standard) nor DESede (3DES) should be used', 'sonarqube', 'Vulnerability', '<p>According to the US National Institute of Standards and Technology (NIST), the Data Encryption Standard (DES) is no longer considered secure:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2278', 'Neither DES (Data Encryption Standard) nor DESede (3DES) should be used', 'sonarqube', 'Vulnerability', '<p>According to the US National Institute of Standards and Technology (NIST), the Data Encryption Standard (DES) is no longer considered secure:</p>
 <blockquote>
   <p>Adopted in 1977 for federal agencies to use in protecting sensitive, unclassified information, the DES is being withdrawn because it no longer
   provides the security that is needed to protect federal government information.</p>
@@ -9240,7 +9267,7 @@ Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5547''>S5547</a> instead.</p>', 'java', 'DEPRECATED', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2293', 'The diamond operator ("<>") should be used', 'sonarqube', 'Code Smell', '<p>Java 7 introduced the diamond operator (<code>&lt;&gt;</code>) to reduce the verbosity of generics code. For instance, instead of having to declare
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2293', 'The diamond operator ("<>") should be used', 'sonarqube', 'Code Smell', '<p>Java 7 introduced the diamond operator (<code>&lt;&gt;</code>) to reduce the verbosity of generics code. For instance, instead of having to declare
 a <code>List</code>''s type in both its declaration and its constructor, you can now simplify the constructor declaration with <code>&lt;&gt;</code>,
 and the compiler will infer the type.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>7</code>.</p>
@@ -9254,7 +9281,7 @@ Map&lt;String,List&lt;Integer&gt;&gt; map = new HashMap&lt;String,List&lt;Intege
 List&lt;String&gt; strings = new ArrayList&lt;&gt;();
 Map&lt;String,List&lt;Integer&gt;&gt; map = new HashMap&lt;&gt;();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2301', 'Public methods should not contain selector arguments', 'sonarqube', 'Code Smell', '<p>A selector argument is a <code>boolean</code> argument that''s used to determine which of two paths to take through a method. Specifying such a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2301', 'Public methods should not contain selector arguments', 'sonarqube', 'Code Smell', '<p>A selector argument is a <code>boolean</code> argument that''s used to determine which of two paths to take through a method. Specifying such a
 parameter may seem innocuous, particularly if it''s well named. </p>
 <p>Unfortunately, the maintainers of the code calling the method won''t see the parameter name, only its value. They''ll be forced either to guess at
 the meaning or to take extra time to look the method up.</p>
@@ -9290,7 +9317,7 @@ public void corrupt() {
   age &lt; legalAge ? temptChild("Joe") : temptAdult("Joe");
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2308', '"deleteOnExit" should not be used', 'sonarqube', 'Code Smell', '<p>Use of <code>File.deleteOnExit()</code> is not recommended for the following reasons:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2308', '"deleteOnExit" should not be used', 'sonarqube', 'Code Smell', '<p>Use of <code>File.deleteOnExit()</code> is not recommended for the following reasons:</p>
 <ul>
   <li> The deletion occurs only in the case of a normal JVM shutdown but not when the JVM crashes or is killed. </li>
   <li> For each file handler, the memory associated with the handler is released only at the end of the process. </li>
@@ -9300,14 +9327,14 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
 File file = new File("file.txt");
 file.deleteOnExit();  // Noncompliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2309', 'Files should not be empty', 'sonarqube', 'Code Smell', '<p>Files with no lines of code clutter a project and should be removed.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2309', 'Files should not be empty', 'sonarqube', 'Code Smell', '<p>Files with no lines of code clutter a project and should be removed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 //package org.foo;
 //
 //public class Bar {}
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2325', '"private" and "final" methods that don''t access instance data should be "static"', 'sonarqube', 'Code Smell', '<p>Non-overridable methods (<code>private</code> or <code>final</code>) that don''t access instance data can be <code>static</code> to prevent any
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2325', '"private" and "final" methods that don''t access instance data should be "static"', 'sonarqube', 'Code Smell', '<p>Non-overridable methods (<code>private</code> or <code>final</code>) that don''t access instance data can be <code>static</code> to prevent any
 misunderstanding about the contract of the method.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9346,7 +9373,7 @@ class Utilities {
   <li> <code>private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException;</code> </li>
   <li> <code>private void readObjectNoData() throws ObjectStreamException;</code> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2326', 'Unused type parameters should be removed', 'sonarqube', 'Code Smell', '<p>Type parameters that aren''t used are dead code, which can only distract and possibly confuse developers during maintenance. Therefore, unused type
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2326', 'Unused type parameters should be removed', 'sonarqube', 'Code Smell', '<p>Type parameters that aren''t used are dead code, which can only distract and possibly confuse developers during maintenance. Therefore, unused type
 parameters should be removed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9362,7 +9389,7 @@ int Add(int a, int b)
   return a + b;
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2333', 'Redundant modifiers should not be used', 'sonarqube', 'Code Smell', '<p>The methods declared in an <code>interface</code> are <code>public</code> and <code>abstract</code> by default. Any variables are automatically
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2333', 'Redundant modifiers should not be used', 'sonarqube', 'Code Smell', '<p>The methods declared in an <code>interface</code> are <code>public</code> and <code>abstract</code> by default. Any variables are automatically
 <code>public static final</code>. Finally, <code>class</code> and <code>interface</code> are automatically <code>public static</code>. There is no
 need to explicitly declare them so.</p>
 <p>Since annotations are implicitly interfaces, the same holds true for them as well.</p>
@@ -9381,7 +9408,7 @@ public interface Vehicle {
 
   void go(int speed, Direction direction);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2384', 'Mutable members should not be stored or returned directly', 'sonarqube', 'Code Smell', '<p>Mutable objects are those whose state can be changed. For instance, an array is mutable, but a String is not. Mutable class members should never be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2384', 'Mutable members should not be stored or returned directly', 'sonarqube', 'Code Smell', '<p>Mutable objects are those whose state can be changed. For instance, an array is mutable, but a String is not. Mutable class members should never be
 returned to a caller or accepted and stored directly. Doing so leaves you vulnerable to unexpected changes in your class state.</p>
 <p>Instead use an unmodifiable <code>Collection</code> (via <code>Collections.unmodifiableCollection</code>,
 <code>Collections.unmodifiableList</code>, ...) or make a copy of the mutable object, and store or return the copy instead.</p>
@@ -9449,7 +9476,7 @@ public class B {
   </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/VzZGBQ">CERT, OBJ13-J.</a> - Ensure that references to mutable objects are not exposed </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2386', 'Mutable fields should not be "public static"', 'sonarqube', 'Code Smell', '<p>There is no good reason to have a mutable object as the <code>public</code> (by default), <code>static</code> member of an <code>interface</code>.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2386', 'Mutable fields should not be "public static"', 'sonarqube', 'Code Smell', '<p>There is no good reason to have a mutable object as the <code>public</code> (by default), <code>static</code> member of an <code>interface</code>.
 Such variables should be moved into classes and their visibility lowered. </p>
 <p>Similarly, mutable <code>static</code> members of classes and enumerations which are accessed directly, rather than through getters and setters,
 should be protected to the degree possible. That can be done by reducing visibility or making the field <code>final</code> if appropriate. </p>
@@ -9476,7 +9503,7 @@ public class A {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/LjdGBQ">CERT, OBJ01-J.</a> - Limit accessibility of fields </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/VzZGBQ">CERT, OBJ13-J.</a> - Ensure that references to mutable objects are not exposed </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2387', 'Child class fields should not shadow parent class fields', 'sonarqube', 'Code Smell', '<p>Having a variable with the same name in two unrelated classes is fine, but do the same thing within a class hierarchy and you''ll get confusion at
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2387', 'Child class fields should not shadow parent class fields', 'sonarqube', 'Code Smell', '<p>Having a variable with the same name in two unrelated classes is fine, but do the same thing within a class hierarchy and you''ll get confusion at
 best, chaos at worst. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9521,7 +9548,7 @@ public class Raspberry extends Fruit {
   // ...
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2388', 'Inner class calls to super class methods should be unambiguous', 'sonarqube', 'Code Smell', '<p>When an inner class extends another class, and both its outer class and its parent class have a method with the same name, calls to that method can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2388', 'Inner class calls to super class methods should be unambiguous', 'sonarqube', 'Code Smell', '<p>When an inner class extends another class, and both its outer class and its parent class have a method with the same name, calls to that method can
 be confusing. The compiler will resolve the call to the superclass method, but maintainers may be confused, so the superclass method should be called
 explicitly, using <code>super.</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -9562,7 +9589,7 @@ public class Outer {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2390', 'Classes should not access their own subclasses during initialization', 'sonarqube', 'Code Smell', '<p>When a parent class references a member of a subclass during its own initialization, the results might not be what you expect because the child
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2390', 'Classes should not access their own subclasses during initialization', 'sonarqube', 'Code Smell', '<p>When a parent class references a member of a subclass during its own initialization, the results might not be what you expect because the child
 class might not have been initialized yet. This could create what is known as an "initialisation cycle", or even a deadlock in some extreme cases.</p>
 <p>To make things worse, these issues are very hard to diagnose so it is highly recommended you avoid creating this kind of dependencies.</p>
 <h2>Noncompliant Code Example</h2>
@@ -9589,7 +9616,7 @@ class Child extends Parent {
   <li> Java Language Specifications - <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-12.html#jls-12.4">Section 12.4: Initialization of
   Classes and Interfaces</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2391', 'JUnit framework methods should be declared properly', 'sonarqube', 'Code Smell', '<p>If the <code>suite</code> method in a JUnit 3 <code>TestCase</code> is not declared correctly, it will not be used. Such a method must be named
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2391', 'JUnit framework methods should be declared properly', 'sonarqube', 'Code Smell', '<p>If the <code>suite</code> method in a JUnit 3 <code>TestCase</code> is not declared correctly, it will not be used. Such a method must be named
 "suite", have no arguments, be <code>public static</code>, and must return either a <code>junit.framework.Test</code> or a
 <code>junit.framework.TestSuite</code>.</p>
 <p>Similarly, <code>setUp</code> and <code>tearDown</code> methods that aren''t properly capitalized will also be ignored.</p>
@@ -9611,10 +9638,10 @@ public void tearDown() { ... }
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2437', 'Silly bit operations should not be performed', 'sonarqube', 'Code Smell', '<p>Certain bit operations are just silly and should not be performed because their results are predictable.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2437', 'Silly bit operations should not be performed', 'sonarqube', 'Code Smell', '<p>Certain bit operations are just silly and should not be performed because their results are predictable.</p>
 <p>Specifically, using <code>&amp; -1</code> with any value will always result in the original value, as will <code>anyValue ^ 0</code> and
 <code>anyValue | 0</code>.</p>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2438', '"Threads" should not be used where "Runnables" are expected', 'sonarqube', 'Code Smell', '<p>While it is technically correct to use a <code>Thread</code> where a <code>Runnable</code> is called for, the semantics of the two objects are
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2438', '"Threads" should not be used where "Runnables" are expected', 'sonarqube', 'Code Smell', '<p>While it is technically correct to use a <code>Thread</code> where a <code>Runnable</code> is called for, the semantics of the two objects are
 different, and mixing them is a bad practice that will likely lead to headaches in the future.</p>
 <p>The crux of the issue is that <code>Thread</code> is a larger concept than <code>Runnable</code>. A <code>Runnable</code> is an object whose
 running should be managed. A <code>Thread</code> expects to manage the running of itself or other <code>Runnables</code>. </p>
@@ -9644,7 +9671,7 @@ running should be managed. A <code>Thread</code> expects to manage the running o
 		};
 		new Thread(r).start();
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2440', 'Classes with only "static" methods should not be instantiated', 'sonarqube', 'Code Smell', '<p><code>static</code> methods can be accessed without an instance of the enclosing class, so there''s no reason to instantiate a class that has only
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2440', 'Classes with only "static" methods should not be instantiated', 'sonarqube', 'Code Smell', '<p><code>static</code> methods can be accessed without an instance of the enclosing class, so there''s no reason to instantiate a class that has only
 <code>static</code> methods.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9690,7 +9717,7 @@ public class TextManipulator {
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS1118''>S1118</a> - Utility classes should not have public constructors </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2441', 'Non-serializable objects should not be stored in "HttpSession" objects', 'sonarqube', 'Bug', '<p>If you have no intention of writting an <code>HttpSession</code> object to file, then storing non-<code>serializable</code> objects in it may not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2441', 'Non-serializable objects should not be stored in "HttpSession" objects', 'sonarqube', 'Bug', '<p>If you have no intention of writting an <code>HttpSession</code> object to file, then storing non-<code>serializable</code> objects in it may not
 seem like a big deal. But whether or not you explicitly serialize the session, it may be written to disk anyway, as the server manages its memory use
 in a process called "passivation". Further, some servers automatically write their active sessions out to file at shutdown &amp; deserialize any such
 sessions at startup.</p>
@@ -9711,7 +9738,7 @@ session.setAttribute("address", new Address());  // Noncompliant; Address isn''t
   <li> <a href="http://cwe.mitre.org/data/definitions/579.html">MITRE, CWE-579</a> - J2EE Bad Practices: Non-serializable Object Stored in Session
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2442', '"Lock" objects should not be "synchronized"', 'sonarqube', 'Code Smell', '<p><code>java.util.concurrent.locks.Lock</code> offers far more powerful and flexible locking operations than are available with
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2442', '"Lock" objects should not be "synchronized"', 'sonarqube', 'Code Smell', '<p><code>java.util.concurrent.locks.Lock</code> offers far more powerful and flexible locking operations than are available with
 <code>synchronized</code> blocks. So synchronizing on a <code>Lock</code> throws away the power of the object, and is just silly. Instead, such
 objects should be locked and unlocked using <code>tryLock()</code> and <code>unlock()</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -9732,7 +9759,7 @@ lock.tryLock();
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/qjdGBQ">CERT, LCK03-J.</a> - Do not synchronize on the intrinsic locks of high-level concurrency
   objects </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2444', 'Lazy initialization of "static" fields should be "synchronized"', 'sonarqube', 'Code Smell', '<p>In a multi-threaded situation, un-<code>synchronized</code> lazy initialization of static fields could mean that a second thread has access to a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2444', 'Lazy initialization of "static" fields should be "synchronized"', 'sonarqube', 'Code Smell', '<p>In a multi-threaded situation, un-<code>synchronized</code> lazy initialization of static fields could mean that a second thread has access to a
 half-initialized object while the first thread is still creating it. Allowing such access could cause serious bugs. Instead. the initialization block
 should be <code>synchronized</code>.</p>
 <p>Similarly, updates of such fields should also be <code>synchronized</code>.</p>
@@ -9768,7 +9795,7 @@ private static synchronized Properties getPreferences() {
     }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2445', 'Blocks should be synchronized on "private final" fields', 'sonarqube', 'Bug', '<p>Synchronizing on a class field synchronizes not on the field itself, but on the object assigned to it. So synchronizing on a non-<code>final</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2445', 'Blocks should be synchronized on "private final" fields', 'sonarqube', 'Bug', '<p>Synchronizing on a class field synchronizes not on the field itself, but on the object assigned to it. So synchronizing on a non-<code>final</code>
 field makes it possible for the field''s value to change while a thread is in a block synchronized on the old value. That would allow a second thread,
 synchronized on the new value, to enter the block at the same time.</p>
 <p>The story is very similar for synchronizing on parameters; two different threads running the method in parallel could pass two different object
@@ -9808,7 +9835,7 @@ private void doSomething(){
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/djdGBQ">CERT, LCK00-J.</a> - Use private final lock objects to synchronize classes that may
   interact with untrusted code </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2446', '"notifyAll" should be used', 'sonarqube', 'Bug', '<p><code>notify</code> and <code>notifyAll</code> both wake up sleeping threads, but <code>notify</code> only rouses one, while <code>notifyAll</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2446', '"notifyAll" should be used', 'sonarqube', 'Bug', '<p><code>notify</code> and <code>notifyAll</code> both wake up sleeping threads, but <code>notify</code> only rouses one, while <code>notifyAll</code>
 rouses all of them. Since <code>notify</code> might not wake up the right thread, <code>notifyAll</code> should be used instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9840,7 +9867,7 @@ class MyThread extends Thread{
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/MTdGBQ">CERT, THI02-J.</a> - Notify all waiting threads rather than a single thread </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2447', 'Null should not be returned from a "Boolean" method', 'sonarqube', 'Code Smell', '<p>While <code>null</code> is technically a valid <code>Boolean</code> value, that fact, and the distinction between <code>Boolean</code> and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2447', 'Null should not be returned from a "Boolean" method', 'sonarqube', 'Code Smell', '<p>While <code>null</code> is technically a valid <code>Boolean</code> value, that fact, and the distinction between <code>Boolean</code> and
 <code>boolean</code> is easy to forget. So returning <code>null</code> from a <code>Boolean</code> method is likely to cause problems with callers''
 code.</p>
 <h2>Noncompliant Code Example</h2>
@@ -9855,7 +9882,7 @@ public Boolean isUsable() {
   <li> <a href="http://cwe.mitre.org/data/definitions/476.html">MITRE CWE-476</a> - NULL Pointer Dereference </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aDdGBQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2479', 'Whitespace and control characters in literals should be explicit', 'sonarqube', 'Code Smell', '<p>Non-encoded control characters and whitespace characters are often injected in the source code because of a bad manipulation. They are either
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2479', 'Whitespace and control characters in literals should be explicit', 'sonarqube', 'Code Smell', '<p>Non-encoded control characters and whitespace characters are often injected in the source code because of a bad manipulation. They are either
 invisible or difficult to recognize, which can result in bugs when the string is not what the developer expects. If you actually need to use a control
 character use their encoded version (ex: ASCII <code>
 ,	,</code>... or Unicode <code>U+000D, U+0009,</code>...).</p>
@@ -9881,7 +9908,7 @@ char tab = ''	'';
 </pre>
 <h2>Exceptions</h2>
 <p>Text Blocks string literals (java 13 three double-quote marks) can contain tabulations to allow indentation using tabulations.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2583', 'Conditionally executed code should be reachable', 'sonarqube', 'Bug', '<p>Conditional expressions which are always <code>true</code> or <code>false</code> can lead to dead code. Such code is always buggy and should never
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2583', 'Conditionally executed code should be reachable', 'sonarqube', 'Bug', '<p>Conditional expressions which are always <code>true</code> or <code>false</code> can lead to dead code. Such code is always buggy and should never
 be used in production.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9924,7 +9951,7 @@ if (true) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/5dUxBQ">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2589', 'Boolean expressions should not be gratuitous', 'sonarqube', 'Code Smell', '<p>If a boolean expression doesn''t change the evaluation of the condition, then it is entirely unnecessary, and can be removed. If it is gratuitous
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2589', 'Boolean expressions should not be gratuitous', 'sonarqube', 'Code Smell', '<p>If a boolean expression doesn''t change the evaluation of the condition, then it is entirely unnecessary, and can be removed. If it is gratuitous
 because it does not match the programmer''s intent, then it''s a bug and the expression should be fixed.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -9961,7 +9988,7 @@ if (c) {
   <li> <a href="http://cwe.mitre.org/data/definitions/571">MITRE, CWE-571</a> - Expression is Always True </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/570">MITRE, CWE-570</a> - Expression is Always False </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2612', 'Setting loose POSIX file permissions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Unix, "<code>others</code>" class refers to all users except the owner of the file and the members of the group assigned to this file.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2612', 'Setting loose POSIX file permissions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Unix, "<code>others</code>" class refers to all users except the owner of the file and the members of the group assigned to this file.</p>
 <p>Granting permissions to this group can lead to unintended access to files. </p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -10032,7 +10059,7 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
   files with appropriate access permissions </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2629', '"Preconditions" and logging arguments should not require evaluation', 'sonarqube', 'Code Smell', '<p>Passing message arguments that require further evaluation into a Guava <code>com.google.common.base.Preconditions</code> check can result in a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2629', '"Preconditions" and logging arguments should not require evaluation', 'sonarqube', 'Code Smell', '<p>Passing message arguments that require further evaluation into a Guava <code>com.google.common.base.Preconditions</code> check can result in a
 performance penalty. That''s because whether or not they''re needed, each argument must be resolved before the method is actually called.</p>
 <p>Similarly, passing concatenated strings into a logging method can also incur a needless performance hit because the concatenation will be performed
 every time the method is called, whether or not the log level is low enough to show the message.</p>
@@ -10082,7 +10109,7 @@ if (!condition) {
 <p><code>catch</code> blocks are ignored, because the performance penalty is unimportant on exceptional paths (catch block should not be a part of
 standard program flow). Getters are ignored as well as methods called on annotations which can be considered as getters. This rule accounts for
 explicit test-level testing with SLF4J methods <code>isXXXEnabled</code> and ignores the bodies of such <code>if</code> statements.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2637', '"@NonNull" values should not be set to null', 'sonarqube', 'Bug', '<p>Fields, parameters and return values marked <code>@NotNull</code>, <code>@NonNull</code>, or <code>@Nonnull</code> are assumed to have non-null
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2637', '"@NonNull" values should not be set to null', 'sonarqube', 'Bug', '<p>Fields, parameters and return values marked <code>@NotNull</code>, <code>@NonNull</code>, or <code>@Nonnull</code> are assumed to have non-null
 values and are not typically null-checked before use. Therefore setting one of these values to <code>null</code>, or failing to set such a class field
 in a constructor, could cause <code>NullPointerException</code>s at runtime.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10114,7 +10141,7 @@ public class MainClass {
   <li> <a href="https://cwe.mitre.org/data/definitions/476.html">MITRE CWE-476</a> - NULL Pointer Dereference </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/aDdGBQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2638', 'Method overrides should not change contracts', 'sonarqube', 'Code Smell', '<p>Because a subclass instance may be cast to and treated as an instance of the superclass, overriding methods should uphold the aspects of the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2638', 'Method overrides should not change contracts', 'sonarqube', 'Code Smell', '<p>Because a subclass instance may be cast to and treated as an instance of the superclass, overriding methods should uphold the aspects of the
 superclass contract that relate to the Liskov Substitution Principle. Specifically, if the parameters or return type of the superclass method are
 marked with any of the following: <code>@Nullable</code>, <code>@CheckForNull</code>, <code>@NotNull</code>, <code>@NonNull</code>, and
 <code>@Nonnull</code>, then subclass parameters are not allowed to tighten the contract, and return values are not allowed to loosen it.</p>
@@ -10149,7 +10176,7 @@ public class Raspberry extends Fruit {
 <ul>
   <li> <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Wikipedia - Liskov substitution principle</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2639', 'Inappropriate regular expressions should not be used', 'sonarqube', 'Bug', '<p>Regular expressions are powerful but tricky, and even those long used to using them can make mistakes.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2639', 'Inappropriate regular expressions should not be used', 'sonarqube', 'Bug', '<p>Regular expressions are powerful but tricky, and even those long used to using them can make mistakes.</p>
 <p>The following should not be used as regular expressions:</p>
 <ul>
   <li> <code>.</code> - matches any single character. Used in <code>replaceAll</code>, it matches <em>everything</em> </li>
@@ -10168,7 +10195,7 @@ String clean4 = str.replaceFirst(".",""); // Noncompliant;
 String clean5 = str.replaceFirst("|","_"); // Noncompliant;
 String clean6 = str.replaceFirst(File.separator,""); // Noncompliant;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2647', 'Basic authentication should not be used', 'sonarqube', 'Vulnerability', '<p>Basic authentication''s only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2647', 'Basic authentication should not be used', 'sonarqube', 'Vulnerability', '<p>Basic authentication''s only means of obfuscation is Base64 encoding. Since Base64 encoding is easily recognized and reversed, it offers only the
 thinnest veil of protection to your users, and should not be used. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -10195,7 +10222,7 @@ conn.setRequestProperty("Authorization", "Basic " + encoding); // Noncompliant
   <li> <a href="https://cwe.mitre.org/data/definitions/522">MITRE, CWE-522</a> - Insufficiently Protected Credentials </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2653', 'Web applications should not have a "main" method', 'sonarqube', 'Vulnerability', '<p>There is no reason to have a <code>main</code> method in a web application. It may have been useful for debugging during application development,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2653', 'Web applications should not have a "main" method', 'sonarqube', 'Vulnerability', '<p>There is no reason to have a <code>main</code> method in a web application. It may have been useful for debugging during application development,
 but such a method should never make it into production. Having a <code>main</code> method in a web application opens a door to the application logic
 that an attacker may never be able to reach (but watch out if one does!), but it is a sloppy practice and indicates that other problems may be
 present.</p>
@@ -10223,7 +10250,7 @@ public class MyServlet extends HttpServlet {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2658', 'Classes should not be loaded dynamically', 'sonarqube', 'Vulnerability', '<p>Dynamically loaded classes could contain malicious code executed by a static class initializer. I.E. you wouldn''t even have to instantiate or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2658', 'Classes should not be loaded dynamically', 'sonarqube', 'Vulnerability', '<p>Dynamically loaded classes could contain malicious code executed by a static class initializer. I.E. you wouldn''t even have to instantiate or
 explicitly invoke methods on such classes to be vulnerable to an attack.</p>
 <p>This rule raises an issue for each use of dynamic class loading.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10237,7 +10264,7 @@ Class clazz = Class.forName(className);  // Noncompliant
   <li> <a href="https://cwe.mitre.org/data/definitions/470.html">MITRE, CWE-470</a> - Use of Externally-Controlled Input to Select Classes or Code
   (''Unsafe Reflection'') </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2674', 'The value returned from a stream read should be checked', 'sonarqube', 'Bug', '<p>You cannot assume that any given stream reading call will fill the <code>byte[]</code> passed in to the method. Instead, you must check the value
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2674', 'The value returned from a stream read should be checked', 'sonarqube', 'Bug', '<p>You cannot assume that any given stream reading call will fill the <code>byte[]</code> passed in to the method. Instead, you must check the value
 returned by the read method to see how many bytes were read. Fail to do so, and you introduce bug that is both harmful and difficult to reproduce.</p>
 <p>Similarly, you cannot assume that <code>InputStream.skip</code> will actually skip the requested number of bytes, but must check the value returned
 from the method.</p>
@@ -10272,7 +10299,7 @@ public void doSomething(String fileName) {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/VzdGBQ">CERT, FIO10-J.</a> - Ensure the array is filled when using read() to fill an array </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2675', '"readObject" should not be "synchronized"', 'sonarqube', 'Code Smell', '<p>A <code>readObject</code> method is written when a <code>Serializable</code> object needs special handling to be rehydrated from file. It should be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2675', '"readObject" should not be "synchronized"', 'sonarqube', 'Code Smell', '<p>A <code>readObject</code> method is written when a <code>Serializable</code> object needs special handling to be rehydrated from file. It should be
 the case that the object being created by <code>readObject</code> is only visible to the thread that invoked the method, and the
 <code>synchronized</code> keyword is not needed, and using <code>synchronized</code> anyway is just confusing. If this is not the case, the method
 should be refactored to make it the case.</p>
@@ -10290,7 +10317,7 @@ private void readObject(java.io.ObjectInputStream in)
   //...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2676', 'Neither "Math.abs" nor negation should be used on numbers that could be "MIN_VALUE"', 'sonarqube', 'Bug', '<p>It is possible for a call to <code>hashCode</code> to return <code>Integer.MIN_VALUE</code>. Take the absolute value of such a hashcode and you''ll
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2676', 'Neither "Math.abs" nor negation should be used on numbers that could be "MIN_VALUE"', 'sonarqube', 'Bug', '<p>It is possible for a call to <code>hashCode</code> to return <code>Integer.MIN_VALUE</code>. Take the absolute value of such a hashcode and you''ll
 still have a negative number. Since your code is likely to assume that it''s a positive value instead, your results will be unreliable.</p>
 <p>Similarly, <code>Integer.MIN_VALUE</code> could be returned from <code>Random.nextInt()</code> or any object''s <code>compareTo</code> method, and
 <code>Long.MIN_VALUE</code> could be returned from <code>Random.nextLong()</code>. Calling <code>Math.abs</code> on values returned from these methods
@@ -10311,7 +10338,7 @@ public void doSomething(String str) {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2677', '"read" and "readLine" return values should be used', 'sonarqube', 'Bug', '<p>When a method is called that returns data read from some data source, that data should be stored rather than thrown away. Any other course of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2677', '"read" and "readLine" return values should be used', 'sonarqube', 'Bug', '<p>When a method is called that returns data read from some data source, that data should be stored rather than thrown away. Any other course of
 action is surely a bug.</p>
 <p>This rule raises an issue when the return value of any of the following is ignored or merely null-checked: <code>BufferedReader.readLine()</code>,
 <code>Reader.read()</code>, and these methods in any child classes.</p>
@@ -10344,7 +10371,7 @@ public void doSomethingWithFile(String fileName) {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2681', 'Multiline blocks should be enclosed in curly braces', 'sonarqube', 'Code Smell', '<p>Curly braces can be omitted from a one-line block, such as with an <code>if</code> statement or <code>for</code> loop, but doing so can be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2681', 'Multiline blocks should be enclosed in curly braces', 'sonarqube', 'Code Smell', '<p>Curly braces can be omitted from a one-line block, such as with an <code>if</code> statement or <code>for</code> loop, but doing so can be
 misleading and induce bugs.</p>
 <p>This rule raises an issue when the whitespacing of the lines after a one line block indicates an intent to include those lines in the block, but
 the omission of curly braces means the lines will be unconditionally executed once.</p>
@@ -10388,7 +10415,7 @@ for (int i = 0; i &lt; array.length; i++) {
   <li> <a href="http://cwe.mitre.org/data/definitions/483.html">MITRE, CWE-483</a> - Incorrect Block Delimitation </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/MzZGBQ">CERT, EXP52-J.</a> - Use braces for the body of an if, for, or while statement </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2689', 'Files opened in append mode should not be used with ObjectOutputStream', 'sonarqube', 'Bug', '<p><code>ObjectOutputStream</code>s are used with serialization, and the first thing an <code>ObjectOutputStream</code> writes is the serialization
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2689', 'Files opened in append mode should not be used with ObjectOutputStream', 'sonarqube', 'Bug', '<p><code>ObjectOutputStream</code>s are used with serialization, and the first thing an <code>ObjectOutputStream</code> writes is the serialization
 stream header. This header should appear once per file, at the beginning. Pass a file opened in append mode into an <code>ObjectOutputStream</code>
 constructor and the serialization stream header will be added to the end of the file before your object is then also appended.</p>
 <p>When you''re trying to read your object(s) back from the file, only the first one will be read successfully, and a
@@ -10403,7 +10430,7 @@ ObjectOutputStream out = new ObjectOutputStream(fos);  // Noncompliant
 FileOutputStream fos = new FileOutputStream (fileName);
 ObjectOutputStream out = new ObjectOutputStream(fos);
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2692', '"indexOf" checks should not be for positive numbers', 'sonarqube', 'Code Smell', '<p>Most checks against an <code>indexOf</code> value compare it with -1 because 0 is a valid index. Any checks which look for values &gt;0 ignore the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2692', '"indexOf" checks should not be for positive numbers', 'sonarqube', 'Code Smell', '<p>Most checks against an <code>indexOf</code> value compare it with -1 because 0 is a valid index. Any checks which look for values &gt;0 ignore the
 first element, which is likely a bug. If the intent is merely to check inclusion of a value in a <code>String</code> or a <code>List</code>, consider
 using the <code>contains</code> method instead.</p>
 <p>This rule raises an issue when an <code>indexOf</code> value retrieved either from a <code>String</code> or a <code>List</code> is tested against
@@ -10446,7 +10473,7 @@ if (name.contains("ae") {
   // ...
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2693', 'Threads should not be started in constructors', 'sonarqube', 'Code Smell', '<p>The problem with invoking <code>Thread.start()</code> in a constructor is that you''ll have a confusing mess on your hands if the class is ever
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2693', 'Threads should not be started in constructors', 'sonarqube', 'Code Smell', '<p>The problem with invoking <code>Thread.start()</code> in a constructor is that you''ll have a confusing mess on your hands if the class is ever
 extended because the superclass'' constructor will start the thread before the child class has truly been initialized.</p>
 <p>This rule raises an issue any time <code>start</code> is invoked in the constructor of a non-<code>final</code> class.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10465,7 +10492,7 @@ public class MyClass {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/FDdGBQ">CERT, TSM02-J.</a> - Do not use background threads during class initialization </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2694', 'Inner classes which do not reference their owning classes should be "static"', 'sonarqube', 'Code Smell', '<p>A non-static inner class has a reference to its outer class, and access to the outer class'' fields and methods. That class reference makes the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2694', 'Inner classes which do not reference their owning classes should be "static"', 'sonarqube', 'Code Smell', '<p>A non-static inner class has a reference to its outer class, and access to the outer class'' fields and methods. That class reference makes the
 inner class larger and could cause the outer class instance to live in memory longer than necessary. </p>
 <p>If the reference to the outer class isn''t used, it is more efficient to make the inner class <code>static</code> (also called nested). If the
 reference is used only in the class constructor, then explicitly pass a class reference to the constructor. If the inner class is anonymous, it will
@@ -10508,7 +10535,7 @@ public class Fruit {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2695', '"PreparedStatement" and "ResultSet" methods should be called with valid indices', 'sonarqube', 'Bug', '<p>The parameters in a <code>PreparedStatement</code> are numbered from 1, not 0, so using any "set" method of a <code>PreparedStatement</code> with a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2695', '"PreparedStatement" and "ResultSet" methods should be called with valid indices', 'sonarqube', 'Bug', '<p>The parameters in a <code>PreparedStatement</code> are numbered from 1, not 0, so using any "set" method of a <code>PreparedStatement</code> with a
 number less than 1 is a bug, as is using an index higher than the number of parameters. Similarly, <code>ResultSet</code> indices also start at 1,
 rather than 0</p>
 <h2>Noncompliant Code Example</h2>
@@ -10535,7 +10562,7 @@ while (rs.next()) {
   // ...
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2696', 'Instance methods should not write to "static" fields', 'sonarqube', 'Code Smell', '<p>Correctly updating a <code>static</code> field from a non-static method is tricky to get right and could easily lead to bugs if there are multiple
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2696', 'Instance methods should not write to "static" fields', 'sonarqube', 'Code Smell', '<p>Correctly updating a <code>static</code> field from a non-static method is tricky to get right and could easily lead to bugs if there are multiple
 class instances and/or multiple threads in play. Ideally, <code>static</code> fields are only updated from <code>synchronized static</code>
 methods.</p>
 <p>This rule raises an issue each time a <code>static</code> field is updated from a non-static method.</p>
@@ -10551,7 +10578,7 @@ public class MyClass {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2698', 'Test assertions should include messages', 'sonarqube', 'Code Smell', '<p>Adding messages to JUnit, FEST and AssertJ assertions is an investment in your future productivity. Spend a few seconds writing them now, and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2698', 'Test assertions should include messages', 'sonarqube', 'Code Smell', '<p>Adding messages to JUnit, FEST and AssertJ assertions is an investment in your future productivity. Spend a few seconds writing them now, and
 you''ll save a lot of time on the other end when either the tests fail and you need to quickly diagnose the problem, or when you need to maintain the
 tests and the assertion messages work as a sort of documentation.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10574,7 +10601,7 @@ try {
   assertThat(list.get(0)).as("check first element").overridingErrorMessage("The first element should be a pear, not a %s", list.get(0)).isEqualTo("pear");
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2699', 'Tests should include assertions', 'sonarqube', 'Code Smell', '<p>A test case without assertions ensures only that no exceptions are thrown. Beyond basic runnability, it ensures nothing about the behavior of the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2699', 'Tests should include assertions', 'sonarqube', 'Code Smell', '<p>A test case without assertions ensures only that no exceptions are thrown. Beyond basic runnability, it ensures nothing about the behavior of the
 code under test.</p>
 <p>This rule raises an exception when no assertions from any of the following known frameworks are found in a test:</p>
 <ul>
@@ -10627,7 +10654,7 @@ public void testDoSomethingElse() {
   CompareToTester.compareStatic(myClass);  // Compliant
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2701', 'Literal boolean values and nulls should not be used in assertions', 'sonarqube', 'Code Smell', '<p>There''s no reason to use literal boolean values or nulls in assertions. Instead of using them with <em>assertEquals</em>, <em>assertNotEquals</em>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2701', 'Literal boolean values and nulls should not be used in assertions', 'sonarqube', 'Code Smell', '<p>There''s no reason to use literal boolean values or nulls in assertions. Instead of using them with <em>assertEquals</em>, <em>assertNotEquals</em>
 and similar methods, you should be using <em>assertTrue</em>, <em>assertFalse</em>, <em>assertNull</em> or <em>assertNotNull</em> instead (or
 <em>isNull</em> etc. when using Fest). Using them with assertions unrelated to equality (such as <em>assertNull</em>) is most likely a bug.</p>
 <p>Supported frameworks:</p>
@@ -10650,7 +10677,7 @@ assertNotEquals(null, something()); // Noncompliant
 assertTrue(something());
 assertNotNull(something());
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2718', '"DateUtils.truncate" from Apache Commons Lang library should not be used', 'sonarqube', 'Code Smell', '<p>The use of the <code>ZonedDateTime</code> class introduced in Java 8 to truncate a date can be significantly faster than the <code>DateUtils</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2718', '"DateUtils.truncate" from Apache Commons Lang library should not be used', 'sonarqube', 'Code Smell', '<p>The use of the <code>ZonedDateTime</code> class introduced in Java 8 to truncate a date can be significantly faster than the <code>DateUtils</code>
 class from Commons Lang.</p>
 <p><strong>Note</strong> that this rule is automatically disabled when the project''s <code>sonar.java.source</code> is lower than <code>8</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10669,7 +10696,7 @@ public Date trunc(Date date) {
   return Date.from(truncatedInstant);
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2737', '"catch" clauses should do more than rethrow', 'sonarqube', 'Code Smell', '<p>A <code>catch</code> clause that only rethrows the caught exception has the same effect as omitting the <code>catch</code> altogether and letting
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2737', '"catch" clauses should do more than rethrow', 'sonarqube', 'Code Smell', '<p>A <code>catch</code> clause that only rethrows the caught exception has the same effect as omitting the <code>catch</code> altogether and letting
 it bubble up automatically, but with more code and the additional detriment of leaving maintainers scratching their heads. </p>
 <p>Such clauses should either be eliminated or populated with the appropriate logic.</p>
 <h2>Noncompliant Code Example</h2>
@@ -10720,7 +10747,7 @@ public String readFile(File f) throws IOException {
   return sb.toString();
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2755', 'XML parsers should not be vulnerable to XXE attacks', 'sonarqube', 'Vulnerability', '<p><a href="https://www.w3.org/TR/xml/">XML specification</a> allows the use of entities that can be <a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2755', 'XML parsers should not be vulnerable to XXE attacks', 'sonarqube', 'Vulnerability', '<p><a href="https://www.w3.org/TR/xml/">XML specification</a> allows the use of entities that can be <a
 href="https://www.w3.org/TR/xml/#sec-internal-ent">internal</a> or <a href="https://www.w3.org/TR/xml/#sec-external-ent">external</a> (file system /
 network access ...) which could lead to vulnerabilities such as confidential file disclosures or <a
 href="https://www.owasp.org/index.php/Server_Side_Request_Forgery">SSRFs</a>.</p>
@@ -10928,7 +10955,7 @@ Document document = builder.build(new File(xml));
   <li> <a href="http://cwe.mitre.org/data/definitions/611.html">MITRE, CWE-611</a> - Information Exposure Through XML External Entity Reference </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/827.html">MITRE, CWE-827</a> - Improper Control of Document Type Definition </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2757', '"=+" should not be used instead of "+="', 'sonarqube', 'Bug', '<p>The use of operators pairs ( <code>=+</code>, <code>=-</code> or <code>=!</code> ) where the reversed, single operator was meant (<code>+=</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2757', '"=+" should not be used instead of "+="', 'sonarqube', 'Bug', '<p>The use of operators pairs ( <code>=+</code>, <code>=-</code> or <code>=!</code> ) where the reversed, single operator was meant (<code>+=</code>,
 <code>-=</code> or <code>!=</code>) will compile and run, but not produce the expected results.</p>
 <p>This rule raises an issue when <code>=+</code>, <code>=-</code>, or <code>=!</code> is used without any spacing between the two operators and when
 there is at least one whitespace character after.</p>
@@ -10948,7 +10975,7 @@ int num = 3;
 target = -num;  // Compliant; intent to assign inverse value of num is clear
 target += num;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2761', 'Unary prefix operators should not be repeated', 'sonarqube', 'Bug', '<p>The needless repetition of an operator is usually a typo. There is no reason to write <code>!!!i</code> when <code>!i</code> will do.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2761', 'Unary prefix operators should not be repeated', 'sonarqube', 'Bug', '<p>The needless repetition of an operator is usually a typo. There is no reason to write <code>!!!i</code> when <code>!i</code> will do.</p>
 <p>On the other hand, the repetition of increment and decrement operators may have been done on purpose, but doing so obfuscates the meaning, and
 should be simplified.</p>
 <p>This rule raises an issue for sequences of: <code>!</code>, <code>~</code>, <code>-</code>, and <code>+</code>.</p>
@@ -10976,7 +11003,7 @@ boolean c = !b;
 </pre>
 <h2>Exceptions</h2>
 <p>Overflow handling for GWT compilation using <code>~~</code> is ignored.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2786', 'Nested "enum"s should not be declared static', 'sonarqube', 'Code Smell', '<p>According to <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-8.html#jls-8.9">the Java Language Specification-8.9</a>:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2786', 'Nested "enum"s should not be declared static', 'sonarqube', 'Code Smell', '<p>According to <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-8.html#jls-8.9">the Java Language Specification-8.9</a>:</p>
 <blockquote>
   <p>Nested enum types are implicitly <code>static</code>.</p>
 </blockquote>
@@ -11001,7 +11028,7 @@ public class Flower {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2789', '"null" should not be used with "Optional"', 'sonarqube', 'Bug', '<p>The concept of <code>Optional</code> is that it will be used when <code>null</code> could cause errors. In a way, it replaces <code>null</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2789', '"null" should not be used with "Optional"', 'sonarqube', 'Bug', '<p>The concept of <code>Optional</code> is that it will be used when <code>null</code> could cause errors. In a way, it replaces <code>null</code>,
 and when <code>Optional</code> is in use, there should never be a question of returning or receiving <code>null</code> from a call.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11036,7 +11063,7 @@ public Optional&lt;String&gt; getOptional() {
   return Optional.empty();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2864', '"entrySet()" should be iterated when both the key and value are needed', 'sonarqube', 'Code Smell', '<p>When only the keys from a map are needed in a loop, iterating the <code>keySet</code> makes sense. But when both the key and the value are needed,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2864', '"entrySet()" should be iterated when both the key and value are needed', 'sonarqube', 'Code Smell', '<p>When only the keys from a map are needed in a loop, iterating the <code>keySet</code> makes sense. But when both the key and the value are needed,
 it''s more efficient to iterate the <code>entrySet</code>, which will give access to both the key and value, instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11057,7 +11084,7 @@ public void doSomethingWithMap(Map&lt;String,Object&gt; map) {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2885', 'Non-thread-safe fields should not be static', 'sonarqube', 'Bug', '<p>Not all classes in the standard Java library were written to be thread-safe. Using them in a multi-threaded manner is highly likely to cause data
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2885', 'Non-thread-safe fields should not be static', 'sonarqube', 'Bug', '<p>Not all classes in the standard Java library were written to be thread-safe. Using them in a multi-threaded manner is highly likely to cause data
 problems or exceptions at runtime.</p>
 <p>This rule raises an issue when an instance of <code>Calendar</code>, <code>DateFormat</code>, <code>javax.xml.xpath.XPath</code>, or
 <code>javax.xml.validation.SchemaFactory</code> is marked <code>static</code>.</p>
@@ -11073,7 +11100,7 @@ public class MyClass {
   private SimpleDateFormat format = new SimpleDateFormat("HH-mm-ss");
   private Calendar calendar = Calendar.getInstance();
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2886', 'Getters and setters should be synchronized in pairs', 'sonarqube', 'Bug', '<p>When one part of a getter/setter pair is <code>synchronized</code> the other part should be too. Failure to synchronize both sides of a pair may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2886', 'Getters and setters should be synchronized in pairs', 'sonarqube', 'Bug', '<p>When one part of a getter/setter pair is <code>synchronized</code> the other part should be too. Failure to synchronize both sides of a pair may
 result in inconsistent behavior at runtime as callers access an inconsistent method state.</p>
 <p>This rule raises an issue when either the method or the contents of one method in a getter/setter pair are synchrnoized but the other is not.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11132,7 +11159,7 @@ public class Person {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/4jdGBQ">CERT, VNA01-J.</a> - Ensure visibility of shared references to immutable objects </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2912', '"indexOf" checks should use a start position', 'sonarqube', 'Code Smell', '<p>One thing that makes good code good is the clarity with which it conveys the intent of the original programmer to maintainers, and the proper
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2912', '"indexOf" checks should use a start position', 'sonarqube', 'Code Smell', '<p>One thing that makes good code good is the clarity with which it conveys the intent of the original programmer to maintainers, and the proper
 choice of <code>indexOf</code> methods can help move code from confusing to clear.</p>
 <p>If you need to see whether a substring is located beyond a certain point in a string, you can test the <code>indexOf</code> the substring versus
 the target point, or you can use the version of <code>indexOf</code> which takes a starting point argument. The latter is arguably clearer because the
@@ -11153,7 +11180,7 @@ if (name.indexOf("ae", 2) &gt; -1) {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2924', 'JUnit rules should be used', 'sonarqube', 'Code Smell', '<p>While some <code>TestRule</code> classes have the desired effect without ever being directly referenced by a test, several others do not, and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2924', 'JUnit rules should be used', 'sonarqube', 'Code Smell', '<p>While some <code>TestRule</code> classes have the desired effect without ever being directly referenced by a test, several others do not, and
 there''s no reason to leave them cluttering up the file if they''re not in use.</p>
 <p>This rule raises an issue when <code>Test</code> class fields of the following types aren''t used by any of the test methods:
 <code>TemporaryFolder</code>, and <code>TestName</code>.</p>
@@ -11185,7 +11212,7 @@ public class ProjectDefinitionTest {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2925', '"Thread.sleep" should not be used in tests', 'sonarqube', 'Code Smell', '<p>Using <code>Thread.sleep</code> in a test is just generally a bad idea. It creates brittle tests that can fail unpredictably depending on
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2925', '"Thread.sleep" should not be used in tests', 'sonarqube', 'Code Smell', '<p>Using <code>Thread.sleep</code> in a test is just generally a bad idea. It creates brittle tests that can fail unpredictably depending on
 environment ("Passes on my machine!") or load. Don''t rely on timing (use mocks) or use libraries such as <code>Awaitility</code> for asynchroneous
 testing. </p>
 <h2>Noncompliant Code Example</h2>
@@ -11220,7 +11247,7 @@ private Callable&lt;Boolean&gt; didTheThing() {
   };
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2959', 'Unnecessary semicolons should be omitted', 'sonarqube', 'Code Smell', '<p>Under the reasoning that cleaner code is better code, the semicolon at the end of a try-with-resources construct should be omitted because it can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2959', 'Unnecessary semicolons should be omitted', 'sonarqube', 'Code Smell', '<p>Under the reasoning that cleaner code is better code, the semicolon at the end of a try-with-resources construct should be omitted because it can
 be omitted.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11238,7 +11265,7 @@ try (ByteArrayInputStream b = new ByteArrayInputStream(new byte[10]);
    //do stuff
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2970', 'Assertions should be complete', 'sonarqube', 'Code Smell', '<p>It is very easy to write incomplete assertions when using some test frameworks. This rule enforces complete assertions in the following cases:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2970', 'Assertions should be complete', 'sonarqube', 'Code Smell', '<p>It is very easy to write incomplete assertions when using some test frameworks. This rule enforces complete assertions in the following cases:</p>
 <ul>
   <li> Fest: <code>assertThat</code> is not followed by an assertion invocation </li>
   <li> AssertJ: <code>assertThat</code> is not followed by an assertion invocation </li>
@@ -11290,9 +11317,9 @@ public void test() {
   check("bar.txt", "key2").isTrue();
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2972', 'Inner classes should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>Inner classes should be short and sweet, to manage complexity in the overall file. An inner class that has grown longer than a certain threshold
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2972', 'Inner classes should not have too many lines of code', 'sonarqube', 'Code Smell', '<p>Inner classes should be short and sweet, to manage complexity in the overall file. An inner class that has grown longer than a certain threshold
 should probably be externalized to its own file.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2973', 'Escaped Unicode characters should not be used', 'sonarqube', 'Code Smell', '<p>The use of Unicode escape sequences should be reserved for characters that would otherwise be ambiguous, such as unprintable characters.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2973', 'Escaped Unicode characters should not be used', 'sonarqube', 'Code Smell', '<p>The use of Unicode escape sequences should be reserved for characters that would otherwise be ambiguous, such as unprintable characters.</p>
 <p>This rule ignores sequences composed entirely of Unicode characters, but otherwise raises an issue for each Unicode character that represents a
 printable character.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11303,7 +11330,7 @@ String prefix = "ne"; // Noncompliant
 <pre>
 String prefix = "née";
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2974', 'Classes without "public" constructors should be "final"', 'sonarqube', 'Code Smell', '<p>Classes with only <code>private</code> constructors should be marked <code>final</code> to prevent any mistaken extension attempts.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2974', 'Classes without "public" constructors should be "final"', 'sonarqube', 'Code Smell', '<p>Classes with only <code>private</code> constructors should be marked <code>final</code> to prevent any mistaken extension attempts.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 public class PrivateConstructorClass {  // Noncompliant
@@ -11328,7 +11355,7 @@ public final class PrivateConstructorClass {  // Compliant
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2975', '"clone" should not be overridden', 'sonarqube', 'Code Smell', '<p>Many consider <code>clone</code> and <code>Cloneable</code> broken in Java, largely because the rules for overriding <code>clone</code> are tricky
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2975', '"clone" should not be overridden', 'sonarqube', 'Code Smell', '<p>Many consider <code>clone</code> and <code>Cloneable</code> broken in Java, largely because the rules for overriding <code>clone</code> are tricky
 and difficult to get right, according to Joshua Bloch:</p>
 <blockquote>
   Object''s clone method is very tricky. It''s based on field copies, and it''s "extra-linguistic." It creates an object without calling a constructor.
@@ -11368,7 +11395,7 @@ public class MyClass {
   <li> <a href=''/coding_rules#rule_key=java%3AS2157''>S2157</a> - "Cloneables" should implement "clone" </li>
   <li> <a href=''/coding_rules#rule_key=java%3AS1182''>S1182</a> - Classes that override "clone" should be "Cloneable" and call "super.clone()" </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2976', '"File.createTempFile" should not be used to create a directory', 'sonarqube', 'Vulnerability', '<p>Using <code>File.createTempFile</code> as the first step in creating a temporary directory causes a race condition and is inherently unreliable and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S2976', '"File.createTempFile" should not be used to create a directory', 'sonarqube', 'Vulnerability', '<p>Using <code>File.createTempFile</code> as the first step in creating a temporary directory causes a race condition and is inherently unreliable and
 insecure. Instead, <code>Files.createTempDirectory</code> (Java 7+) or a library function such as Guava''s similarly-named
 <code>Files.createTempDir</code> should be used.</p>
 <p>This rule raises an issue when the following steps are taken in immediate sequence:</p>
@@ -11397,7 +11424,7 @@ File tempDir = tempPath.toFile();
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5445''>S5445</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3008', 'Static non-final field names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that static non-final field names match a provided regular
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3008', 'Static non-final field names should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that static non-final field names match a provided regular
 expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
@@ -11412,7 +11439,7 @@ class MyClass {
    private static String fooBar;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3010', 'Static fields should not be updated in constructors', 'sonarqube', 'Code Smell', '<p>Assigning a value to a <code>static</code> field in a constructor could cause unreliable behavior at runtime since it will change the value for all
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3010', 'Static fields should not be updated in constructors', 'sonarqube', 'Code Smell', '<p>Assigning a value to a <code>static</code> field in a constructor could cause unreliable behavior at runtime since it will change the value for all
 instances of the class.</p>
 <p>Instead remove the field''s <code>static</code> modifier, or initialize it statically.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11438,7 +11465,7 @@ public class Person {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3011', 'Reflection should not be used to increase accessibility of classes, methods, or fields', 'sonarqube', 'Code Smell', '<p>This rule raises an issue when reflection is used to change the visibility of a class, method or field, and when it is used to directly update a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3011', 'Reflection should not be used to increase accessibility of classes, methods, or fields', 'sonarqube', 'Code Smell', '<p>This rule raises an issue when reflection is used to change the visibility of a class, method or field, and when it is used to directly update a
 field value. Altering or bypassing the accessibility of classes, methods, or fields violates the encapsulation principle and could lead to run-time
 errors.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11457,7 +11484,7 @@ public void setItAnyway(String fieldName, int value) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/_jZGBQ">CERT, SEC05-J.</a> - Do not use reflection to increase accessibility of classes,
   methods, or fields </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3012', 'Arrays should not be copied using loops', 'sonarqube', 'Code Smell', '<p>Using a loop to copy an array or a subset of an array is simply wasted code when there are built-in functions to do it for you. Instead, use
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3012', 'Arrays should not be copied using loops', 'sonarqube', 'Code Smell', '<p>Using a loop to copy an array or a subset of an array is simply wasted code when there are built-in functions to do it for you. Instead, use
 <code>Arrays.copyOf</code> to copy an entire array into another array, use <code>System.arraycopy</code> to copy only a subset of an array into
 another array, and use <code>Arrays.asList</code> to feed the constructor of a new list with an array.</p>
 <p>Note that <code>Arrays.asList</code> simply puts a <code>Collections</code> wrapper around the original array, so further steps are required if a
@@ -11499,7 +11526,7 @@ public int[] getCopy(int[] source) {
   return dest;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3014', '"ThreadGroup" should not be used', 'sonarqube', 'Code Smell', '<p>There is little valid reason to use the methods of the <code>ThreadGroup</code> class. Some are deprecated (<code>allowThreadSuspension()</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3014', '"ThreadGroup" should not be used', 'sonarqube', 'Code Smell', '<p>There is little valid reason to use the methods of the <code>ThreadGroup</code> class. Some are deprecated (<code>allowThreadSuspension()</code>,
 <code>resume()</code>, <code>stop()</code>, and <code>suspend()</code>), some are obsolete, others aren''t thread-safe, and still others are insecure
 (<code>activeCount()</code>, <code>enumerate()</code>) . For these reasons, any use of <code>ThreadGroup</code> is suspicious and should be
 avoided.</p>
@@ -11519,7 +11546,7 @@ executorPool.shutdown();
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/YzdGBQ">CERT, THI01-J.</a> - Do not invoke ThreadGroup methods </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3020', '"toArray" should be passed an array of the proper type', 'sonarqube', 'Bug', '<p>Given no arguments, the <code>Collections.toArray</code> method returns an <code>Object []</code>, which will cause a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3020', '"toArray" should be passed an array of the proper type', 'sonarqube', 'Bug', '<p>Given no arguments, the <code>Collections.toArray</code> method returns an <code>Object []</code>, which will cause a
 <code>ClassCastException</code> at runtime if you try to cast it to an array of the proper class. Instead, pass an array of the correct type in to the
 call.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11534,7 +11561,7 @@ public String [] getStringArray(List&lt;String&gt; strings) {
   return strings.toArray(new String[0]);
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3027', 'String function use should be optimized for single characters', 'sonarqube', 'Code Smell', '<p>An <code>indexOf</code> or <code>lastIndexOf</code> call with a single letter <code>String</code> can be made more performant by switching to a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3027', 'String function use should be optimized for single characters', 'sonarqube', 'Code Smell', '<p>An <code>indexOf</code> or <code>lastIndexOf</code> call with a single letter <code>String</code> can be made more performant by switching to a
 call with a <code>char</code> argument.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11556,7 +11583,7 @@ int otherPos = myStr.lastIndexOf(''r'');
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3030', 'Classes should not have too many "static" imports', 'sonarqube', 'Code Smell', '<p>Importing a class statically allows you to use its <code>public static</code> members without qualifying them with the class name. That can be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3030', 'Classes should not have too many "static" imports', 'sonarqube', 'Code Smell', '<p>Importing a class statically allows you to use its <code>public static</code> members without qualifying them with the class name. That can be
 handy, but if you import too many classes statically, your code can become confusing and difficult to maintain.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default threshold value: 4</p>
@@ -11567,7 +11594,7 @@ import static com.myco.corporate.Constants.*;
 import static com.myco.division.Constants.*;
 import static com.myco.department.Constants.*;  // Noncompliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3032', 'JEE applications should not "getClassLoader"', 'sonarqube', 'Bug', '<p>Using the standard <code>getClassLoader()</code> may not return the <em>right</em> class loader in a JEE context. Instead, go through the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3032', 'JEE applications should not "getClassLoader"', 'sonarqube', 'Bug', '<p>Using the standard <code>getClassLoader()</code> may not return the <em>right</em> class loader in a JEE context. Instead, go through the
 <code>currentThread</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11577,7 +11604,7 @@ ClassLoader cl = this.getClass().getClassLoader();  // Noncompliant
 <pre>
 ClassLoader cl = Thread.currentThread().getContextClassLoader();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3034', 'Raw byte values should not be used in bitwise operations in combination with shifts', 'sonarqube', 'Bug', '<p>When reading bytes in order to build other primitive values such as <code>int</code>s or <code>long</code>s, the <code>byte</code> values are
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3034', 'Raw byte values should not be used in bitwise operations in combination with shifts', 'sonarqube', 'Bug', '<p>When reading bytes in order to build other primitive values such as <code>int</code>s or <code>long</code>s, the <code>byte</code> values are
 automatically promoted, but that promotion can have unexpected results.</p>
 <p>For instance, the binary representation of the integer 640 is <code>0b0000_0010_1000_0000</code>, which can also be written with the array of
 (unsigned) bytes <code>[2, 128]</code>. However, since Java uses two''s complement, the representation of the integer in signed bytes will be <code>[2,
@@ -11611,7 +11638,7 @@ the bytes without taking care of the sign will not produce the expected result. 
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/kDZGBQ">CERT, NUM52-J.</a> - Be aware of numeric promotion behavior </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3038', 'Abstract methods should not be redundant', 'sonarqube', 'Code Smell', '<p>There''s no point in redundantly defining an <code>abstract</code> method with the same signature as a method in an <code>interface</code> that the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3038', 'Abstract methods should not be redundant', 'sonarqube', 'Code Smell', '<p>There''s no point in redundantly defining an <code>abstract</code> method with the same signature as a method in an <code>interface</code> that the
 class <code>implements</code>. Any concrete child classes will have to implement the method either way.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11625,7 +11652,7 @@ public abstract class AbstractRuleReport implements Reportable{
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3039', '"String" calls should not go beyond their bounds', 'sonarqube', 'Bug', '<p>Just as you can''t cut something into three halves, you can''t grab a <code>substring</code> that starts or ends outside the original
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3039', '"String" calls should not go beyond their bounds', 'sonarqube', 'Bug', '<p>Just as you can''t cut something into three halves, you can''t grab a <code>substring</code> that starts or ends outside the original
 <code>String</code>''s bounds, you can''t use <code>substring</code> to get a reversed portion of a <code>String</code>, and you can''t get the
 <code>charAt</code> a value that''s before the <code>String</code> starts or after it ends.</p>
 <p>This rule detects when negative literal or <code>String::length</code> is passed as an argument to the <code>String::substring</code>,
@@ -11646,7 +11673,7 @@ String substr1 = speech; // Closest correct values to original code yield whole 
 String substr2 = new StringBuilder(speech).reverse().toString()
 char ch = speech.charAt(speech.length()-1);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3042', '"writeObject" should not be the only "synchronized" code in a class', 'sonarqube', 'Code Smell', '<p>The purpose of synchronization is to ensure that only one thread executes a given block of code at a time. There''s no real problem with marking
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3042', '"writeObject" should not be the only "synchronized" code in a class', 'sonarqube', 'Code Smell', '<p>The purpose of synchronization is to ensure that only one thread executes a given block of code at a time. There''s no real problem with marking
 <code>writeObject</code> <code>synchronized</code>, but it''s highly suspicious if this serialization-related method is the only
 <code>synchronized</code> code in a <code>class</code>.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11689,7 +11716,7 @@ public class RubberBall {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3046', '"wait" should not be called when multiple locks are held', 'sonarqube', 'Bug', '<p>When two locks are held simultaneously, a <code>wait</code> call only releases one of them. The other will be held until some other thread requests
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3046', '"wait" should not be called when multiple locks are held', 'sonarqube', 'Bug', '<p>When two locks are held simultaneously, a <code>wait</code> call only releases one of them. The other will be held until some other thread requests
 a lock on the awaited object. If no unrelated code tries to lock on that object, then all other threads will be locked out, resulting in a
 deadlock.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11700,7 +11727,7 @@ synchronized (this.mon1) {  // threadB can''t enter this block to request this.m
 	}
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3047', 'Multiple loops over the same set should be combined', 'sonarqube', 'Code Smell', '<p>When a method loops multiple over the same set of data, whether it''s a list or a set of numbers, it is highly likely that the method could be made
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3047', 'Multiple loops over the same set should be combined', 'sonarqube', 'Code Smell', '<p>When a method loops multiple over the same set of data, whether it''s a list or a set of numbers, it is highly likely that the method could be made
 more efficient by combining the loops into a single set of iterations.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11722,7 +11749,7 @@ public void doSomethingToAList(List&lt;String&gt; strings) {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3052', 'Fields should not be initialized to default values', 'sonarqube', 'Code Smell', '<p>The compiler automatically initializes class fields to their default values before setting them with any initialization values, so there is no need
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3052', 'Fields should not be initialized to default values', 'sonarqube', 'Code Smell', '<p>The compiler automatically initializes class fields to their default values before setting them with any initialization values, so there is no need
 to explicitly set a field to its default value. Further, under the logic that cleaner code is better code, it''s considered poor style to do so.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11744,7 +11771,7 @@ public class MyClass {
 </pre>
 <h2>Exceptions</h2>
 <p><code>final</code> fields are ignored.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3064', 'Assignment of lazy-initialized members should be the last step with double-checked locking', 'sonarqube', 'Bug', '<p>Double-checked locking can be used for lazy initialization of <code>volatile</code> fields, but only if field assignment is the last step in the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3064', 'Assignment of lazy-initialized members should be the last step with double-checked locking', 'sonarqube', 'Bug', '<p>Double-checked locking can be used for lazy initialization of <code>volatile</code> fields, but only if field assignment is the last step in the
 <code>synchronized</code> block. Otherwise you run the risk of threads accessing a half-initialized object.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11795,7 +11822,7 @@ public class MyClass {
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS2168''>S2168</a> - Double-checked locking should not be used </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3065', 'Min and max used in combination should not always return the same value', 'sonarqube', 'Bug', '<p>When using <code>Math.min()</code> and <code>Math.max()</code> together for bounds checking, it''s important to feed the right operands to each
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3065', 'Min and max used in combination should not always return the same value', 'sonarqube', 'Bug', '<p>When using <code>Math.min()</code> and <code>Math.max()</code> together for bounds checking, it''s important to feed the right operands to each
 method. <code>Math.min()</code> should be used with the <strong>upper</strong> end of the range being checked, and <code>Math.max()</code> should be
 used with the <strong>lower</strong> end of the range. Get it backwards, and the result will always be the same end of the range.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11829,7 +11856,7 @@ used with the <strong>lower</strong> end of the range. Get it backwards, and the
     return Math.max(LOWER, result);     // Compliant; result is still 12
   }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3066', '"enum" fields should not be publicly mutable', 'sonarqube', 'Code Smell', '<p><code>enum</code>s are generally thought of as constant, but an <code>enum</code> with a <code>public</code> field or <code>public</code> setter is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3066', '"enum" fields should not be publicly mutable', 'sonarqube', 'Code Smell', '<p><code>enum</code>s are generally thought of as constant, but an <code>enum</code> with a <code>public</code> field or <code>public</code> setter is
 non-constant. Ideally fields in an <code>enum</code> are <code>private</code> and set in the constructor, but if that''s not possible, their visibility
 should be reduced as much as possible.</p>
 <h2>Noncompliant Code Example</h2>
@@ -11866,7 +11893,7 @@ public enum Continent {
     // ...
   }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3067', '"getClass" should not be used for synchronization', 'sonarqube', 'Bug', '<p><code>getClass</code> should not be used for synchronization in non-<code>final</code> classes because child classes will synchronize on a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3067', '"getClass" should not be used for synchronization', 'sonarqube', 'Bug', '<p><code>getClass</code> should not be used for synchronization in non-<code>final</code> classes because child classes will synchronize on a
 different object than the parent or each other, allowing multiple threads into the code block at once, despite the <code>synchronized</code>
 keyword.</p>
 <p>Instead, hard code the name of the class on which to synchronize or make the class <code>final</code>.</p>
@@ -11892,7 +11919,7 @@ public class MyClass {
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/qTdGBQ">CERT, LCK02-J.</a> - Do not synchronize on the class object returned by getClass() </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3077', 'Non-primitive fields should not be "volatile"', 'sonarqube', 'Bug', '<p>Marking an array <code>volatile</code> means that the array itself will always be read fresh and never thread cached, but the items <em>in</em> the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3077', 'Non-primitive fields should not be "volatile"', 'sonarqube', 'Bug', '<p>Marking an array <code>volatile</code> means that the array itself will always be read fresh and never thread cached, but the items <em>in</em> the
 array will not be. Similarly, marking a mutable object field <code>volatile</code> means the object <em>reference</em> is <code>volatile</code> but
 the object itself is not, and other threads may not see updates to the object state.</p>
 <p>This can be salvaged with arrays by using the relevant AtomicArray class, such as <code>AtomicIntegerArray</code>, instead. For mutable objects,
@@ -11913,7 +11940,7 @@ private MyObj myObj;
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/UzdGBQ">CERT, CON50-J.</a> - Do not assume that declaring a reference volatile guarantees safe
   publication of the members of the referenced object </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3078', '"volatile" variables should not be used with compound operators', 'sonarqube', 'Bug', '<p>Using compound operators as well as increments and decrements (and toggling, in the case of <code>boolean</code>s) on primitive fields are not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3078', '"volatile" variables should not be used with compound operators', 'sonarqube', 'Bug', '<p>Using compound operators as well as increments and decrements (and toggling, in the case of <code>boolean</code>s) on primitive fields are not
 atomic operations. That is, they don''t happen in a single step. For instance, when a <code>volatile</code> primitive field is incremented or
 decremented you run the risk of data loss if threads interleave in the steps of the update. Instead, use a guaranteed-atomic class such as
 <code>AtomicInteger</code>, or synchronize the access.</p>
@@ -11948,7 +11975,7 @@ public synchronized void toggleBoo() {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/SjdGBQ">CERT, VNA02-J.</a> - Ensure that compound operations on shared variables are atomic
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3242', 'Method parameters should be declared with base types', 'sonarqube', 'Code Smell', '<p>For maximum reusability, methods should accept parameters with as little specialization as possible. So unless specific features from a child class
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3242', 'Method parameters should be declared with base types', 'sonarqube', 'Code Smell', '<p>For maximum reusability, methods should accept parameters with as little specialization as possible. So unless specific features from a child class
 are required by a method, a type higher up the class hierarchy should be used instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -11978,7 +12005,7 @@ public static void loop(Iterable&lt;?&gt; list) { // java.lang.Iterable can be u
 <p>Parameters in non-public methods are not checked, because such methods are not intended to be generally reusable. <code>java.lang.String</code>
 parameters are excluded, because String is immutable and can not be always substituted for more generic type. Parameters used in any other context
 than method invocation or enhanced for loop are also excluded.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3252', '"static" base class members should not be accessed via derived types', 'sonarqube', 'Code Smell', '<p>In the interest of code clarity, <code>static</code> members of a <code>base</code> class should never be accessed using a derived type''s name.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3252', '"static" base class members should not be accessed via derived types', 'sonarqube', 'Code Smell', '<p>In the interest of code clarity, <code>static</code> members of a <code>base</code> class should never be accessed using a derived type''s name.
 Doing so is confusing and could create the illusion that two different static members exist.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12004,7 +12031,7 @@ class Child extends Parent {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3254', 'Default annotation parameter values should not be passed as arguments', 'sonarqube', 'Code Smell', '<p>Specifying the default value for an annotation parameter is redundant. Such values should be omitted in the interests of readability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3254', 'Default annotation parameter values should not be passed as arguments', 'sonarqube', 'Code Smell', '<p>Specifying the default value for an annotation parameter is redundant. Such values should be omitted in the interests of readability.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 @MyAnnotation(arg = "def")  // Noncompliant
@@ -12025,7 +12052,7 @@ public @interface MyAnnotation {
   String arg() default "def";
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3281', 'Default EJB interceptors should be declared in "ejb-jar.xml"', 'sonarqube', 'Vulnerability', '<p>Default interceptors, such as application security interceptors, must be listed in the <code>ejb-jar.xml</code> file, or they will not be treated
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3281', 'Default EJB interceptors should be declared in "ejb-jar.xml"', 'sonarqube', 'Vulnerability', '<p>Default interceptors, such as application security interceptors, must be listed in the <code>ejb-jar.xml</code> file, or they will not be treated
 as default.</p>
 <p>This rule applies to projects that contain JEE Beans (any one of <code>javax.ejb.Singleton</code>, <code>MessageDriven</code>,
 <code>Stateless</code> or <code>Stateful</code>).</p>
@@ -12054,7 +12081,7 @@ as default.</p>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3282', 'EJB interceptor exclusions should be declared as annotations', 'sonarqube', 'Code Smell', '<p>Exclusions for default interceptors can be declared either in xml or as class annotations. Since annotations are more visible to maintainers, they
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3282', 'EJB interceptor exclusions should be declared as annotations', 'sonarqube', 'Code Smell', '<p>Exclusions for default interceptors can be declared either in xml or as class annotations. Since annotations are more visible to maintainers, they
 are preferred.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12082,7 +12109,7 @@ public class MyExcludedClass implements MessageListener
     // ...
   }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3305', 'Factory method injection should be used in "@Configuration" classes', 'sonarqube', 'Code Smell', '<p>When <code>@Autowired</code> is used, dependencies need to be resolved when the class is instantiated, which may cause early initialization of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3305', 'Factory method injection should be used in "@Configuration" classes', 'sonarqube', 'Code Smell', '<p>When <code>@Autowired</code> is used, dependencies need to be resolved when the class is instantiated, which may cause early initialization of
 beans or lead the context to look in places it shouldn''t to find the bean. To avoid this tricky issue and optimize the way the context loads,
 dependencies should be requested as late as possible. That means using parameter injection instead of field injection for dependencies that are only
 used in a single <code>@Bean</code> method.</p>
@@ -12113,7 +12140,7 @@ public class ​FooConfiguration {
 <h2>Exceptions</h2>
 <p>Fields used in methods that are called directly by other methods in the application (as opposed to being invoked automatically by the Spring
 framework) are ignored by this rule so that direct callers don''t have to provide the dependencies themselves.</p>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3306', 'Constructor injection should be used instead of field injection', 'sonarqube', 'Bug', '<p>Field injection seems like a tidy way to get your classes what they need to do their jobs, but it''s really a <code>NullPointerException</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3306', 'Constructor injection should be used instead of field injection', 'sonarqube', 'Bug', '<p>Field injection seems like a tidy way to get your classes what they need to do their jobs, but it''s really a <code>NullPointerException</code>
 waiting to happen unless all your class constructors are <code>private</code>. That''s because any class instances that are constructed by callers,
 rather than instantiated by a Dependency Injection framework compliant with the JSR-330 (Spring, Guice, ...), won''t have the ability to perform the
 field injection.</p>
@@ -12147,7 +12174,7 @@ class MyComponent {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3329', 'Cipher Block Chaining IV''s should be unpredictable', 'sonarqube', 'Vulnerability', '<p>When encrypting data with the Cipher Block Chaining (CBC) mode an Initialization Vector (IV) is used to randomize the encryption, ie under a given
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3329', 'Cipher Block Chaining IV''s should be unpredictable', 'sonarqube', 'Vulnerability', '<p>When encrypting data with the Cipher Block Chaining (CBC) mode an Initialization Vector (IV) is used to randomize the encryption, ie under a given
 key the same plaintext doesn''t always produce the same ciphertext. The IV doesn''t need to be secret but should be unpredictable to avoid
 "Chosen-Plaintext Attack".</p>
 <p>To generate Initialization Vectors, NIST recommends to use a secure random number generator.</p>
@@ -12204,7 +12231,7 @@ public class MyCbcClass {
   Modes of Operation </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#STATIC_IV">STATIC_IV</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3330', 'Creating cookies without the "HttpOnly" flag is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When a cookie is configured with the <code>HttpOnly</code> attribute set to <em>true</em>, the browser guaranties that no client-side script will
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3330', 'Creating cookies without the "HttpOnly" flag is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When a cookie is configured with the <code>HttpOnly</code> attribute set to <em>true</em>, the browser guaranties that no client-side script will
 be able to read it. In most cases, when a cookie is created, the default value of <code>HttpOnly</code> is <em>false</em> and it''s up to the developer
 to decide whether or not the content of the cookie can be read by the client-side script. As a majority of Cross-Site Scripting (XSS) attacks target
 the theft of session-cookies, the <code>HttpOnly</code> attribute can help to reduce their impact as it won''t be possible to exploit the XSS
@@ -12248,7 +12275,7 @@ c.setHttpOnly(true); // Compliant: this sensitive cookie is protected against th
   <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#HTTPONLY_COOKIE">HTTPONLY_COOKIE</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3331', 'Creating cookies with broadly defined "domain" flags is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>A cookie''s domain specifies which websites should be able to read it. Left blank, browsers are supposed to only send the cookie to sites that
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3331', 'Creating cookies with broadly defined "domain" flags is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>A cookie''s domain specifies which websites should be able to read it. Left blank, browsers are supposed to only send the cookie to sites that
 exactly match the sending domain. For example, if a cookie was set by <em>lovely.dream.com</em>, it should only be readable by that domain, and not by
 <em>nightmare.com</em> or even <em>strange.dream.com</em>. If you want to allow sub-domain access for a cookie, you can specify it by adding a dot in
 front of the cookie''s domain, like so: <em>.dream.com</em>. But cookie domains should always use at least two levels.</p>
@@ -12290,7 +12317,7 @@ myOtherCookie.setDomain(".myDomain.com"); // Compliant
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3346', 'Expressions used in "assert" should not produce side effects', 'sonarqube', 'Bug', '<p>Since <code>assert</code> statements aren''t executed by default (they must be enabled with JVM flags) developers should never rely on their
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3346', 'Expressions used in "assert" should not produce side effects', 'sonarqube', 'Bug', '<p>Since <code>assert</code> statements aren''t executed by default (they must be enabled with JVM flags) developers should never rely on their
 execution the evaluation of any logic required for correct program function.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12305,7 +12332,7 @@ assert removed;
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/mjdGBQ">CERT, EXP06-J.</a> - Expressions used in assertions must not produce side effects </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3355', 'Defined filters should be used', 'sonarqube', 'Vulnerability', '<p>Every filter defined in <code>web.xml</code> file should be used in a <code>&lt;filter-mapping&gt;</code> element. Otherwise such filters are not
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3355', 'Defined filters should be used', 'sonarqube', 'Vulnerability', '<p>Every filter defined in <code>web.xml</code> file should be used in a <code>&lt;filter-mapping&gt;</code> element. Otherwise such filters are not
 invoked.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12331,7 +12358,7 @@ invoked.</p>
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3358', 'Ternary operators should not be nested', 'sonarqube', 'Code Smell', '<p>Just because you <em>can</em> do something, doesn''t mean you should, and that''s the case with nested ternary operations. Nesting ternary operators
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3358', 'Ternary operators should not be nested', 'sonarqube', 'Code Smell', '<p>Just because you <em>can</em> do something, doesn''t mean you should, and that''s the case with nested ternary operations. Nesting ternary operators
 results in the kind of code that may seem clear as day when you write it, but six months later will leave maintainers (or worse - future you)
 scratching their heads and cursing.</p>
 <p>Instead, err on the side of clarity, and use another line to express the nested operation as a separate statement.</p>
@@ -12350,7 +12377,7 @@ public String getReadableStatus(Job j) {
   return j.hasErrors() ? "Failed" : "Succeeded";
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3366', '"this" should not be exposed from constructors', 'sonarqube', 'Code Smell', '<p>In single-threaded environments, the use of <code>this</code> in constructors is normal, and expected. But in multi-threaded environments, it could
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3366', '"this" should not be exposed from constructors', 'sonarqube', 'Code Smell', '<p>In single-threaded environments, the use of <code>this</code> in constructors is normal, and expected. But in multi-threaded environments, it could
 expose partially-constructed objects to other threads, and should be used with caution.</p>
 <p>The classic example is a class with a <code>static</code> list of its instances. If the constructor stores <code>this</code> in the list, another
 thread could access the object before it''s fully-formed. Even when the storage of <code>this</code> is the last instruction in the constructor,
@@ -12382,7 +12409,7 @@ by <a href=''/coding_rules#rule_key=java%3AS3010''>S3010</a> .</p>
   </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/vzdGBQ">CERT, TSM03-J.</a> - Do not publish partially initialized objects </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3369', 'Security constraints should be defined', 'sonarqube', 'Vulnerability', '<p>Websphere, Tomcat, and JBoss web servers allow the definition of role-based access to servlets. It may not be granular enough for your purposes,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3369', 'Security constraints should be defined', 'sonarqube', 'Vulnerability', '<p>Websphere, Tomcat, and JBoss web servers allow the definition of role-based access to servlets. It may not be granular enough for your purposes,
 but it''s a start, and should be used at least as a base.</p>
 <p>This rule raises an issue when a <em>web.xml</em> file has no <code>&lt;security-constraint&gt;</code> elements.</p>
 <h2>See</h2>
@@ -12392,7 +12419,7 @@ but it''s a start, and should be used at least as a base.</p>
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3373', '"action" mappings should not have too many "forward" entries', 'sonarqube', 'Code Smell', '<p>It makes sense to handle all related actions in the same place. Thus, the same <code>&lt;action&gt;</code> might logically handle all facets of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3373', '"action" mappings should not have too many "forward" entries', 'sonarqube', 'Code Smell', '<p>It makes sense to handle all related actions in the same place. Thus, the same <code>&lt;action&gt;</code> might logically handle all facets of
 CRUD on an entity, with no confusion in the naming about which <code>&lt;forward/&gt;</code> handles which facet. But go very far beyond that, and it
 becomes difficult to maintain a transparent naming convention. </p>
 <p>So to ease maintenance, this rule raises an issue when an <code>&lt;action&gt;</code> has more than the allowed number of
@@ -12421,7 +12448,7 @@ becomes difficult to maintain a transparent naming convention. </p>
   &lt;forward name=''authorRead'' path=''WEB-INF/jsp/AuthorDetails'' redirect=''false''/&gt;
 &lt;/action&gt;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3374', 'Struts validation forms should have unique names', 'sonarqube', 'Vulnerability', '<p>According to the Common Weakness Enumeration,</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3374', 'Struts validation forms should have unique names', 'sonarqube', 'Vulnerability', '<p>According to the Common Weakness Enumeration,</p>
 <blockquote>
   If two validation forms have the same name, the Struts Validator arbitrarily chooses one of the forms to use for input validation and discards the
   other. This decision might not correspond to the programmer''s expectations...
@@ -12450,7 +12477,7 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
   <li> <a href="https://owasp.org/www-community/vulnerabilities/Improper_Data_Validation">OWASP, Improper Data Validation</a> - Struts: Duplicate
   Validation Forms </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3398', '"private" methods called only by inner classes should be moved to those classes', 'sonarqube', 'Code Smell', '<p>When a <code>private</code> method is only invoked by an inner class, there''s no reason not to move it into that class. It will still have the same
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3398', '"private" methods called only by inner classes should be moved to those classes', 'sonarqube', 'Code Smell', '<p>When a <code>private</code> method is only invoked by an inner class, there''s no reason not to move it into that class. It will still have the same
 access to the outer class'' members, but the outer class will be clearer and less cluttered.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12484,7 +12511,7 @@ public class Outie {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3400', 'Methods should not return constants', 'sonarqube', 'Code Smell', '<p>There''s no point in forcing the overhead of a method call for a method that always returns the same constant value. Even worse, the fact that a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3400', 'Methods should not return constants', 'sonarqube', 'Code Smell', '<p>There''s no point in forcing the overhead of a method call for a method that always returns the same constant value. Even worse, the fact that a
 method call must be made will likely mislead developers who call the method thinking that something more is done. Declare a constant instead. </p>
 <p>This rule raises an issue if on methods that contain only one statement: the <code>return</code> of a constant value. </p>
 <h2>Noncompliant Code Example</h2>
@@ -12499,10 +12526,10 @@ static final int BEST_NUMBER = 12;
 </pre>
 <h2>Exceptions</h2>
 <p>Methods with annotations, such as <code>@Override</code> and Spring''s <code>@RequestMapping</code>, are ignored.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3414', 'Tests should be kept in a dedicated source directory', 'sonarqube', 'Code Smell', '<p>It is a good practice to isolate test classes in a separate package so that what is shipped to production is neither polluted by nor bloated with
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3414', 'Tests should be kept in a dedicated source directory', 'sonarqube', 'Code Smell', '<p>It is a good practice to isolate test classes in a separate package so that what is shipped to production is neither polluted by nor bloated with
 them. Further, including unit tests in code assemblies could affect build processes.</p>
 <p>This rule raises an issue when test classes are found in projects containing non-test-related code.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3415', 'Assertion arguments should be passed in the correct order', 'sonarqube', 'Code Smell', '<p>The standard assertions library methods such as <code>org.junit.Assert.assertEquals</code>, and <code>org.junit.Assert.assertSame</code> expect the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3415', 'Assertion arguments should be passed in the correct order', 'sonarqube', 'Code Smell', '<p>The standard assertions library methods such as <code>org.junit.Assert.assertEquals</code>, and <code>org.junit.Assert.assertSame</code> expect the
 first argument to be the expected value and the second argument to be the actual value. For AssertJ, it''s the other way around, the argument of
 <code>org.assertj.core.api.Assertions.assertThat</code> is the actual value, and the subsequent calls contain the expected values. Swap them, and your
 test will still have the same outcome (succeed/fail when it should) but the error messages will be confusing. </p>
@@ -12523,7 +12550,7 @@ org.assertj.core.api.Assertions.assertThat(0).isEqualTo(runner.exitCode()); // N
 org.junit.Assert.assertEquals(0, runner.exitCode(), "Unexpected exit code");
 org.assertj.core.api.Assertions.assertThat(runner.exitCode()).isEqualTo(0);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3416', 'Loggers should be named for their enclosing classes', 'sonarqube', 'Code Smell', '<p>It is convention to name each class''s logger for the class itself. Doing so allows you to set up clear, communicative logger configuration. Naming
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3416', 'Loggers should be named for their enclosing classes', 'sonarqube', 'Code Smell', '<p>It is convention to name each class''s logger for the class itself. Doing so allows you to set up clear, communicative logger configuration. Naming
 loggers by some other convention confuses configuration, and using the same class name for multiple class loggers prevents the granular configuration
 of each class'' logger. Some libraries, such as SLF4J warn about this, but not all do.</p>
 <p>This rule raises an issue when a logger is not named for its enclosing class.</p>
@@ -12539,7 +12566,7 @@ public class MyClass {
   private final static Logger LOG = LoggerFactory.getLogger(MyClass.class);
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3419', 'Group ids should follow a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the a pom''s <code>groupId</code> does not match
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3419', 'Group ids should follow a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when the a pom''s <code>groupId</code> does not match
 the provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression: <code>(com|org)(.[a-z][a-z-0-9]*)+</code></p>
@@ -12558,7 +12585,7 @@ the provided regular expression.</p>
   &lt;!-- ... --&gt;
 &lt;/project&gt;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3420', 'Artifact ids should follow a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when a pom''s <code>artifactId</code> does not match the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3420', 'Artifact ids should follow a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate effectively. This rule raises an issue when a pom''s <code>artifactId</code> does not match the
 provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression: <code>[a-z][a-z-0-9]+</code></p>
@@ -12577,7 +12604,7 @@ provided regular expression.</p>
   &lt;!-- ... --&gt;
 &lt;/project&gt;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3421', 'Deprecated "${pom}" properties should not be used', 'sonarqube', 'Code Smell', '<p>Deprecated features are those that have been retained temporarily for backward compatibility, but which will eventually be removed. In effect,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3421', 'Deprecated "${pom}" properties should not be used', 'sonarqube', 'Code Smell', '<p>Deprecated features are those that have been retained temporarily for backward compatibility, but which will eventually be removed. In effect,
 deprecation announces a grace period to allow the smooth transition from the old features to the new ones. In that period, no use of the deprecated
 features should be added, and all existing uses should be gradually removed.</p>
 <p>This rule raises an issue when <code>${pom.*}</code> properties are used in a pom.</p>
@@ -12596,7 +12623,7 @@ features should be added, and all existing uses should be gradually removed.</p>
   &lt;build&gt;
     &lt;finalName&gt;${artifactId}-${version}&lt;/finalName&gt;
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3422', 'Dependencies should not have "system" scope', 'sonarqube', 'Bug', '<p><code>system</code> dependencies are sought at a specific, specified path. This drastically reduces portability because if you deploy your artifact
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3422', 'Dependencies should not have "system" scope', 'sonarqube', 'Bug', '<p><code>system</code> dependencies are sought at a specific, specified path. This drastically reduces portability because if you deploy your artifact
 in an environment that''s not configured just like yours is, your code won''t work. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12608,7 +12635,7 @@ in an environment that''s not configured just like yours is, your code won''t wo
   &lt;systemPath&gt;/usr/bin/lib/rt.jar&lt;/systemPath&gt;  &lt;!-- remove this --&gt;
 &lt;/dependency&gt;
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3423', 'pom elements should be in the recommended order', 'sonarqube', 'Code Smell', '<p>The POM Code Convention is the Maven project''s internal recommendation for POM element ordering. It calls for listing modifiers in the following
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3423', 'pom elements should be in the recommended order', 'sonarqube', 'Code Smell', '<p>The POM Code Convention is the Maven project''s internal recommendation for POM element ordering. It calls for listing modifiers in the following
 order:</p>
 <ol>
   <li> &lt;modelVersion/&gt; </li>
@@ -12647,7 +12674,7 @@ order.</p>
 <ul>
   <li> <a href="https://maven.apache.org/developers/conventions/code.html#POM_Code_Convention">POM Code Convention</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3436', 'Value-based classes should not be used for locking', 'sonarqube', 'Bug', '<p>According to the documentation,</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3436', 'Value-based classes should not be used for locking', 'sonarqube', 'Bug', '<p>According to the documentation,</p>
 <blockquote>
   A program may produce unpredictable results if it attempts to distinguish two references to equal values of a value-based class, whether directly
   via reference equality or indirectly via an appeal to synchronization...
@@ -12680,7 +12707,7 @@ synchronized (fOpt) {  // Noncompliant
 <ul>
   <li> <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html">Value-based classes</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3437', 'Value-based objects should not be serialized', 'sonarqube', 'Code Smell', '<p>According to the documentation,</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3437', 'Value-based objects should not be serialized', 'sonarqube', 'Code Smell', '<p>According to the documentation,</p>
 <blockquote>
   A program may produce unpredictable results if it attempts to distinguish two references to equal values of a value-based class, whether directly
   via reference equality or indirectly via an appeal to synchronization, identity hashing, serialization...
@@ -12721,7 +12748,7 @@ class MyClass implements Serializable {
 <ul>
   <li> <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/doc-files/ValueBased.html">Value-based classes</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3438', '"SingleConnectionFactory" instances should be set to "reconnectOnException"', 'sonarqube', 'Bug', '<p>Use of a Spring <code>SingleConnectionFactory</code> without enabling the <code>reconnectOnException</code> setting will prevent automatic
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3438', '"SingleConnectionFactory" instances should be set to "reconnectOnException"', 'sonarqube', 'Bug', '<p>Use of a Spring <code>SingleConnectionFactory</code> without enabling the <code>reconnectOnException</code> setting will prevent automatic
 connection recovery when the connection goes bad. </p>
 <p>That''s because the <code>reconnectOnException</code> property defaults to <code>false</code>. As a result, even if the code that uses this
 connection factory (Spring''s <code>DefaultMessageListenerContainer</code> or your own code) has reconnect logic, that code won''t work because the
@@ -12746,7 +12773,7 @@ anything. As a result, subsequent factory <code>create</code> operations will ju
    &lt;property name="reconnectOnException"&gt;&lt;value&gt;true&lt;/value&gt;&lt;/property&gt;
  &lt;/bean&gt;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3439', '"DefaultMessageListenerContainer" instances should not drop messages during restarts', 'sonarqube', 'Bug', '<p><code>DefaultMessageListenerContainer</code> is implemented as a JMS poller. While the Spring container is shutting itself down, as each
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3439', '"DefaultMessageListenerContainer" instances should not drop messages during restarts', 'sonarqube', 'Bug', '<p><code>DefaultMessageListenerContainer</code> is implemented as a JMS poller. While the Spring container is shutting itself down, as each
 in-progress JMS <code>Consumer.receive()</code> call completes, any non-<code>null</code> return value will be a JMS message that the DMLC will
 <em>discard</em> due to the shutdown in progress. That will result in the received message never being processed. </p>
 <p>To prevent message loss during restart operations, set <code>acceptMessagesWhileStopping</code> to <code>true</code> so that such messages will be
@@ -12776,7 +12803,7 @@ processed before shut down.</p>
    &lt;property name="acceptMessagesWhileStopping" value="true" /&gt;
 &lt;/bean&gt;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3457', 'Printf-style format strings should be used correctly', 'sonarqube', 'Code Smell', '<p>Because <code>printf</code>-style format strings are interpreted at runtime, rather than validated by the compiler, they can contain errors that
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3457', 'Printf-style format strings should be used correctly', 'sonarqube', 'Code Smell', '<p>Because <code>printf</code>-style format strings are interpreted at runtime, rather than validated by the compiler, they can contain errors that
 result in the wrong strings being created. This rule statically validates the correlation of <code>printf</code>-style format strings to their
 arguments when calling the <code>format(...)</code> methods of <code>java.util.Formatter</code>, <code>java.lang.String</code>,
 <code>java.io.PrintStream</code>, <code>MessageFormat</code>, and <code>java.io.PrintWriter</code> classes and the <code>printf(...)</code> methods of
@@ -12844,7 +12871,7 @@ log4jLog.debug("message {}", 1);
 <ul>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/J9YxBQ">CERT, FIO47-C.</a> - Use valid format strings </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3510', '"HostnameVerifier.verify" should not always return true', 'sonarqube', 'Vulnerability', '<p>To prevent URL spoofing, <code>HostnameVerifier.verify()</code> methods should do more than simply <code>return true</code>. Doing so may get you
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3510', '"HostnameVerifier.verify" should not always return true', 'sonarqube', 'Vulnerability', '<p>To prevent URL spoofing, <code>HostnameVerifier.verify()</code> methods should do more than simply <code>return true</code>. Doing so may get you
 quickly past an exception, but that comes at the cost of opening a security hole in your application. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12892,7 +12919,7 @@ Client client = ClientBuilder.newBuilder().sslContext(sslcontext).hostnameVerifi
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5527''>S5527</a> instead.</p>', 'java', 'DEPRECATED', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3516', 'Methods returns should not be invariant', 'sonarqube', 'Code Smell', '<p>When a method is designed to return an invariant value, it may be poor design, but it shouldn''t adversely affect the outcome of your program.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3516', 'Methods returns should not be invariant', 'sonarqube', 'Code Smell', '<p>When a method is designed to return an invariant value, it may be poor design, but it shouldn''t adversely affect the outcome of your program.
 However, when it happens on all paths through the logic, it is surely a bug.</p>
 <p>This rule raises an issue when a method contains several <code>return</code> statements that all return the same value.</p>
 <h2>Noncompliant Code Example</h2>
@@ -12905,7 +12932,7 @@ int foo(int a) {
   return b;  // Noncompliant
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3518', 'Zero should not be a possible denominator', 'sonarqube', 'Bug', '<p>If the denominator to a division or modulo operation is zero it would result in a fatal error.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3518', 'Zero should not be a possible denominator', 'sonarqube', 'Bug', '<p>If the denominator to a division or modulo operation is zero it would result in a fatal error.</p>
 <p>When working with <code>double</code> or <code>float</code>, no fatal error will be raised, but it will lead to unusual result and should be
 avoided anyway.</p>
 <p>This rule supports primitive <code>int</code>, <code>long</code>, <code>double</code>, <code>float</code> as well as <code>BigDecimal</code> and
@@ -12945,7 +12972,7 @@ void test_divide() {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ftYxBQ">CERT, INT33-C.</a> - Ensure that division and remainder operations do not result in
   divide-by-zero errors </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3551', 'Overrides should match their parent class methods in synchronization', 'sonarqube', 'Bug', '<p>When <code>@Overrides</code> of <code>synchronized</code> methods are not themselves <code>synchronized</code>, the result can be improper
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3551', 'Overrides should match their parent class methods in synchronization', 'sonarqube', 'Bug', '<p>When <code>@Overrides</code> of <code>synchronized</code> methods are not themselves <code>synchronized</code>, the result can be improper
 synchronization as callers rely on the thread-safety promised by the parent class.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -12988,7 +13015,7 @@ public class Child extends Parent {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/gzdGBQ">CERT, TSM00-J</a> - Do not override thread-safe methods with methods that are not
   thread-safe </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3553', '"Optional" should not be used for parameters', 'sonarqube', 'Code Smell', '<p>The Java language authors have been quite frank that <code>Optional</code> was intended for use only as a return type, as a way to convey that a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3553', '"Optional" should not be used for parameters', 'sonarqube', 'Code Smell', '<p>The Java language authors have been quite frank that <code>Optional</code> was intended for use only as a return type, as a way to convey that a
 method may or may not return a value. </p>
 <p>And for that, it''s valuable but using <code>Optional</code> on the input side increases the work you have to do in the method without really
 increasing the value. With an <code>Optional</code> parameter, you go from having 2 possible inputs: null and not-null, to three: null,
@@ -13017,7 +13044,7 @@ public String sayHello(String name) {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3577', 'Test classes should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a test class name does not match the provided
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3577', 'Test classes should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a test class name does not match the provided
 regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default value: <code>^((Test|IT)[a-zA-Z0-9_]+|[A-Z][a-zA-Z0-9_]*(Test|Tests|TestCase|IT|ITCase))$</code></p>
@@ -13050,7 +13077,7 @@ class BarIT {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3578', 'Test methods should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a test method name does not match the provided
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3578', 'Test methods should comply with a naming convention', 'sonarqube', 'Code Smell', '<p>Shared naming conventions allow teams to collaborate efficiently. This rule raises an issue when a test method name does not match the provided
 regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default value: <code>^test[A-Z][a-zA-Z0-9]*$</code></p>
@@ -13067,7 +13094,7 @@ public void testFoo() {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3599', 'Double Brace Initialization should not be used', 'sonarqube', 'Bug', '<p>Because Double Brace Initialization (DBI) creates an anonymous class with a reference to the instance of the owning object, its use can lead to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3599', 'Double Brace Initialization should not be used', 'sonarqube', 'Bug', '<p>Because Double Brace Initialization (DBI) creates an anonymous class with a reference to the instance of the owning object, its use can lead to
 memory leaks if the anonymous inner class is returned and held by other objects. Even when there''s no leak, DBI is so obscure that it''s bound to
 confuse most maintainers. </p>
 <p>For collections, use <code>Arrays.asList</code> instead, or explicitly add each item directly to the collection.</p>
@@ -13086,7 +13113,7 @@ source.put("firstName", "John");
 source.put("lastName", "Smith");
 // ...
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3626', 'Jump statements should not be redundant', 'sonarqube', 'Code Smell', '<p>Jump statements such as <code>return</code> and <code>continue</code> let you change the default flow of program execution, but jump statements
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3626', 'Jump statements should not be redundant', 'sonarqube', 'Code Smell', '<p>Jump statements such as <code>return</code> and <code>continue</code> let you change the default flow of program execution, but jump statements
 that direct the control flow to the original direction are just a waste of keystrokes.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13111,7 +13138,7 @@ public void foo() {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3631', '"Arrays.stream" should be used for primitive arrays', 'sonarqube', 'Code Smell', '<p>For arrays of objects, <code>Arrays.asList(T ... a).stream()</code> and <code>Arrays.stream(array)</code> are basically equivalent in terms of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3631', '"Arrays.stream" should be used for primitive arrays', 'sonarqube', 'Code Smell', '<p>For arrays of objects, <code>Arrays.asList(T ... a).stream()</code> and <code>Arrays.stream(array)</code> are basically equivalent in terms of
 performance. However, for arrays of primitives, using <code>Arrays.asList</code> will force the construction of a list of boxed types, and then use
 <em>that</em> list as a stream. On the other hand, <code>Arrays.stream</code> uses the appropriate primitive stream type (<code>IntStream</code>,
 <code>LongStream</code>, <code>DoubleStream</code>) when applicable, with much better performance.</p>
@@ -13136,7 +13163,7 @@ Arrays.stream(intArray)
     .filter(...)
     .forEach(...);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3655', 'Optional value should only be accessed after calling isPresent()', 'sonarqube', 'Bug', '<p><code>Optional</code> value can hold either a value or not. The value held in the <code>Optional</code> can be accessed using the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3655', 'Optional value should only be accessed after calling isPresent()', 'sonarqube', 'Bug', '<p><code>Optional</code> value can hold either a value or not. The value held in the <code>Optional</code> can be accessed using the
 <code>get()</code> method, but it will throw a </p>
 <p><code>NoSuchElementException</code> if there is no value present. To avoid the exception, calling the <code>isPresent()</code> or <code>!
 isEmpty()</code> method should always be done before any call to <code>get()</code>.</p>
@@ -13172,7 +13199,7 @@ String stringValue = value.orElse("default");
 <ul>
   <li> <a href="https://cwe.mitre.org/data/definitions/476.html">MITRE, CWE-476</a> - NULL Pointer Dereference </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3658', 'Unit tests should throw exceptions', 'sonarqube', 'Code Smell', '<p>When the code under test in a unit test throws an exception, the test itself fails. Therefore, there is no need to surround the tested code with a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3658', 'Unit tests should throw exceptions', 'sonarqube', 'Code Smell', '<p>When the code under test in a unit test throws an exception, the test itself fails. Therefore, there is no need to surround the tested code with a
 <code>try</code>-<code>catch</code> structure to detect failure. Instead, you can simply move the exception type to the method signature. </p>
 <p>This rule raises an issue when there is a fail assertion inside a <code>catch</code> block.</p>
 <p>Supported frameworks:</p>
@@ -13201,7 +13228,7 @@ public void testMethod() throws MyException {
     // Some code
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3725', 'Java 8''s "Files.exists" should not be used', 'sonarqube', 'Code Smell', '<p>The <code>Files.exists</code> method has noticeably poor performance in JDK 8, and can slow an application significantly when used to check files
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3725', 'Java 8''s "Files.exists" should not be used', 'sonarqube', 'Code Smell', '<p>The <code>Files.exists</code> method has noticeably poor performance in JDK 8, and can slow an application significantly when used to check files
 that don''t actually exist. </p>
 <p>The same goes for <code>Files.notExists</code>, <code>Files.isDirectory</code> and <code>Files.isRegularFile</code> from <code>java.nio.file</code>
 package.</p>
@@ -13225,7 +13252,7 @@ if(myPath.toFile().exists())) {
   <li> <a href="https://bugs.openjdk.java.net/browse/JDK-8153414">https://bugs.openjdk.java.net/browse/JDK-8153414</a> </li>
   <li> <a href="https://bugs.openjdk.java.net/browse/JDK-8154077">https://bugs.openjdk.java.net/browse/JDK-8154077</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3740', 'Raw types should not be used', 'sonarqube', 'Code Smell', '<p>Generic types shouldn''t be used raw (without type parameters) in variable declarations or return values. Doing so bypasses generic type checking,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3740', 'Raw types should not be used', 'sonarqube', 'Code Smell', '<p>Generic types shouldn''t be used raw (without type parameters) in variable declarations or return values. Doing so bypasses generic type checking,
 and defers the catch of unsafe code to runtime.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13237,7 +13264,7 @@ Set mySet; // Noncompliant
 List&lt;String&gt; myList;
 Set&lt;? extends Number&gt; mySet;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3749', 'Members of Spring components should be injected', 'sonarqube', 'Vulnerability', '<p>Spring <code>@Component</code>, <code>@Controller</code>, <code>@Service</code>, and <code>@Repository</code> classes are singletons by default,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3749', 'Members of Spring components should be injected', 'sonarqube', 'Vulnerability', '<p>Spring <code>@Component</code>, <code>@Controller</code>, <code>@Service</code>, and <code>@Repository</code> classes are singletons by default,
 meaning only one instance of the class is ever instantiated in the application. Typically such a class might have a few <code>static</code> members,
 such as a logger, but all non-<code>static</code> members should be managed by Spring. That is, they should have one of these annotations:
 <code>@Resource</code>, <code>@Inject</code>, <code>@Autowired</code> or <code>@Value</code>.</p>
@@ -13274,7 +13301,7 @@ public class HelloWorld {
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A3-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data Exposure
   </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3750', 'Spring "@Controller" classes should not use "@Scope"', 'sonarqube', 'Bug', '<p>Spring <code>@Controller</code>s, <code>@Service</code>s, and <code>@Repository</code>s have <code>singleton</code> scope by default, meaning only
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3750', 'Spring "@Controller" classes should not use "@Scope"', 'sonarqube', 'Bug', '<p>Spring <code>@Controller</code>s, <code>@Service</code>s, and <code>@Repository</code>s have <code>singleton</code> scope by default, meaning only
 one instance of the class is ever instantiated in the application. Defining any other scope for one of these class types will result in needless churn
 as new instances are created and destroyed. In a busy web application, this could cause a significant amount of needless additional load on the
 server.</p>
@@ -13291,7 +13318,7 @@ public class HelloWorld {
 @Controller
 public class HelloWorld {
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3751', '"@RequestMapping" methods should be "public"', 'sonarqube', 'Code Smell', '<p>A method with a <code>@RequestMapping</code> annotation part of a class annotated with <code>@Controller</code> (directly or indirectly through a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3751', '"@RequestMapping" methods should be "public"', 'sonarqube', 'Code Smell', '<p>A method with a <code>@RequestMapping</code> annotation part of a class annotated with <code>@Controller</code> (directly or indirectly through a
 meta annotation - <code>@RestController</code> from Spring Boot is a good example) will be called to handle matching web requests. That will happen
 even if the method is <code>private</code>, because Spring invokes such methods via reflection, without checking visibility. </p>
 <p>So marking a sensitive method <code>private</code> may seem like a good way to control how such code is called. Unfortunately, not all Spring
@@ -13315,7 +13342,7 @@ public String greet(String greetee) {
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3752', 'Allowing both safe and unsafe HTTP methods is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>An HTTP method is safe when used to perform a read-only operation, such as retrieving information. In contrast, an unsafe HTTP method is used to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3752', 'Allowing both safe and unsafe HTTP methods is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>An HTTP method is safe when used to perform a read-only operation, such as retrieving information. In contrast, an unsafe HTTP method is used to
 change the state of an application, for instance to update a user''s profile on a web application.</p>
 <p>Common safe HTTP methods are GET, HEAD, or OPTIONS.</p>
 <p>Common unsafe HTTP methods are POST, PUT and DELETE.</p>
@@ -13364,7 +13391,7 @@ String delete2(@RequestParam("id") String id) {
   <li> <a href="https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/csrf.html#csrf-use-proper-verbs">Spring Security Official
   Documentation: Use proper HTTP verbs (CSRF protection)</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3753', '"@Controller" classes that use "@SessionAttributes" must call "setComplete" on their "SessionStatus" objects', 'sonarqube', 'Bug', '<p>A Spring <code>@Controller</code> that uses <code>@SessionAttributes</code> is designed to handle a stateful / multi-post form. Such
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3753', '"@Controller" classes that use "@SessionAttributes" must call "setComplete" on their "SessionStatus" objects', 'sonarqube', 'Bug', '<p>A Spring <code>@Controller</code> that uses <code>@SessionAttributes</code> is designed to handle a stateful / multi-post form. Such
 <code>@Controller</code>s use the specified <code>@SessionAttributes</code> to store data on the server between requests. That data should be cleaned
 up when the session is over, but unless <code>setComplete()</code> is called on the <code>SessionStatus</code> object from a
 <code>@RequestMapping</code> method, neither Spring nor the JVM will know it''s time to do that. Note that the <code>SessionStatus</code> object must
@@ -13402,13 +13429,13 @@ public class HelloWorld {
 
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3776', 'Cognitive Complexity of methods should not be too high', 'sonarqube', 'Code Smell', '<p>Cognitive Complexity is a measure of how hard the control flow of a method is to understand. Methods with high Cognitive Complexity will be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3776', 'Cognitive Complexity of methods should not be too high', 'sonarqube', 'Code Smell', '<p>Cognitive Complexity is a measure of how hard the control flow of a method is to understand. Methods with high Cognitive Complexity will be
 difficult to maintain.</p>
 <h2>See</h2>
 <ul>
   <li> <a href="https://redirect.sonarsource.com/doc/cognitive-complexity.html">Cognitive Complexity</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3822', 'Hibernate should not update database schemas', 'sonarqube', 'Bug', '<p>The use of any value but <code>"validate"</code> for <code>hibernate.hbm2ddl.auto</code> may cause the database schema used by your application to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3822', 'Hibernate should not update database schemas', 'sonarqube', 'Bug', '<p>The use of any value but <code>"validate"</code> for <code>hibernate.hbm2ddl.auto</code> may cause the database schema used by your application to
 be changed, dropped, or cleaned of all data. In short, the use of this property is risky, and should only be used in production with the
 <code>"validate"</code> option, if it is used at all.</p>
 <h2>Noncompliant Code Example</h2>
@@ -13429,7 +13456,7 @@ be changed, dropped, or cleaned of all data. In short, the use of this property 
   &lt;!-- Property deleted --&gt;
 &lt;/session-factory&gt;
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3824', '"Map.get" and value test should be replaced with single method call', 'sonarqube', 'Code Smell', '<p>It''s a common pattern to test the result of a <code>java.util.Map.get()</code> against <code>null</code> or calling
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3824', '"Map.get" and value test should be replaced with single method call', 'sonarqube', 'Code Smell', '<p>It''s a common pattern to test the result of a <code>java.util.Map.get()</code> against <code>null</code> or calling
 <code>java.util.Map.containsKey()</code> before proceeding with adding or changing the value in the map. However the <code>java.util.Map</code> API
 offers a significantly better alternative in the form of the <code>computeIfPresent()</code> and <code>computeIfAbsent()</code> methods. Using these
 instead leads to cleaner and more readable code.</p>
@@ -13462,7 +13489,7 @@ value returned by the function is <code>null</code>.</p>
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS6104''>S6104</a> - Map "computeIfAbsent()" and "computeIfPresent()" should not be used to add "null" values. </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3864', '"Stream.peek" should be used with caution', 'sonarqube', 'Code Smell', '<p>According to its JavaDocs, the intermediate Stream operation <code>java.util.Stream.peek()</code> “exists mainly to support debugging”
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3864', '"Stream.peek" should be used with caution', 'sonarqube', 'Code Smell', '<p>According to its JavaDocs, the intermediate Stream operation <code>java.util.Stream.peek()</code> “exists mainly to support debugging”
 purposes.</p>
 <p>A key difference with other intermediate Stream operations is that the Stream implementation is free to skip calls to <code>peek()</code> for
 optimization purpose. This can lead to <code>peek()</code> being unexpectedly called only for some or none of the elements in the Stream.</p>
@@ -13489,7 +13516,7 @@ Stream.of("one", "two", "three", "four")
   <li> Data Geekery: <a href="https://blog.jooq.org/2014/06/13/java-8-friday-10-subtle-mistakes-when-using-the-streams-api/">10 Subtle Mistakes When
   Using the Streams API</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3878', 'Arrays should not be created for varargs parameters', 'sonarqube', 'Code Smell', '<p>There''s no point in creating an array solely for the purpose of passing it as a varargs (<code>...</code>) argument; varargs <em>is</em> an array.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3878', 'Arrays should not be created for varargs parameters', 'sonarqube', 'Code Smell', '<p>There''s no point in creating an array solely for the purpose of passing it as a varargs (<code>...</code>) argument; varargs <em>is</em> an array.
 Simply pass the elements directly. They will be consolidated into an array automatically. Incidentally passing an array where <code>Object ...</code>
 is expected makes the intent ambiguous: Is the array supposed to be one object or a collection of objects?</p>
 <h2>Noncompliant Code Example</h2>
@@ -13528,7 +13555,7 @@ public void doTheOtherThing(Object ... args) {
   // ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3923', 'All branches in a conditional structure should not have exactly the same implementation', 'sonarqube', 'Bug', '<p>Having all branches in a <code>switch</code> or <code>if</code> chain with the same implementation is an error. Either a copy-paste error was made
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3923', 'All branches in a conditional structure should not have exactly the same implementation', 'sonarqube', 'Bug', '<p>Having all branches in a <code>switch</code> or <code>if</code> chain with the same implementation is an error. Either a copy-paste error was made
 and something different should be executed, or there shouldn''t be a <code>switch</code>/<code>if</code> chain at all.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13564,7 +13591,7 @@ if(b == 0) {    //no issue, this could have been done on purpose to make the cod
   doSomething();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3937', 'Number patterns should be regular', 'sonarqube', 'Code Smell', '<p>The use of punctuation characters to separate subgroups in a number can make the number more readable. For instance consider 1,000,000,000 versus
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3937', 'Number patterns should be regular', 'sonarqube', 'Code Smell', '<p>The use of punctuation characters to separate subgroups in a number can make the number more readable. For instance consider 1,000,000,000 versus
 1000000000. But when the grouping is irregular, such as 1,000,00,000; it indicates an error. </p>
 <p>This rule raises an issue when underscores (<code>_</code>) are used to break a number into irregular subgroups.</p>
 <h2>Noncompliant Code Example</h2>
@@ -13574,7 +13601,7 @@ int million = 1_000_00_000;  // Noncompliant
 int thousand = 1000;
 int tenThousand = 100_00;  // Noncompliant
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3958', 'Intermediate Stream methods should not be left unused', 'sonarqube', 'Bug', '<p>There are two types of stream operations: intermediate operations, which return another stream, and terminal operations, which return something
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3958', 'Intermediate Stream methods should not be left unused', 'sonarqube', 'Bug', '<p>There are two types of stream operations: intermediate operations, which return another stream, and terminal operations, which return something
 other than a stream. Intermediate operations are lazy, meaning they aren''t actually executed until and unless a terminal stream operation is performed
 on their results. Consequently if the result of an intermediate stream operation is not fed to a terminal operation, it serves no purpose, which is
 almost certainly an error.</p>
@@ -13597,7 +13624,7 @@ sum = pipeline.sum();
 <ul>
   <li> <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">Stream Operations</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3959', 'Consumed Stream pipelines should not be reused', 'sonarqube', 'Bug', '<p>Stream operations are divided into intermediate and terminal operations, and are combined to form stream pipelines. After the terminal operation is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3959', 'Consumed Stream pipelines should not be reused', 'sonarqube', 'Bug', '<p>Stream operations are divided into intermediate and terminal operations, and are combined to form stream pipelines. After the terminal operation is
 performed, the stream pipeline is considered consumed, and cannot be used again. Such a reuse will yield unexpected results.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13607,7 +13634,7 @@ int sum2 = pipeline.mapToInt(b -&gt; b.getWeight()).sum(); // Noncompliant
 </pre>
 <h2>See</h2>
 <p><a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">Stream Operations</a></p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3972', 'Conditionals should start on new lines', 'sonarqube', 'Code Smell', '<p>Code is clearest when each statement has its own line. Nonetheless, it is a common pattern to combine on the same line an <code>if</code> and its
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3972', 'Conditionals should start on new lines', 'sonarqube', 'Code Smell', '<p>Code is clearest when each statement has its own line. Nonetheless, it is a common pattern to combine on the same line an <code>if</code> and its
 resulting <em>then</em> statement. However, when an <code>if</code> is placed on the same line as the closing <code>}</code> from a preceding
 <em>then</em>, <em>else</em> or <em>else if</em> part, it is either an error - <code>else</code> is missing - or the invitation to a future error as
 maintainers fail to understand that the two statements are unconnected.</p>
@@ -13637,7 +13664,7 @@ if (condition2) {
   //...
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3973', 'A conditionally executed single line should be denoted by indentation', 'sonarqube', 'Code Smell', '<p>In the absence of enclosing curly braces, the line immediately after a conditional is the one that is conditionally executed. By both convention
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3973', 'A conditionally executed single line should be denoted by indentation', 'sonarqube', 'Code Smell', '<p>In the absence of enclosing curly braces, the line immediately after a conditional is the one that is conditionally executed. By both convention
 and good practice, such lines are indented. In the absence of both curly braces and indentation the intent of the original programmer is entirely
 unclear and perhaps not actually what is executed. Additionally, such code is highly likely to be confusing to maintainers.</p>
 <h2>Noncompliant Code Example</h2>
@@ -13660,7 +13687,7 @@ somethingElseEntirely();
 
 foo();
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3981', 'Collection sizes and array length comparisons should make sense', 'sonarqube', 'Bug', '<p>The size of a collection and the length of an array are always greater than or equal to zero. So testing that a size or length is greater than or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3981', 'Collection sizes and array length comparisons should make sense', 'sonarqube', 'Bug', '<p>The size of a collection and the length of an array are always greater than or equal to zero. So testing that a size or length is greater than or
 equal to zero doesn''t make sense, since the result is always <code>true</code>. Similarly testing that it is less than zero will always return
 <code>false</code>. Perhaps the intent was to check the non-emptiness of the collection or array instead. </p>
 <h2>Noncompliant Code Example</h2>
@@ -13679,7 +13706,7 @@ if (!myList.isEmpty()) { ... }
 
 if (myArray.length &gt;= 42) { ... }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3984', 'Exceptions should not be created without being thrown', 'sonarqube', 'Bug', '<p>Creating a new <code>Throwable</code> without actually throwing it is useless and is probably due to a mistake.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3984', 'Exceptions should not be created without being thrown', 'sonarqube', 'Bug', '<p>Creating a new <code>Throwable</code> without actually throwing it is useless and is probably due to a mistake.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x &lt; 0)
@@ -13690,7 +13717,7 @@ if (x &lt; 0)
 if (x &lt; 0)
   throw new IllegalArgumentException("x must be nonnegative");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3985', 'Unused "private" classes should be removed', 'sonarqube', 'Code Smell', '<p><code>private</code> classes that are never used are dead code: unnecessary, inoperative code that should be removed. Cleaning out dead code
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3985', 'Unused "private" classes should be removed', 'sonarqube', 'Code Smell', '<p><code>private</code> classes that are never used are dead code: unnecessary, inoperative code that should be removed. Cleaning out dead code
 decreases the size of the maintained codebase, making it easier to understand the program and preventing bugs from being introduced.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13700,7 +13727,7 @@ public class Foo
   private class MyUnusedPrivateClass {...} // Noncompliant
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3986', 'Week Year ("YYYY") should not be used for date formatting', 'sonarqube', 'Bug', '<p>Few developers are aware of the difference between <code>Y</code> for "Week year" and <code>y</code> for Year when formatting and parsing a date
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S3986', 'Week Year ("YYYY") should not be used for date formatting', 'sonarqube', 'Bug', '<p>Few developers are aware of the difference between <code>Y</code> for "Week year" and <code>y</code> for Year when formatting and parsing a date
 with <code>SimpleDateFormat</code> or <code>DateTimeFormatter</code>. That''s likely because for most dates, Week year and Year are the same, so
 testing at any time other than the first or last week of the year will yield the same value for both <code>y</code> and <code>Y</code>. But in the
 last week of December and the first week of January, you may get unexpected results.</p>
@@ -13731,9 +13758,9 @@ Date date = new SimpleDateFormat("yyyy/MM/dd").parse("2015/12/31");
 String result = new SimpleDateFormat("YYYY-ww").format(date);  //compliant, ''Week year'' is used along with ''Week of year''. result = ''2016-01''
 DateTimeFormatter.ofPattern("YYYY-ww").format(date); //compliant; yields ''2016-01'' as expected
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4032', 'Packages containing only "package-info.java" should be removed', 'sonarqube', 'Code Smell', '<p>There is no reason to have a package that is empty except for "package-info.java". Such packages merely clutter a project, taking up space but
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4032', 'Packages containing only "package-info.java" should be removed', 'sonarqube', 'Code Smell', '<p>There is no reason to have a package that is empty except for "package-info.java". Such packages merely clutter a project, taking up space but
 adding no value. </p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4034', '"Stream" call chains should be simplified when possible', 'sonarqube', 'Code Smell', '<p>When using the <code>Stream</code> API, call chains should be simplified as much as possible. Not only does it make the code easier to read, it
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4034', '"Stream" call chains should be simplified when possible', 'sonarqube', 'Code Smell', '<p>When using the <code>Stream</code> API, call chains should be simplified as much as possible. Not only does it make the code easier to read, it
 also avoid creating unnecessary temporary objects.</p>
 <p>This rule raises an issue when one of the following substitution is possible:</p>
 <table>
@@ -13772,7 +13799,7 @@ boolean hasRed = widgets.stream().filter(w -&gt; w.getColor() == RED).findFirst(
 <pre>
 boolean hasRed = widgets.stream().anyMatch(w -&gt; w.getColor() == RED);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4036', 'Searching OS commands in PATH is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When executing an OS command and unless you specify the full path to the executable, then the locations in your application''s <code>PATH</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4036', 'Searching OS commands in PATH is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>When executing an OS command and unless you specify the full path to the executable, then the locations in your application''s <code>PATH</code>
 environment variable will be searched for the executable. That search could leave an opening for an attacker if one of the elements in
 <code>PATH</code> is a directory under his control. </p>
 <h2>Ask Yourself Whether</h2>
@@ -13812,7 +13839,7 @@ builder.command(Arrays.asList("\\SERVERinmake"));  // Compliant
   <li> <a href="https://cwe.mitre.org/data/definitions/426.html">MITRE, CWE-426</a> - Untrusted Search Path </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/427.html">MITRE, CWE-427</a> - Uncontrolled Search Path Element </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4042', '"java.nio.Files#delete" should be preferred', 'sonarqube', 'Code Smell', '<p>When <code>java.io.File#delete</code> fails, this <code>boolean</code> method simply returns <code>false</code> with no indication of the cause. On
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4042', '"java.nio.Files#delete" should be preferred', 'sonarqube', 'Code Smell', '<p>When <code>java.io.File#delete</code> fails, this <code>boolean</code> method simply returns <code>false</code> with no indication of the cause. On
 the other hand, when <code>java.nio.file.Files#delete</code> fails, this <code>void</code> method returns one of a series of exception types to better
 indicate the cause of the failure. And since more information is generally better in a debugging situation, <code>java.nio.file.Files#delete</code> is
 the preferred option.</p>
@@ -13831,7 +13858,7 @@ public void cleanUp(Path path) throws NoSuchFileException, DirectoryNotEmptyExce
   Files.delete(path);
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4065', '"ThreadLocal.withInitial" should be preferred', 'sonarqube', 'Code Smell', '<p>Java 8 introduced <code>ThreadLocal.withInitial</code> which is a simpler alternative to creating an anonymous inner class to initialise a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4065', '"ThreadLocal.withInitial" should be preferred', 'sonarqube', 'Code Smell', '<p>Java 8 introduced <code>ThreadLocal.withInitial</code> which is a simpler alternative to creating an anonymous inner class to initialise a
 <code>ThreadLocal</code> instance.</p>
 <p>This rule raises an issue when a <code>ThreadLocal</code> anonymous inner class can be replaced by a call to
 <code>ThreadLocal.withInitial</code>.</p>
@@ -13849,7 +13876,7 @@ ThreadLocal&lt;List&lt;String&gt;&gt; myThreadLocal =
 <pre>
 ThreadLocal&lt;List&lt;String&gt;&gt; myThreadLocal = ThreadLocal.withInitial(ArrayList::new);
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4087', '"close()" calls should not be redundant', 'sonarqube', 'Code Smell', '<p>Java 7''s try-with-resources structure automatically handles closing the resources that the <code>try</code> itself opens. Thus, adding an explicit
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4087', '"close()" calls should not be redundant', 'sonarqube', 'Code Smell', '<p>Java 7''s try-with-resources structure automatically handles closing the resources that the <code>try</code> itself opens. Thus, adding an explicit
 <code>close()</code> call is redundant and potentially confusing.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13868,7 +13895,7 @@ try (PrintWriter writer = new PrintWriter(process.getOutputStream())) {
   writer.flush();
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4142', 'Duplicate values should not be passed as arguments', 'sonarqube', 'Code Smell', '<p>There are valid cases for passing a variable multiple times into the same method call, but usually doing so is a mistake, and something else was
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4142', 'Duplicate values should not be passed as arguments', 'sonarqube', 'Code Smell', '<p>There are valid cases for passing a variable multiple times into the same method call, but usually doing so is a mistake, and something else was
 intended for one of the arguments.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13894,7 +13921,7 @@ if (compare(v1, v2) != 0) {
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4143', 'Map values should not be replaced unconditionally', 'sonarqube', 'Bug', '<p>It is highly suspicious when a value is saved for a key or index and then unconditionally overwritten. Such replacements are likely errors.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4143', 'Map values should not be replaced unconditionally', 'sonarqube', 'Bug', '<p>It is highly suspicious when a value is saved for a key or index and then unconditionally overwritten. Such replacements are likely errors.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 letters.put("a", "Apple");
@@ -13903,7 +13930,7 @@ letters.put("a", "Boy");  // Noncompliant
 towns[i] = "London";
 towns[i] = "Chicago";  // Noncompliant
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4144', 'Methods should not have identical implementations', 'sonarqube', 'Code Smell', '<p>When two methods have the same implementation, either it was a mistake - something else was intended - or the duplication was intentional, but may
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4144', 'Methods should not have identical implementations', 'sonarqube', 'Code Smell', '<p>When two methods have the same implementation, either it was a mistake - something else was intended - or the duplication was intentional, but may
 be confusing to maintainers. In the latter case, one implementation should invoke the other. Numerical and string literals are not taken into account.
 </p>
 <h2>Noncompliant Code Example</h2>
@@ -13935,7 +13962,7 @@ public String getName() {
 </pre>
 <h2>Exceptions</h2>
 <p>Methods that are not accessors (getters and setters), with fewer than 2 statements are ignored.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4165', 'Assignments should not be redundant', 'sonarqube', 'Code Smell', '<p>The transitive property says that if <code>a == b</code> and <code>b == c</code>, then <code>a == c</code>. In such cases, there''s no point in
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4165', 'Assignments should not be redundant', 'sonarqube', 'Code Smell', '<p>The transitive property says that if <code>a == b</code> and <code>b == c</code>, then <code>a == c</code>. In such cases, there''s no point in
 assigning <code>a</code> to <code>c</code> or vice versa because they''re already equivalent. </p>
 <p>This rule raises an issue when an assignment is useless because the assigned-to variable already holds the value on all execution paths.</p>
 <h2>Noncompliant Code Example</h2>
@@ -13949,7 +13976,7 @@ b = c; // Noncompliant: c and b are already the same
 a = b;
 c = a;
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4174', 'Local constants should follow naming conventions for constants', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all local, <code>final</code>, initialized, primitive
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4174', 'Local constants should follow naming conventions for constants', 'sonarqube', 'Code Smell', '<p>Shared coding conventions allow teams to collaborate efficiently. This rule checks that all local, <code>final</code>, initialized, primitive
 variables, have names that match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
 <p>With the default regular expression <code>^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$</code>:</p>
@@ -13966,7 +13993,7 @@ public void doSomething() {
   ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4201', 'Null checks should not be used with "instanceof"', 'sonarqube', 'Code Smell', '<p>There''s no need to null test in conjunction with an <code>instanceof</code> test. <code>null</code> is not an <code>instanceof</code> anything, so
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4201', 'Null checks should not be used with "instanceof"', 'sonarqube', 'Code Smell', '<p>There''s no need to null test in conjunction with an <code>instanceof</code> test. <code>null</code> is not an <code>instanceof</code> anything, so
 a null check is redundant.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -13980,7 +14007,7 @@ if (x instanceof MyClass) { ... }
 
 if (! x instanceof MyClass) { ... }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4248', 'Regex patterns should not be created needlessly', 'sonarqube', 'Code Smell', '<p>The <code>java.util.regex.Pattern.compile()</code> methods have a significant performance cost, and therefore should be used sensibly.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4248', 'Regex patterns should not be created needlessly', 'sonarqube', 'Code Smell', '<p>The <code>java.util.regex.Pattern.compile()</code> methods have a significant performance cost, and therefore should be used sensibly.</p>
 <p>Moreover they are the only mechanism available to create instances of the Pattern class, which are necessary to do any pattern matching using
 regular expressions. Unfortunately that can be hidden behind convenience methods like <code>String.matches()</code> or
 <code>String.split()</code>.</p>
@@ -14023,7 +14050,7 @@ public void doingSomething(String stringToMatch) {
   <li> It is a two-char String and the first char is the backslash and the second is not the ascii digit or ascii letter. </li>
 </ul>
 <p>In which case no issue will be raised.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4266', '"Stream.collect()" calls should not be redundant', 'sonarqube', 'Code Smell', '<p>When using the <code>Stream</code> API, call chains should be simplified as much as possible to improve readability and maintainability.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4266', '"Stream.collect()" calls should not be redundant', 'sonarqube', 'Code Smell', '<p>When using the <code>Stream</code> API, call chains should be simplified as much as possible to improve readability and maintainability.</p>
 <p>This rule raises an issue when one of the following substitution can be made:</p>
 <table>
   <tbody>
@@ -14073,7 +14100,7 @@ int count = stream.collect(counting());  // Noncompliant
 <pre>
 int count = stream.count();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4274', 'Asserts should not be used to check the parameters of a public method', 'sonarqube', 'Code Smell', '<p>An <code>assert</code> is inappropriate for parameter validation because assertions can be disabled at runtime in the JVM, meaning that a bad
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4274', 'Asserts should not be used to check the parameters of a public method', 'sonarqube', 'Code Smell', '<p>An <code>assert</code> is inappropriate for parameter validation because assertions can be disabled at runtime in the JVM, meaning that a bad
 operational setting would completely eliminate the intended checks. Further, <code>assert</code>s that fail throw <code>AssertionError</code>s, rather
 than throwing some type of <code>Exception</code>. Throwing <code>Error</code>s is completely outside of the normal realm of expected
 <code>catch</code>/<code>throw</code> behavior in normal programs.</p>
@@ -14096,7 +14123,7 @@ than throwing some type of <code>Exception</code>. Throwing <code>Error</code>s 
 </pre>
 <h2>See</h2>
 <p><a href="https://docs.oracle.com/javase/7/docs/technotes/guides/language/assert.html">Programming With Assertions</a></p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4275', 'Getters and setters should access the expected fields', 'sonarqube', 'Bug', '<p>Getters and setters provide a way to enforce encapsulation by providing <code>public</code> methods that give controlled access to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4275', 'Getters and setters should access the expected fields', 'sonarqube', 'Bug', '<p>Getters and setters provide a way to enforce encapsulation by providing <code>public</code> methods that give controlled access to
 <code>private</code> fields. However in classes with multiple fields it is not unusual that copy and paste is used to quickly create the needed
 getters and setters, which can result in the wrong field being accessed by a getter or setter.</p>
 <p>This rule raises an issue in any of these cases:</p>
@@ -14134,7 +14161,7 @@ class A {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4276', 'Functional Interfaces should be as specialised as possible', 'sonarqube', 'Code Smell', '<p>The <code>java.util.function</code> package provides a large array of functional interface definitions for use in lambda expressions and method
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4276', 'Functional Interfaces should be as specialised as possible', 'sonarqube', 'Code Smell', '<p>The <code>java.util.function</code> package provides a large array of functional interface definitions for use in lambda expressions and method
 references. In general it is recommended to use the more specialised form to avoid auto-boxing. For instance <code>IntFunction&lt;Foo&gt;</code>
 should be preferred over <code>Function&lt;Integer, Foo&gt;</code>.</p>
 <p>This rule raises an issue when any of the following substitution is possible:</p>
@@ -14297,7 +14324,7 @@ public class Foo implements IntSupplier {
   }
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4288', 'Spring components should use constructor injection', 'sonarqube', 'Code Smell', '<p>Spring <code>@Controller</code>, <code>@Service</code>, and <code>@Repository</code> classes are singletons by default, meaning only one instance
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4288', 'Spring components should use constructor injection', 'sonarqube', 'Code Smell', '<p>Spring <code>@Controller</code>, <code>@Service</code>, and <code>@Repository</code> classes are singletons by default, meaning only one instance
 of the class is ever instantiated in the application. Typically such a class might have a few <code>static</code> members, such as a logger, but all
 non-static members should be managed by Spring and supplied via constructor injection rather than by field injection.</p>
 <p>This rule raise an issue when any non-<code>static</code> member of a Spring component has an injection annotation, or if the constructor of Spring
@@ -14333,7 +14360,7 @@ public class HelloWorld {
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4347', '"SecureRandom" seeds should not be predictable', 'sonarqube', 'Vulnerability', '<p>The <code>java.security.SecureRandom</code> class provides a strong random number generator (RNG) appropriate for cryptography. However, seeding it
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4347', '"SecureRandom" seeds should not be predictable', 'sonarqube', 'Vulnerability', '<p>The <code>java.security.SecureRandom</code> class provides a strong random number generator (RNG) appropriate for cryptography. However, seeding it
 with a constant or another predictable value will weaken it significantly. In general, it is much safer to rely on the seed provided by the
 <code>SecureRandom</code> implementation.</p>
 <p>This rule raises an issue when <code>SecureRandom.setSeed()</code> or <code>SecureRandom(byte[])</code> are called with a seed that is either
@@ -14367,7 +14394,7 @@ int v = sr.next(32);
   <li> <a href="https://wiki.sei.cmu.edu/confluence/display/java/MSC63-J.+Ensure+that+SecureRandom+is+properly+seeded">CERT, MSC63J.</a> - Ensure that
   SecureRandom is properly seeded </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4348', '"iterator" should not return "this"', 'sonarqube', 'Bug', '<p>There are two classes in the Java standard library that deal with iterations: <code>Iterable&lt;T&gt;</code> and <code>Iterator&lt;T&gt;</code>. An
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4348', '"iterator" should not return "this"', 'sonarqube', 'Bug', '<p>There are two classes in the Java standard library that deal with iterations: <code>Iterable&lt;T&gt;</code> and <code>Iterator&lt;T&gt;</code>. An
 <code>Iterable&lt;T&gt;</code> represents a data structure that can be the target of the "for-each loop" statement, and an
 <code>Iterator&lt;T&gt;</code> represents the state of an ongoing traversal. An <code>Iterable&lt;T&gt;</code> is generally expected to support
 multiple traversals.</p>
@@ -14416,7 +14443,7 @@ class FooSequence implements Iterable&lt;Foo&gt; {
   // ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4349', '"write(byte[],int,int)" should be overridden', 'sonarqube', 'Code Smell', '<p>When directly subclassing <code>java.io.OutputStream</code> or <code>java.io.FilterOutputStream</code>, the only requirement is that you implement
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4349', '"write(byte[],int,int)" should be overridden', 'sonarqube', 'Code Smell', '<p>When directly subclassing <code>java.io.OutputStream</code> or <code>java.io.FilterOutputStream</code>, the only requirement is that you implement
 the method <code>write(int)</code>. However most uses for such streams don''t write a single byte at a time and the default implementation for
 <code>write(byte[],int,int)</code> will call <code>write(int)</code> for every single byte in the array which can create a lot of overhead and is
 utterly inefficient. It is therefore strongly recommended that subclasses provide an efficient implementation of
@@ -14478,7 +14505,7 @@ public class MyStream extends OutputStream {
 </pre>
 <h2>Exceptions</h2>
 <p>This rule doesn''t raise an issue when the class is declared <code>abstract</code>.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4351', '"compareTo" should not be overloaded', 'sonarqube', 'Bug', '<p>When implementing the <code>Comparable&lt;T&gt;.compareTo</code> method, the parameter''s type has to match the type used in the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4351', '"compareTo" should not be overloaded', 'sonarqube', 'Bug', '<p>When implementing the <code>Comparable&lt;T&gt;.compareTo</code> method, the parameter''s type has to match the type used in the
 <code>Comparable</code> declaration. When a different type is used this creates an overload instead of an override, which is unlikely to be the
 intent.</p>
 <p>This rule raises an issue when the parameter of the <code>compareTo</code> method of a class implementing <code>Comparable&lt;T&gt;</code> is not
@@ -14515,7 +14542,7 @@ public class Foo {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4423', 'Weak SSL/TLS protocols should not be used', 'sonarqube', 'Vulnerability', '<p>This rule raises an issue when an insecure TLS protocol version is used (ie: a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2" or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4423', 'Weak SSL/TLS protocols should not be used', 'sonarqube', 'Vulnerability', '<p>This rule raises an issue when an insecure TLS protocol version is used (ie: a protocol different from "TLSv1.2", "TLSv1.3", "DTLSv1.2" or
 "DTLSv1.3").</p>
 <h2>Noncompliant Code Example</h2>
 <p><code>javax.net.ssl.SSLContext</code> library:</p>
@@ -14552,7 +14579,7 @@ ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
   <li> <a href="https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#22-use-secure-protocols">SSL and TLS Deployment Best
   Practices - Use secure protocols</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4425', '"Integer.toHexString" should not be used to build hexadecimal strings', 'sonarqube', 'Code Smell', '<p>Using <code>Integer.toHexString</code> is a common mistake when converting sequences of bytes into hexadecimal string representations. The problem
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4425', '"Integer.toHexString" should not be used to build hexadecimal strings', 'sonarqube', 'Code Smell', '<p>Using <code>Integer.toHexString</code> is a common mistake when converting sequences of bytes into hexadecimal string representations. The problem
 is that the method trims leading zeroes, which can lead to wrong conversions. For instance a two bytes value of <code>0x4508</code> would be converted
 into <code>45</code> and <code>8</code> which once concatenated would give <code>0x458</code>.</p>
 <p>This is particularly damaging when converting hash-codes and could lead to a security vulnerability.</p>
@@ -14582,7 +14609,7 @@ for (byte b : bytes) {
   <li> <a href="http://cwe.mitre.org/data/definitions/704.html">MITRE, CWE-704</a> - Incorrect Type Conversion or Cast </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#BAD_HEXA_CONVERSION">BAD_HEXA_CONVERSION</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4426', 'Cryptographic keys should be robust', 'sonarqube', 'Vulnerability', '<p>Most of cryptographic systems require a sufficient key size to be robust against brute-force attacks.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4426', 'Cryptographic keys should be robust', 'sonarqube', 'Vulnerability', '<p>Most of cryptographic systems require a sufficient key size to be robust against brute-force attacks.</p>
 <p><a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar2.pdf">NIST recommendations</a> will be checked for these
 use-cases:</p>
 <p><strong>Digital Signature Generation</strong> and <strong>Verification:</strong> </p>
@@ -14635,7 +14662,7 @@ keyGen2.init(128); // Compliant
   Use of Cryptographic Algorithms and Key Lengths </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/326.html">MITRE, CWE-326</a> - Inadequate Encryption Strength </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4432', 'AES encryption algorithm should be used with secured mode', 'sonarqube', 'Vulnerability', '<p>The Advanced Encryption Standard (AES) encryption algorithm can be used with various modes. Some combinations are not secured:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4432', 'AES encryption algorithm should be used with secured mode', 'sonarqube', 'Vulnerability', '<p>The Advanced Encryption Standard (AES) encryption algorithm can be used with various modes. Some combinations are not secured:</p>
 <ul>
   <li> Electronic Codebook (ECB) mode: Under a given key, any given plaintext block always gets encrypted to the same ciphertext block. Thus, it does
   not hide data patterns well. In some senses, it doesn''t provide serious message confidentiality, and it is not recommended for use in cryptographic
@@ -14667,7 +14694,7 @@ Cipher c = Cipher.getInstance("AES/GCM/NoPadding");
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5542''>S5542</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4433', 'LDAP connections should be authenticated', 'sonarqube', 'Vulnerability', '<p>An LDAP client authenticates to an LDAP server with a "bind request" which provides, among other, a <a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4433', 'LDAP connections should be authenticated', 'sonarqube', 'Vulnerability', '<p>An LDAP client authenticates to an LDAP server with a "bind request" which provides, among other, a <a
 href="https://ldapwiki.com/wiki/Simple%20Authentication">simple authentication method</a>.</p>
 <p>Simple authentication in LDAP can be used with three different mechanisms:</p>
 <ul>
@@ -14712,7 +14739,7 @@ DirContext ctx = new InitialDirContext(env);
   <li> <a href="https://cwe.mitre.org/data/definitions/521.html">CWE-521</a> - Weak Password Requirements </li>
   <li> <a href="https://ldapwiki.com/wiki/Simple%20Authentication">ldapwiki.com</a>- Simple Authentication </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4434', 'Allowing deserialization of LDAP objects is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>JNDI supports the deserialization of objects from LDAP directories, which can lead to remote code execution.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4434', 'Allowing deserialization of LDAP objects is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>JNDI supports the deserialization of objects from LDAP directories, which can lead to remote code execution.</p>
 <p>This rule raises an issue when an LDAP search query is executed with <code>SearchControls</code> configured to allow deserialization.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -14749,7 +14776,7 @@ ctx.search(query, filter,
   presentation</a> </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#LDAP_ENTRY_POISONING">LDAP_ENTRY_POISONING</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4435', 'XML transformers should be secured', 'sonarqube', 'Vulnerability', '<p>An XML External Entity or XSLT External Entity (XXE) vulnerability can occur when a <code>javax.xml.transform.Transformer</code> is created without
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4435', 'XML transformers should be secured', 'sonarqube', 'Vulnerability', '<p>An XML External Entity or XSLT External Entity (XXE) vulnerability can occur when a <code>javax.xml.transform.Transformer</code> is created without
 enabling "Secure Processing" or when one is created without disabling resolving of both external DTDs and DTD entities. If that external data is being
 controlled by an attacker it may lead to the disclosure of confidential data, denial of service, server side request forgery, port scanning from the
 perspective of the machine where the parser is located, and other system impacts.</p>
@@ -14793,7 +14820,7 @@ transformer.transform(input, result);
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS2755''>S2755</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4449', 'Nullness of parameters should be guaranteed', 'sonarqube', 'Code Smell', '<p>When using null-related annotations at global scope level, for instance using <code>javax.annotation.ParametersAreNonnullByDefault</code> (from
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4449', 'Nullness of parameters should be guaranteed', 'sonarqube', 'Code Smell', '<p>When using null-related annotations at global scope level, for instance using <code>javax.annotation.ParametersAreNonnullByDefault</code> (from
 JSR-305) at package level, it means that all the parameters to all the methods included in the package will, or should, be considered
 Non-<code>null</code>. It is equivalent to annotating every parameter in every method with non-null annotations (such as <code>@Nonnull</code>).</p>
 <p>The rule raises an issue every time a parameter could be <code>null</code> for a method invocation, where the method is annotated as forbidding
@@ -14857,7 +14884,7 @@ abstract class A {
   abstract Object getValue();
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4454', '"equals" method parameters should not be marked "@Nonnull"', 'sonarqube', 'Code Smell', '<p>By contract, the <code>equals(Object)</code> method, from <code>java.lang.Object</code>, should accept a <code>null</code> argument. Among all the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4454', '"equals" method parameters should not be marked "@Nonnull"', 'sonarqube', 'Code Smell', '<p>By contract, the <code>equals(Object)</code> method, from <code>java.lang.Object</code>, should accept a <code>null</code> argument. Among all the
 other cases, the <code>null</code> case is even explicitly detailed in the <code>Object.equals(...)</code> Javadoc, stating <em>"For any non-null
 reference value x, x.equals(null) should return false."</em></p>
 <p>Assuming that the argument to <code>equals</code> is always non-null, and enforcing that assumption with an annotation is not only a fundamental
@@ -14879,7 +14906,7 @@ public boolean equals(Object obj) {
   // ...
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4488', 'Composed "@RequestMapping" variants should be preferred', 'sonarqube', 'Code Smell', '<p>Spring framework 4.3 introduced variants of the <code>@RequestMapping</code> annotation to better represent the semantics of the annotated methods.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4488', 'Composed "@RequestMapping" variants should be preferred', 'sonarqube', 'Code Smell', '<p>Spring framework 4.3 introduced variants of the <code>@RequestMapping</code> annotation to better represent the semantics of the annotated methods.
 The use of <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>, <code>@PatchMapping</code> and <code>@DeleteMapping</code>
 should be preferred to the use of the raw <code>@RequestMapping(method = RequestMethod.XYZ)</code>.</p>
 <h1>Noncompliant Code Example</h1>
@@ -14896,7 +14923,7 @@ public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") S
 ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4499', 'SMTP SSL connection should check server identity', 'sonarqube', 'Vulnerability', '<p>This rule raises an issue when:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4499', 'SMTP SSL connection should check server identity', 'sonarqube', 'Vulnerability', '<p>This rule raises an issue when:</p>
 <ul>
   <li> a JavaMail''s <code>javax.mail.Session</code> is created with a <code>Properties</code> object having no
   <code>mail.smtp.ssl.checkserveridentity</code> or <code>mail.smtps.ssl.checkserveridentity</code> not configured to <code>true</code> </li>
@@ -14955,7 +14982,7 @@ Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5527''>S5527</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4502', 'Disabling CSRF protections is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>A cross-site request forgery (CSRF) attack occurs when a trusted user of a web application can be forced, by an attacker, to perform sensitive
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4502', 'Disabling CSRF protections is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>A cross-site request forgery (CSRF) attack occurs when a trusted user of a web application can be forced, by an attacker, to perform sensitive
 actions that he didn''t intend, such as updating his profile or sending a message, more generally anything that can change the state of the
 application.</p>
 <p>The attacker can trick the user/victim to click on a link, corresponding to the privileged action, or to visit a malicious web site that embeds a
@@ -15015,7 +15042,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   <li> <a href="https://owasp.org/www-community/attacks/csrf">OWASP: Cross-Site Request Forgery</a> </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat1">SANS Top 25</a> - Insecure Interaction Between Components </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4507', 'Delivering code in production with debug features activated is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Delivering code in production with debug features activated is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4507', 'Delivering code in production with debug features activated is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Delivering code in production with debug features activated is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1999007">CVE-2018-1999007</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5306">CVE-2015-5306</a> </li>
@@ -15083,7 +15110,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   <li> <a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/215.html">MITRE, CWE-215</a> - Information Exposure Through Debug Information </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4508', 'Deserializing objects from an untrusted source is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Deserializing objects is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4508', 'Deserializing objects from an untrusted source is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Deserializing objects is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10654">CVE-2018-10654</a>: Hazelcast Library: Java deserialization
   vulnerability </li>
@@ -15134,7 +15161,7 @@ filter as close as possible to the deserialization that uses it allows you to sp
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4510', 'Deserializing with XMLDecoder is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Deserialization from an untrusted source using the XMLDecoder library can lead to unexpected code execution. For example, it has led in the past to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4510', 'Deserializing with XMLDecoder is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Deserialization from an untrusted source using the XMLDecoder library can lead to unexpected code execution. For example, it has led in the past to
 the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4221">CVE-2013-4221</a> </li>
@@ -15174,7 +15201,7 @@ public void decode(InputStream in) {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4512', 'Setting JavaBean properties is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Setting JavaBean properties is security sensitive. Doing it with untrusted values has led in the past to the following vulnerability:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4512', 'Setting JavaBean properties is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Setting JavaBean properties is security sensitive. Doing it with untrusted values has led in the past to the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0114">CVE-2014-0114</a> </li>
 </ul>
@@ -15218,7 +15245,7 @@ BeanUtils.populate(bean, map); // Sensitive: "map" is populated with data coming
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#BEAN_PROPERTY_INJECTION">BEAN_PROPERTY_INJECTION</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4517', 'InputSteam.read() implementation should not return a signed byte', 'sonarqube', 'Bug', '<p>According to the Java documentation, any implementation of the <code>InputSteam.read()</code> method is supposed to read the next byte of data from
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4517', 'InputSteam.read() implementation should not return a signed byte', 'sonarqube', 'Bug', '<p>According to the Java documentation, any implementation of the <code>InputSteam.read()</code> method is supposed to read the next byte of data from
 the input stream. The value byte must be an <code>int</code> in the range 0 to 255. If no byte is available because the end of the stream has been
 reached, the value -1 is returned.</p>
 <p>But in Java, the <code>byte</code> primitive data type is an 8-bit signed two''s complement integer. It has a minimum value of -128 and a maximum
@@ -15244,7 +15271,7 @@ public int read() throws IOException {
   return buffer.getByte(pos++) &amp; 0xFF; // The 0xFF bitmask is applied
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4524', '"default" clauses should be last', 'sonarqube', 'Code Smell', '<p><code>switch</code> can contain a <code>default</code> clause for various reasons: to handle unexpected values, to show that all the cases were
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4524', '"default" clauses should be last', 'sonarqube', 'Code Smell', '<p><code>switch</code> can contain a <code>default</code> clause for various reasons: to handle unexpected values, to show that all the cases were
 properly considered.</p>
 <p>For readability purpose, to help a developer to quickly find the default behavior of a <code>switch</code> statement, it is recommended to put the
 <code>default</code> clause at the end of the <code>switch</code> statement. This rule raises an issue if the <code>default</code> clause is not the
@@ -15277,7 +15304,7 @@ switch (param) {
     break;
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4530', 'Using Struts 1 ActionForm is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using Struts 1 ActionForm is security-sensitive. For example, their use has led in the past to the following vulnerability:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4530', 'Using Struts 1 ActionForm is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using Struts 1 ActionForm is security-sensitive. For example, their use has led in the past to the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0114">CVE-2014-0114</a> </li>
 </ul>
@@ -15319,7 +15346,7 @@ public final class CashTransferAction extends Action {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4531', 'Using setters in Struts 2 ActionSupport is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using setters in Struts 2 ActionSupport is security-sensitive. For example, their use has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4531', 'Using setters in Struts 2 ActionSupport is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using setters in Struts 2 ActionSupport is security-sensitive. For example, their use has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-1006">CVE-2012-1006</a> </li>
 </ul>
@@ -15363,7 +15390,7 @@ public class AccountBalanceAction extends ActionSupport {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4544', 'Using unsafe Jackson deserialization configuration is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using unsafe Jackson deserialization configuration is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4544', 'Using unsafe Jackson deserialization configuration is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using unsafe Jackson deserialization configuration is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-4995">CVE-2017-4995</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-19362">CVE-2018-19362</a> </li>
@@ -15413,7 +15440,7 @@ abstract class PhoneNumber {
   <li> Derived from FindSecBugs rule <a
   href="https://find-sec-bugs.github.io/bugs.htm#JACKSON_UNSAFE_DESERIALIZATION">JACKSON_UNSAFE_DESERIALIZATION</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4551', 'Enum values should be compared with "=="', 'sonarqube', 'Code Smell', '<p>Testing equality of an enum value with <code>equals</code> is perfectly valid because an enum is an Object and every Java developer knows "=="
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4551', 'Enum values should be compared with "=="', 'sonarqube', 'Code Smell', '<p>Testing equality of an enum value with <code>equals</code> is perfectly valid because an enum is an Object and every Java developer knows "=="
 should not be used to compare the content of an Object. At the same time, using "==" on enums:</p>
 <ul>
   <li> provides the same expected comparison (content) as <code>equals</code> </li>
@@ -15454,7 +15481,7 @@ public boolean isFruitGrape(Cake candidateFruit) {
   <li> <a href="https://www.javaworld.com/article/2074292/core-java/use-----or-----to-compare-java-enums.html">Use == (or !=) to Compare Java
   Enums</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4601', '"HttpSecurity" URL patterns should be correctly ordered', 'sonarqube', 'Vulnerability', '<p>URL patterns configured on a <code>HttpSecurity.authorizeRequests()</code> method are considered in the order they were declared. It''s easy to do a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4601', '"HttpSecurity" URL patterns should be correctly ordered', 'sonarqube', 'Vulnerability', '<p>URL patterns configured on a <code>HttpSecurity.authorizeRequests()</code> method are considered in the order they were declared. It''s easy to do a
 mistake and to declare a less restrictive configuration before a more restrictive one. Therefore, it''s required to review the order of the
 "antMatchers" declarations. The <code>/**</code> one should be the last one if it is declared.</p>
 <p>This rule raises an issue when:</p>
@@ -15493,7 +15520,7 @@ mistake and to declare a less restrictive configuration before a more restrictiv
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A6-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
   Misconfiguration </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4602', '"@SpringBootApplication" and "@ComponentScan" should not be used in the default package', 'sonarqube', 'Bug', '<p><code>@ComponentScan</code> is used to determine which Spring Beans are available in the application context. The packages to scan can be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4602', '"@SpringBootApplication" and "@ComponentScan" should not be used in the default package', 'sonarqube', 'Bug', '<p><code>@ComponentScan</code> is used to determine which Spring Beans are available in the application context. The packages to scan can be
 configured thanks to the <code>basePackageClasses</code> or <code>basePackages</code> (or its alias <code>value</code>) parameters. If neither
 parameter is configured, <code>@ComponentScan</code> will consider only the package of the class annotated with it. When <code>@ComponentScan</code>
 is used on a class belonging to the default package, the entire classpath will be scanned.</p>
@@ -15531,7 +15558,7 @@ public class RootBootApp {
 ...
 }
 </pre>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4604', '"@EnableAutoConfiguration" should be fine-tuned', 'sonarqube', 'Code Smell', '<p>"@EnableAutoConfiguration" is a convenient feature to configure the Spring Application Context by attempting to guess the beans that you are likely
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4604', '"@EnableAutoConfiguration" should be fine-tuned', 'sonarqube', 'Code Smell', '<p>"@EnableAutoConfiguration" is a convenient feature to configure the Spring Application Context by attempting to guess the beans that you are likely
 to need. The drawback is that it may load and configure beans the application will never use and therefore consume more CPU and RAM than really
 required. <code>@EnableAutoConfiguration</code> should be configured to exclude all the beans not required by the application. Alternatively, use the
 <code>@Import</code> annotation instead of <code>@EnableAutoConfiguration</code>, to explicitly import the useful AutoConfiguration classes.</p>
@@ -15588,7 +15615,7 @@ public class MyApplication {
 ...
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4605', 'Spring beans should be considered by "@ComponentScan"', 'sonarqube', 'Code Smell', '<p>Spring beans belonging to packages that are not included in a <code>@ComponentScan</code> configuration will not be accessible in the Spring
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4605', 'Spring beans should be considered by "@ComponentScan"', 'sonarqube', 'Code Smell', '<p>Spring beans belonging to packages that are not included in a <code>@ComponentScan</code> configuration will not be accessible in the Spring
 Application Context. Therefore, it''s likely to be a configuration mistake that will be detected by this rule. </p>
 <p><strong>Note:</strong> the <code>@ComponentScan</code> is implicit in the <code>@SpringBootApplication</code> annotation, case in which Spring Boot
 will auto scan for components in the package containing the Spring Boot main class and its sub-packages.</p>
@@ -15630,7 +15657,7 @@ public class MyController { // "com.mycompany.app.web" is referenced by a @Compo
 ...
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4635', 'String offset-based methods should be preferred for finding substrings from offsets', 'sonarqube', 'Code Smell', '<p>Looking for a given substring starting from a specified offset can be achieved by such code: <code>str.substring(beginIndex).indexOf(char1)</code>.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4635', 'String offset-based methods should be preferred for finding substrings from offsets', 'sonarqube', 'Code Smell', '<p>Looking for a given substring starting from a specified offset can be achieved by such code: <code>str.substring(beginIndex).indexOf(char1)</code>.
 This works well, but it creates a new <code>String</code> for each call to the <code>substring</code> method. When this is done in a loop, a lot of
 <code>Strings</code> are created for nothing, which can lead to performance problems if <code>str</code> is large.</p>
 <p>To avoid performance problems, <code>String.substring(beginIndex)</code> should not be chained with the following methods:</p>
@@ -15651,7 +15678,7 @@ str.substring(beginIndex).indexOf(char1); // Noncompliant; a new String is going
 <pre>
 str.indexOf(char1, beginIndex);
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4682', '"@CheckForNull" or "@Nullable" should not be used on primitive types', 'sonarqube', 'Code Smell', '<p>By definition, primitive types are not Objects and so they can''t be <code>null</code>. Adding <code>@CheckForNull</code> or <code>@Nullable</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4682', '"@CheckForNull" or "@Nullable" should not be used on primitive types', 'sonarqube', 'Code Smell', '<p>By definition, primitive types are not Objects and so they can''t be <code>null</code>. Adding <code>@CheckForNull</code> or <code>@Nullable</code>
 on primitive types adds confusion and is useless.</p>
 <p>This rule raises an issue when <code>@CheckForNull</code> or <code>@Nullable</code> is set on a method returning a primitive type: byte, short,
 int, long, float, double, boolean, char.</p>
@@ -15668,7 +15695,7 @@ boolean isFoo() {
  ...
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4684', 'Persistent entities should not be used as arguments of "@RequestMapping" methods', 'sonarqube', 'Vulnerability', '<p>On one side, Spring MVC automatically bind request parameters to beans declared as arguments of methods annotated with
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4684', 'Persistent entities should not be used as arguments of "@RequestMapping" methods', 'sonarqube', 'Vulnerability', '<p>On one side, Spring MVC automatically bind request parameters to beans declared as arguments of methods annotated with
 <code>@RequestMapping</code>. Because of this automatic binding feature, it''s possible to feed some unexpected fields on the arguments of the
 <code>@RequestMapping</code> annotated methods. </p>
 <p>On the other end, persistent objects (<code>@Entity</code> or <code>@Document</code>) are linked to the underlying database and updated
@@ -15756,7 +15783,7 @@ the object cannot be forged on client side.</p>
   <li> <a href="https://o2platform.files.wordpress.com/2011/07/ounce_springframework_vulnerabilities.pdf">Two Security Vulnerabilities in the Spring
   Framework’s MVC by Ryan Berg and Dinis Cruz</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4719', '"StandardCharsets" constants should be preferred', 'sonarqube', 'Code Smell', '<p>JDK7 introduced the class <code>java.nio.charset.StandardCharsets</code>. It provides constants for all charsets that are guaranteed to be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4719', '"StandardCharsets" constants should be preferred', 'sonarqube', 'Code Smell', '<p>JDK7 introduced the class <code>java.nio.charset.StandardCharsets</code>. It provides constants for all charsets that are guaranteed to be
 available on every implementation of the Java platform.</p>
 <ul>
   <li> ISO_8859_1 </li>
@@ -15786,7 +15813,7 @@ byte[] bytes = string.getBytes(Charsets.UTF_8); // Noncompliant; Guava way obsol
 <pre>
 byte[] bytes = string.getBytes(StandardCharsets.UTF_8)
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4738', 'Java features should be preferred to Guava', 'sonarqube', 'Code Smell', '<p>Some Guava features were really useful for Java 7 application because Guava was bringing APIs missing in the JDK. Java 8 fixed some of these
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4738', 'Java features should be preferred to Guava', 'sonarqube', 'Code Smell', '<p>Some Guava features were really useful for Java 7 application because Guava was bringing APIs missing in the JDK. Java 8 fixed some of these
 limitations. When migrating an application to Java 8 or even when starting a new one, it''s recommended to prefer Java 8 APIs over Guava ones to ease
 its maintenance: developers don''t need to learn how to use two APIs and can stick to the standard one.</p>
 <p>Java 9 brought even more useful methods to the standard Java library and if Java version is equal to or higher than 9, these standard methods
@@ -15860,7 +15887,7 @@ should be used.</p>
     </tr>
   </tbody>
 </table>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4784', 'Using regular expressions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using regular expressions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4784', 'Using regular expressions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using regular expressions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16021">CVE-2017-16021</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-13863">CVE-2018-13863</a> </li>
@@ -15943,7 +15970,7 @@ expression. These methods are used most of the time to split on simple regular e
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5852''>S5852</a>, <a href=''/coding_rules#rule_key=javasecurity%3AS2631''>S2631</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4787', 'Encrypting data is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Encrypting data is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4787', 'Encrypting data is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Encrypting data is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7902">CVE-2017-7902</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1378">CVE-2006-1378</a> </li>
@@ -16029,7 +16056,7 @@ Utils.getCipherInstance(transform, properties);  // Sensitive
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS4426''>S4426</a>, <a href=''/coding_rules#rule_key=java%3AS5542''>S5542</a>, <a href=''/coding_rules#rule_key=java%3AS5547''>S5547</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4790', 'Using weak hashing algorithms is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Cryptographic hash algorithms such as <code>MD2</code>, <code>MD4</code>, <code>MD5</code>, <code>MD6</code>, <code>HAVAL-128</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4790', 'Using weak hashing algorithms is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Cryptographic hash algorithms such as <code>MD2</code>, <code>MD4</code>, <code>MD5</code>, <code>MD6</code>, <code>HAVAL-128</code>,
 <code>HMAC-MD5</code>, <code>DSA</code> (which uses <code>SHA-1</code>), <code>RIPEMD</code>, <code>RIPEMD-128</code>, <code>RIPEMD-160</code>,
 <code>HMACRIPEMD160</code> and <code>SHA-1</code> are no longer considered secure, because it is possible to have <code>collisions</code> (little
 computational effort is enough to find two or more different inputs that produce the same hash).</p>
@@ -16065,7 +16092,7 @@ MessageDigest md1 = MessageDigest.getInstance("SHA-512"); // Compliant
   </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4792', 'Configuring loggers is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Configuring loggers is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4792', 'Configuring loggers is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Configuring loggers is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0285">CVE-2018-0285</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2000-1127">CVE-2000-1127</a> </li>
@@ -16209,7 +16236,7 @@ life</a>.</p>
   <li> <a href="https://cwe.mitre.org/data/definitions/778.html">MITRE, CWE-778</a> - Insufficient Logging </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4818', 'Using Sockets is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using sockets is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4818', 'Using Sockets is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using sockets is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1785">CVE-2011-178</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5645">CVE-2017-5645</a> </li>
@@ -16328,7 +16355,7 @@ class A {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4823', 'Using command line arguments is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using command line arguments is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4823', 'Using command line arguments is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using command line arguments is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-7281">CVE-2018-7281</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12326">CVE-2018-12326</a> </li>
@@ -16448,7 +16475,7 @@ as the mainclass.</p>
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4829', 'Reading the Standard Input is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Reading Standard Input is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4829', 'Reading the Standard Input is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Reading Standard Input is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2337">CVE-2005-2337</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11449">CVE-2017-11449</a> </li>
@@ -16493,7 +16520,7 @@ this case as another hotspot rule covers command line arguments.</p>
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4830', 'Server certificates should be verified during SSL/TLS connections', 'sonarqube', 'Vulnerability', '<p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks. </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4830', 'Server certificates should be verified during SSL/TLS connections', 'sonarqube', 'Vulnerability', '<p>Validation of X.509 certificates is essential to create secure SSL/TLS sessions not vulnerable to man-in-the-middle attacks. </p>
 <p>The certificate chain validation includes these steps:</p>
 <ul>
   <li> The certificate is issued by its parent Certificate Authority or the root CA trusted by the system. </li>
@@ -16529,7 +16556,7 @@ class TrustAllManager implements X509TrustManager {
   <li> <a href="https://cwe.mitre.org/data/definitions/295.html">MITRE, CWE-295</a> - Improper Certificate Validation </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4834', 'Controlling permissions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Controlling permissions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4834', 'Controlling permissions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Controlling permissions is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12999">CVE-2018-12999</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10285">CVE-2018-10285</a> </li>
@@ -16600,7 +16627,7 @@ done properly.</p>
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4838', 'An iteration on a Collection should be performed on the type handled by the Collection', 'sonarqube', 'Code Smell', '<p>This rule raises an issue when an iteration over the items of a <code>Collection</code> is performed on a super-type of the type handled by the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4838', 'An iteration on a Collection should be performed on the type handled by the Collection', 'sonarqube', 'Code Smell', '<p>This rule raises an issue when an iteration over the items of a <code>Collection</code> is performed on a super-type of the type handled by the
 <code>Collection</code>.</p>
 <p>Relying on <code>Object</code> or any classes between <code>Object</code> and the real class handled by the <code>Collection</code> is not
 recommended. While it''s accepted by the language, this practice reduces readability of the code and forces to down-cast the item of the
@@ -16620,7 +16647,7 @@ for (Person person : getPersons()) { // Compliant
   person.getAddress() ;
 }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4925', '"Class.forName()" should not load JDBC 4.0+ drivers', 'sonarqube', 'Code Smell', '<p>In the past, it was required to load a JDBC driver before creating a <code>java.sql.Connection</code>. Nowadays, when using JDBC 4.0 drivers, this
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4925', '"Class.forName()" should not load JDBC 4.0+ drivers', 'sonarqube', 'Code Smell', '<p>In the past, it was required to load a JDBC driver before creating a <code>java.sql.Connection</code>. Nowadays, when using JDBC 4.0 drivers, this
 is no longer required and <code>Class.forName()</code> can be safely removed because JDBC 4.0 (JDK 6) drivers available in the classpath are
 automatically loaded.</p>
 <p>This rule raises an issue when <code>Class.forName()</code> is used with one of the following values:</p>
@@ -16671,7 +16698,7 @@ public class Demo {
     }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4926', '"serialVersionUID" should not be declared blindly', 'sonarqube', 'Code Smell', '<p>Providing a <code>serialVersionUID</code> field on <code>Serializable</code> classes is strongly recommended by the <code>Serializable</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4926', '"serialVersionUID" should not be declared blindly', 'sonarqube', 'Code Smell', '<p>Providing a <code>serialVersionUID</code> field on <code>Serializable</code> classes is strongly recommended by the <code>Serializable</code>
 documentation but blindly following that recommendation can be harmful.</p>
 <p><code>serialVersionUID</code> value is stored with the serialized data and this field is verified when deserializing the data to ensure that the
 code reading the data is compatible with the serialized data. In case of failure, it means the serialized data and the code are not in sync and this
@@ -16697,7 +16724,7 @@ public class BarException extends RuntimeException {
   <li> Vojtech Ruzicka''s Programming Blog: <a href="https://www.vojtechruzicka.com/explicitly-declare-serialversionuid/">Should I explicitly declare
   serialVersionUID?</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4929', '"read(byte[],int,int)" should be overridden', 'sonarqube', 'Code Smell', '<p>When directly subclassing <code>java.io.InputStream</code> or <code>java.io.FilterInputStream</code>, the only requirement is that you implement
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4929', '"read(byte[],int,int)" should be overridden', 'sonarqube', 'Code Smell', '<p>When directly subclassing <code>java.io.InputStream</code> or <code>java.io.FilterInputStream</code>, the only requirement is that you implement
 the method <code>read()</code>. However most uses for such streams don''t read a single byte at a time and the default implementation for
 <code>read(byte[],int,int)</code> will call <code>read(int)</code> for every single byte in the array which can create a lot of overhead and is
 utterly inefficient. It is therefore strongly recommended that subclasses provide an efficient implementation of
@@ -16741,7 +16768,7 @@ public class MyInputStream extends java.io.InputStream {
 </pre>
 <h2>Exceptions</h2>
 <p>This rule doesn''t raise an issue when the class is declared <code>abstract</code>.</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4970', 'Derived exceptions should not hide their parents'' catch blocks', 'sonarqube', 'Code Smell', '<p>The <code>catch</code> block of a checked exception "E" may be hidden because the corresponding <code>try</code> block only throws exceptions
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4970', 'Derived exceptions should not hide their parents'' catch blocks', 'sonarqube', 'Code Smell', '<p>The <code>catch</code> block of a checked exception "E" may be hidden because the corresponding <code>try</code> block only throws exceptions
 derived from E.</p>
 <p>These derived exceptions are handled in dedicated <code>catch</code> blocks prior to the <code>catch</code> block of the base exception E. </p>
 <p>The <code>catch</code> block of E is unreachable and should be considered dead code. It should be removed, or the entire try-catch structure should
@@ -16792,7 +16819,7 @@ public class HiddenCatchBlock {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4973', 'Strings and Boxed types should be compared using "equals()"', 'sonarqube', 'Bug', '<p>It''s almost always a mistake to compare two instances of <code>java.lang.String</code> or boxed types like <code>java.lang.Integer</code> using
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4973', 'Strings and Boxed types should be compared using "equals()"', 'sonarqube', 'Bug', '<p>It''s almost always a mistake to compare two instances of <code>java.lang.String</code> or boxed types like <code>java.lang.Integer</code> using
 reference equality <code>==</code> or <code>!=</code>, because it is not comparing actual value but locations in memory.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -16817,7 +16844,7 @@ if (firstName != null &amp;&amp; firstName.equals(lastName)) { ... };
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/yDdGBQ">CERT, EXP50-J.</a> - Do not confuse abstract object equality with reference equality
   </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4977', 'Type parameters should not shadow other type parameters', 'sonarqube', 'Code Smell', '<p>Shadowing makes it impossible to use the type parameter from the outer scope. Also, it can be confusing to distinguish which type parameter is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S4977', 'Type parameters should not shadow other type parameters', 'sonarqube', 'Code Smell', '<p>Shadowing makes it impossible to use the type parameter from the outer scope. Also, it can be confusing to distinguish which type parameter is
 being used.</p>
 <p>This rule raises an issue when a type parameter from an inner scope uses the same name as one in an outer scope.</p>
 <h2>Noncompliant Code Example</h2>
@@ -16848,7 +16875,7 @@ public class NoTypeParameterHiding&lt;T&gt; {
 
   }
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5042', 'Expanding archive files without controlling resource consumption is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Successful Zip Bomb attacks occur when an application expands untrusted archive files without controlling the size of the expanded data, which can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5042', 'Expanding archive files without controlling resource consumption is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Successful Zip Bomb attacks occur when an application expands untrusted archive files without controlling the size of the expanded data, which can
 lead to denial of service. A Zip bomb is usually a malicious archive file of a few kilobytes of compressed data but turned into gigabytes of
 uncompressed data. To achieve this extreme <a href="https://en.wikipedia.org/wiki/Data_compression_ratio">compression ratio</a>, attackers will
 compress irrelevant data (eg: a long string of repeated bytes). </p>
@@ -16939,7 +16966,7 @@ while(entries.hasMoreElements()) {
   extract files from ZipInputStream </li>
   <li> <a href="https://www.bamsoftware.com/hacks/zipbomb/">bamsoftware.com</a> - A better Zip Bomb </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5122', 'Having a permissive Cross-Origin Resource Sharing policy is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Having a permissive Cross-Origin Resource Sharing policy is security-sensitive. It has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5122', 'Having a permissive Cross-Origin Resource Sharing policy is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Having a permissive Cross-Origin Resource Sharing policy is security-sensitive. It has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0269">CVE-2018-0269</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14460">CVE-2017-14460</a> </li>
@@ -17060,7 +17087,7 @@ class Safe implements WebMvcConfigurer {
   <li> <a href="https://cwe.mitre.org/data/definitions/942.html">MITRE, CWE-942</a> - Overly Permissive Cross-domain Whitelist </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5128', '"Bean Validation" (JSR 380) should be properly configured', 'sonarqube', 'Code Smell', '<p><code>Bean Validation</code> as per defined by JSR 380 can be triggered programmatically or also executed by the <code>Bean Validation</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5128', '"Bean Validation" (JSR 380) should be properly configured', 'sonarqube', 'Code Smell', '<p><code>Bean Validation</code> as per defined by JSR 380 can be triggered programmatically or also executed by the <code>Bean Validation</code>
 providers. However something should tell the <code>Bean Validation</code> provider that a variable must be validated otherwise no validation will
 happen. This can be achieved by annotating a variable with <code>javax.validation.Valid</code> and unfortunally it''s easy to forget to add this
 annotation on complex Beans.</p>
@@ -17118,7 +17145,7 @@ public class MyService {
 <ul>
   <li> <a href="https://beanvalidation.org/2.0/spec/">Bean Validation 2.0 (JSR 380)</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5164', '"ThreadLocal" variables should be cleaned up when no longer used', 'sonarqube', 'Bug', '<p><code>ThreadLocal</code> variables are supposed to be garbage collected once the holding thread is no longer alive. Memory leaks can occur when
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5164', '"ThreadLocal" variables should be cleaned up when no longer used', 'sonarqube', 'Bug', '<p><code>ThreadLocal</code> variables are supposed to be garbage collected once the holding thread is no longer alive. Memory leaks can occur when
 holding threads are re-used which is the case on application servers using pool of threads.</p>
 <p>To avoid such problems, it is recommended to always clean up <code>ThreadLocal</code> variables using the <code>remove()</code> method to remove
 the current thread’s value for the <code>ThreadLocal</code> variable.</p>
@@ -17180,7 +17207,7 @@ public class ThreadLocalUserSession implements UserSession {
 <ul>
   <li> <a href="https://www.baeldung.com/java-memory-leaks">Understanding Memory Leaks in Java</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5194', 'Use Java 12 "switch" expression', 'sonarqube', 'Code Smell', '<p>Many existing switch statements are essentially simulations of switch expressions, where each arm either assigns to a common target variable or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5194', 'Use Java 12 "switch" expression', 'sonarqube', 'Code Smell', '<p>Many existing switch statements are essentially simulations of switch expressions, where each arm either assigns to a common target variable or
 returns a value. Expressing this as a statement is roundabout, repetitive, and error-prone.</p>
 <p>Java 12 added support for switch expressions, which provide more succinct and less error-prone version of switch.</p>
 <h2>Noncompliant Code Example</h2>
@@ -17228,7 +17255,7 @@ int numLetters = switch (day) {
     case WEDNESDAY              -&gt; 9;
 };
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5247', 'Disabling auto-escaping in template engines is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>To reduce the risk of cross-site scripting attacks, templating systems, such as <code>Twig</code>, <code>Django</code>, <code>Smarty</code>,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5247', 'Disabling auto-escaping in template engines is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>To reduce the risk of cross-site scripting attacks, templating systems, such as <code>Twig</code>, <code>Django</code>, <code>Smarty</code>,
 <code>Groovy''s template engine</code>, allow configuration of automatic variable escaping before rendering templates. When escape occurs, characters
 that make sense to the browser (eg: &lt;a&gt;) will be transformed/replaced with escaped/sanitized values (eg: &amp; lt;a&amp; gt; ).</p>
 <p>Auto-escaping is not a magic feature to annihilate all cross-site scripting attacks, it depends on <a
@@ -17290,7 +17317,7 @@ configuration.setAutoEscapingPolicy(ENABLE_IF_DEFAULT_AUTO_ESCAPING_POLICY); // 
   </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/84.html">MITRE, CWE-84</a> - Improper Neutralization of Encoded URI Schemes in a Web Page </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5261', '"else" statements should be clearly matched with an "if"', 'sonarqube', 'Code Smell', '<p>The dangling <code>else</code> problem appears when nested <code>if</code>/<code>else</code>&nbsp;statements are written without curly braces. In
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5261', '"else" statements should be clearly matched with an "if"', 'sonarqube', 'Code Smell', '<p>The dangling <code>else</code> problem appears when nested <code>if</code>/<code>else</code>&nbsp;statements are written without curly braces. In
 this case, <code>else</code> is associated with the nearest&nbsp;<code>if</code> but that is not always obvious and sometimes the indentation can also
 be misleading.</p>
 <p>This rules reports <code>else</code> statements that are difficult to understand, because they are inside nested <code>if</code> statements without
@@ -17319,7 +17346,7 @@ really clarifies the intention of the code.</p>
 <ul>
   <li> <a href="https://en.wikipedia.org/wiki/Dangling_else">https://en.wikipedia.org/wiki/Dangling_else</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5300', 'Sending emails is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Sending emails is security-sensitive and can expose an application to a large range of vulnerabilities.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5300', 'Sending emails is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Sending emails is security-sensitive and can expose an application to a large range of vulnerabilities.</p>
 <p><strong>Information Exposure</strong></p>
 <p>Emails often contain sensitive information which might be exposed to an attacker if he can add an arbitrary address to the recipient list.</p>
 <p><strong>Spamming / Phishing</strong></p>
@@ -17379,7 +17406,7 @@ public class Main {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5301', '"ActiveMQConnectionFactory" should not be vulnerable to malicious code deserialization', 'sonarqube', 'Vulnerability', '<p>ActiveMQ can send/receive JMS Object messages (named ObjectMessage in ActiveMQ context) to comply with JMS specification. Internally, ActiveMQ
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5301', '"ActiveMQConnectionFactory" should not be vulnerable to malicious code deserialization', 'sonarqube', 'Vulnerability', '<p>ActiveMQ can send/receive JMS Object messages (named ObjectMessage in ActiveMQ context) to comply with JMS specification. Internally, ActiveMQ
 relies on Java serialization mechanism for marshaling/unmashaling of the message payload. Deserialization based on data supplied by the user could
 lead to remote code execution attacks, where the structure of the serialized data is changed to modify the behavior of the object being
 unserialized.</p>
@@ -17406,7 +17433,7 @@ factory.setTrustedPackages(Arrays.asList("org.mypackage1", "org.mypackage2"));
   <li> <a href="https://activemq.apache.org/objectmessage.html">ActiveMQ ObjectMessage Security Advisory</a> </li>
   <li> <a href="https://activemq.apache.org/security-advisories.data/CVE-2015-5254-announcement.txt">CVE-2015-5254</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5304', 'Using environment variables is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using environment variables is security-sensitive. For example, their use has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5304', 'Using environment variables is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Using environment variables is security-sensitive. For example, their use has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6278">CVE-2014-6278</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-3464">CVE-2019-3464</a> </li>
@@ -17456,7 +17483,7 @@ public class Main {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated, and will eventually be removed.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5320', 'Broadcasting intents is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, broadcasting intents is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5320', 'Broadcasting intents is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, broadcasting intents is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-9489">CVE-2018-9489</a> </li>
 </ul>
@@ -17515,7 +17542,7 @@ public class MyIntentBroadcast {
   <li> <a href="https://developer.android.com/guide/components/broadcasts.html#restricting_broadcasts_with_permissions">Android documentation</a> -
   Broadcast Overview - Security considerations and best practices </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5322', 'Receiving intents is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, receiving intents is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5322', 'Receiving intents is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, receiving intents is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1677">CVE-2019-1677</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-1275">CVE-2015-1275</a> </li>
@@ -17570,7 +17597,7 @@ public class MyIntentReceiver {
   <li> <a href="https://developer.android.com/guide/components/broadcasts.html#restricting_broadcasts_with_permissions">Android documentation</a> -
   Broadcast Overview - Security considerations and best practices </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5324', 'Accessing Android external storage is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, accessing external storage is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5324', 'Accessing Android external storage is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>In Android applications, accessing external storage is security-sensitive. For example, it has led in the past to the following vulnerability:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15004">CVE-2018-15004</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15002">CVE-2018-15002</a> </li>
@@ -17624,7 +17651,7 @@ public class AccessExternalFiles {
   <li> <a href="https://www.sans.org/top25-software-errors/#cat2">SANS Top 25</a> - Risky Resource Management </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5326', 'Validating SSL/TLS connections is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Validating SSL/TLS connections is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5326', 'Validating SSL/TLS connections is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Validating SSL/TLS connections is security-sensitive. For example, it has led in the past to the following vulnerabilities:</p>
 <ul>
   <li> <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-5531">CVE-2014-5531</a> </li>
   <li> <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-5524">CVE-2014-5524</a> </li>
@@ -17690,7 +17717,7 @@ public class SSLTLSValidation extends WebViewClient {
 </ul>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS4423''>S4423</a>, <a href=''/coding_rules#rule_key=java%3AS4830''>S4830</a>, <a href=''/coding_rules#rule_key=java%3AS5527''>S5527</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5332', 'Using clear-text protocols is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Clear-text protocols as <code>ftp</code>, <code>telnet</code> or non secure <code>http</code> are lacking encryption of transported data. They are
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5332', 'Using clear-text protocols is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Clear-text protocols as <code>ftp</code>, <code>telnet</code> or non secure <code>http</code> are lacking encryption of transported data. They are
 also missing the capability to build an authenticated connection. This mean that any attacker who can sniff traffic from the network can read, modify
 or corrupt the transported content. These protocol are not secure as they expose applications to a large range of risk:</p>
 <ul>
@@ -17784,7 +17811,7 @@ ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS) // C
   <li> <a href="https://security.googleblog.com/2016/09/moving-towards-more-secure-web.html">Google, Moving towards more secure web</a> </li>
   <li> <a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/">Mozilla, Deprecating non secure http</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5344', 'Passwords should not be stored in plain-text or with a fast hashing algorithm', 'sonarqube', 'Vulnerability', '<p>A user password should never be stored in clear-text, instead a hash should be produced from it using a secure algorithm:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5344', 'Passwords should not be stored in plain-text or with a fast hashing algorithm', 'sonarqube', 'Vulnerability', '<p>A user password should never be stored in clear-text, instead a hash should be produced from it using a secure algorithm:</p>
 <ul>
   <li> not vulnerable to <code>brute force attacks</code>. </li>
   <li> not vulnerable to <code>collision attacks</code> (see rule s4790). </li>
@@ -17838,7 +17865,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth, DataSource dataSo
   <li> <a href="http://cwe.mitre.org/data/definitions/916">MITRE, CWE-916</a> - Use of Password Hash With Insufficient Computational Effort </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5361', '"String#replace" should be preferred to "String#replaceAll"', 'sonarqube', 'Code Smell', '<p>The underlying implementation of <code>String::replaceAll</code> calls the <code>java.util.regex.Pattern.compile()</code> method each time it is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5361', '"String#replace" should be preferred to "String#replaceAll"', 'sonarqube', 'Code Smell', '<p>The underlying implementation of <code>String::replaceAll</code> calls the <code>java.util.regex.Pattern.compile()</code> method each time it is
 called even if the first argument is not a regular expression. This has a significant performance cost and therefore should be used with care.</p>
 <p>When <code>String::replaceAll</code> is used, the first argument should be a real regular expression. If it’s not the case,
 <code>String::replace</code> does exactly the same thing as <code>String::replaceAll</code> without the performance drawback of the regex.</p>
@@ -17866,7 +17893,7 @@ changed = changed.replaceAll("\\.{3}", ";");
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS4248''>S4248</a> - Regex patterns should not be created needlessly </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5411', 'Boxed "Boolean" should be avoided in boolean expressions', 'sonarqube', 'Code Smell', '<p>When boxed type <code>java.lang.Boolean</code> is used as an expression it will throw <code>NullPointerException</code> if the value is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5411', 'Boxed "Boolean" should be avoided in boolean expressions', 'sonarqube', 'Code Smell', '<p>When boxed type <code>java.lang.Boolean</code> is used as an expression it will throw <code>NullPointerException</code> if the value is
 <code>null</code> as defined in <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-5.html#jls-5.1.8">Java Language Specification §5.1.8
 Unboxing Conversion</a>.</p>
 <p>It is safer to avoid such conversion altogether and handle the <code>null</code> value explicitly.</p>
@@ -17893,7 +17920,7 @@ if (Boolean.TRUE.equals(b)) {
   <li> <a href="https://docs.oracle.com/javase/specs/jls/se8/html/jls-5.html#jls-5.1.8">Java Language Specification §5.1.8 Unboxing Conversion</a>
   </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5413', '''List.remove()'' should not be used in ascending ''for'' loops', 'sonarqube', 'Code Smell', '<p>When <code>List.remove()</code> is called it will shrink the list. If this is done inside the ascending loop iterating through all elements it will
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5413', '''List.remove()'' should not be used in ascending ''for'' loops', 'sonarqube', 'Code Smell', '<p>When <code>List.remove()</code> is called it will shrink the list. If this is done inside the ascending loop iterating through all elements it will
 skip the element after the removed index.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -17940,7 +17967,7 @@ void removeFrom(List&lt;String&gt; list) {
 }
 </pre>
 <p>&nbsp;</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5443', 'Using publicly writable directories is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Operating systems have global directories where any user has write access. Those folders are mostly used as temporary storage areas like
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5443', 'Using publicly writable directories is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Operating systems have global directories where any user has write access. Those folders are mostly used as temporary storage areas like
 <code>/tmp</code> in Linux based systems. An application manipulating files from these folders is exposed to race conditions on filenames: a malicious
 user can try to create a file with a predictable name before the application does. A successful attack can result in other files being accessed,
 modified, corrupted or deleted. This risk is even higher if the application runs with elevated permissions.</p>
@@ -18015,7 +18042,7 @@ Files.createTempFile("prefix", "suffix", attr); // Compliant, created with expli
   </li>
   <li> <a href="https://www.owasp.org/index.php/Insecure_Temporary_File">OWASP, Insecure Temporary File</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5445', 'Insecure temporary file creation methods should not be used', 'sonarqube', 'Vulnerability', '<p>Using <code>File.createTempFile</code> as the first step in creating a temporary directory causes a race condition and is inherently unreliable and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5445', 'Insecure temporary file creation methods should not be used', 'sonarqube', 'Vulnerability', '<p>Using <code>File.createTempFile</code> as the first step in creating a temporary directory causes a race condition and is inherently unreliable and
 insecure. Instead, <code>Files.createTempDirectory</code> (Java 7+) should be used.</p>
 <p>This rule raises an issue when the following steps are taken in immediate sequence:</p>
 <ul>
@@ -18045,7 +18072,7 @@ File tempDir = tempPath.toFile();
   </li>
   <li> <a href="https://www.owasp.org/index.php/Insecure_Temporary_File">OWASP, Insecure Temporary File</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5527', 'Server hostnames should be verified during SSL/TLS connections', 'sonarqube', 'Vulnerability', '<p>To establish a SSL/TLS connection not vulnerable to man-in-the-middle attacks, it''s essential to make sure the server presents the right
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5527', 'Server hostnames should be verified during SSL/TLS connections', 'sonarqube', 'Vulnerability', '<p>To establish a SSL/TLS connection not vulnerable to man-in-the-middle attacks, it''s essential to make sure the server presents the right
 certificate.</p>
 <p>The certificate''s hostname-specific data should match the server hostname.</p>
 <p>It''s not recommended to re-invent the wheel by implementing custom hostname verification.</p>
@@ -18130,7 +18157,7 @@ Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator
   <li> <a href="https://cwe.mitre.org/data/definitions/295.html">MITRE, CWE-295</a> - Improper Certificate Validation </li>
   <li> Derived from FindSecBugs rule <a href="https://find-sec-bugs.github.io/bugs.htm#WEAK_HOSTNAME_VERIFIER">WEAK_HOSTNAME_VERIFIER</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5542', 'Encryption algorithms should be used with secure mode and padding scheme', 'sonarqube', 'Vulnerability', '<p>Encryption operation mode and the padding scheme should be chosen appropriately to guarantee data confidentiality, integrity and authenticity:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5542', 'Encryption algorithms should be used with secure mode and padding scheme', 'sonarqube', 'Vulnerability', '<p>Encryption operation mode and the padding scheme should be chosen appropriately to guarantee data confidentiality, integrity and authenticity:</p>
 <ul>
   <li> For block cipher encryption algorithms (like AES):
     <ul>
@@ -18169,7 +18196,7 @@ Cipher c3 = Cipher.getInstance("RSA/None/OAEPWITHSHA-256ANDMGF1PADDING"); // Com
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5547', 'Cipher algorithms should be robust', 'sonarqube', 'Vulnerability', '<p><a href="https://en.wikipedia.org/wiki/Strong_cryptography">Strong cipher algorithms</a> are cryptographic systems resistant to cryptanalysis, they
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5547', 'Cipher algorithms should be robust', 'sonarqube', 'Vulnerability', '<p><a href="https://en.wikipedia.org/wiki/Strong_cryptography">Strong cipher algorithms</a> are cryptographic systems resistant to cryptanalysis, they
 are not vulnerable to well-known attacks like brute force attacks for example.</p>
 <p>A general recommendation is to only use cipher algorithms intensively tested and promoted by the cryptographic community.</p>
 <p>More specifically for block cipher, it''s not recommended to use algorithm with a block size inferior than 128 bits.</p>
@@ -18225,10 +18252,10 @@ public class test {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
   <li> <a href="https://www.sans.org/top25-software-errors/#cat3">SANS Top 25</a> - Porous Defenses </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5612', 'Lambdas should not have too many lines', 'sonarqube', 'Code Smell', '<p>Lambdas (introduced with Java 8) are a very convenient and compact way to inject a behavior without having to create a dedicated class or method.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5612', 'Lambdas should not have too many lines', 'sonarqube', 'Code Smell', '<p>Lambdas (introduced with Java 8) are a very convenient and compact way to inject a behavior without having to create a dedicated class or method.
 But those lambdas should be used only if the behavior to be injected can be defined in a few lines of code, otherwise the source code can quickly
 become unreadable.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5659', 'JWT should be signed and verified with strong cipher algorithms', 'sonarqube', 'Vulnerability', '<p>If a JSON Web Token (JWT) is not signed with a strong cipher algorithm (or not signed at all) an attacker can forge it and impersonate user
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5659', 'JWT should be signed and verified with strong cipher algorithms', 'sonarqube', 'Vulnerability', '<p>If a JSON Web Token (JWT) is not signed with a strong cipher algorithm (or not signed at all) an attacker can forge it and impersonate user
 identities.</p>
 <ul>
   <li> Don''t use <code>none</code> algorithm to sign or verify the validity of a token. </li>
@@ -18285,7 +18312,7 @@ JWTVerifier nonCompliantVerifier = JWT.require(Algorithm.HMAC256(SECRET_KEY)) //
   </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/347.html">MITRE, CWE-347</a> - Improper Verification of Cryptographic Signature </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5663', 'Simple string literal should be used for single line strings', 'sonarqube', 'Code Smell', '<p>If a string fits on a single line, without concatenation and escaped newlines, you should probably continue to use a string literal.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5663', 'Simple string literal should be used for single line strings', 'sonarqube', 'Code Smell', '<p>If a string fits on a single line, without concatenation and escaped newlines, you should probably continue to use a string literal.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 String question = """
@@ -18301,7 +18328,7 @@ String question = "What''s the point, really?";
   <li> <a href="https://cr.openjdk.java.net/~jlaskey/Strings/TextBlocksGuide_v9.html">Programmer''s Guide To Text Blocks</a>, by Jim Laskey and Stuart
   Marks </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5664', 'Whitespace for text block indent should be consistent', 'sonarqube', 'Code Smell', '<p>Either use only spaces or only tabs for the indentation of a text block. Mixing white space will lead to a result with irregular indentation.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5664', 'Whitespace for text block indent should be consistent', 'sonarqube', 'Code Smell', '<p>Either use only spaces or only tabs for the indentation of a text block. Mixing white space will lead to a result with irregular indentation.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 String textBlock = """
@@ -18324,7 +18351,7 @@ String textBlock = """
   <li> <a href="https://cr.openjdk.java.net/~jlaskey/Strings/TextBlocksGuide_v9.html">Programmer''s Guide To Text Blocks</a>, by Jim Laskey and Stuart
   Marks </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5665', 'Escape sequences should not be used in text blocks', 'sonarqube', 'Code Smell', '<p>The use of escape sequences is mostly unnecessary in text blocks.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5665', 'Escape sequences should not be used in text blocks', 'sonarqube', 'Code Smell', '<p>The use of escape sequences is mostly unnecessary in text blocks.</p>
 <h2>Noncompliant Code Example</h2>
 <p><code>
 </code> can be replaced by simply introducing the newline, <code>"""</code> it is sufficient to escape only the first qoute.</p>
@@ -18351,7 +18378,7 @@ String textBlock = """
   <li> <a href="https://cr.openjdk.java.net/~jlaskey/Strings/TextBlocksGuide_v9.html">Programmer''s Guide To Text Blocks</a>, by Jim Laskey and Stuart
   Marks </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5669', 'Vararg method arguments should not be confusing', 'sonarqube', 'Code Smell', '<p>Passing single <code>null</code> or primitive array argument to the variable arity method may not work as expected. In the case of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5669', 'Vararg method arguments should not be confusing', 'sonarqube', 'Code Smell', '<p>Passing single <code>null</code> or primitive array argument to the variable arity method may not work as expected. In the case of
 <code>null</code>, it is not passed as array with single element, but the argument itself is <code>null</code>. In the case of a primitive array, if
 the formal parameter is <code>Object...</code>, it is passed as a single element array. This may not be obvious to someone not familiar with such
 corner cases, and it is probably better to avoid such ambiguities by explicitly casting the argument to the desired type.</p>
@@ -18391,7 +18418,7 @@ class A {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5679', 'OpenSAML2 should be configured to prevent authentication bypass', 'sonarqube', 'Vulnerability', '<p>In 2018, Duo Security found a new vulnerability class that affects SAML-based single sign-on (SSO) systems and this led to the following
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5679', 'OpenSAML2 should be configured to prevent authentication bypass', 'sonarqube', 'Vulnerability', '<p>In 2018, Duo Security found a new vulnerability class that affects SAML-based single sign-on (SSO) systems and this led to the following
 vulnerabilities being disclosed: <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11427">CVE-2017-11427</a>, <a
 href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11428">CVE-2017-11428</a>, <a
 href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11429">CVE-2017-11429</a>, <a
@@ -18457,7 +18484,7 @@ public ParserPool parserPool() {
   Vulnerability</a> </li>
   <li> <a href="https://github.com/spring-projects/spring-security-saml/issues/228">Spring Security SAML: Issue #228</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5689', 'Disclosing fingerprints from web application technologies is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Disclosing technology fingerprints allows an attacker to gather information about the technologies used to develop the web application and to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5689', 'Disclosing fingerprints from web application technologies is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Disclosing technology fingerprints allows an attacker to gather information about the technologies used to develop the web application and to
 perform relevant security assessments more quickly (like the identification of known vulnerable components).</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -18487,7 +18514,7 @@ public ResponseEntity&lt;String&gt; testResponseEntity() {
   Misconfiguration </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/200.html">MITRE, CWE-200</a> - Information Exposure </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5693', 'Allowing requests with excessive content length is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Rejecting requests with significant content length is a good practice to control the network traffic intensity and thus resource consumption in
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5693', 'Allowing requests with excessive content length is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Rejecting requests with significant content length is a good practice to control the network traffic intensity and thus resource consumption in
 order to prevents DoS attacks.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
@@ -18546,7 +18573,7 @@ public CommonsMultipartResolver multipartResolver() {
   <li> <a href="https://cwe.mitre.org/data/definitions/770.html">CWE-770</a> - Allocation of Resources Without Limits or Throttling </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/400.html">CWE-400</a> - Uncontrolled Resource Consumption </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5738', '"@Deprecated" code marked for removal should never be used', 'sonarqube', 'Code Smell', '<p>Java 9 introduced a flag for the <code>@Deprecated</code> annotation, which allows to explicitly say if the deprecated code is planned to be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5738', '"@Deprecated" code marked for removal should never be used', 'sonarqube', 'Code Smell', '<p>Java 9 introduced a flag for the <code>@Deprecated</code> annotation, which allows to explicitly say if the deprecated code is planned to be
 removed at some point or not. This is done using <code>forRemoval=true</code> as annotation parameter. The javadoc of the annotation explicitly
 mention the following: </p>
 <blockquote>
@@ -18601,7 +18628,7 @@ public class Bar extends Foo {  // Noncompliant; Foo is deprecated and will be r
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/6TdGBQ">CERT, MET02-J.</a> - Do not use deprecated or obsolete classes or methods </li>
   <li> RSPEC-1874 for standard deprecation use </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5776', 'Exception testing via JUnit ExpectedException rule should not be mixed with other assertions', 'sonarqube', 'Code Smell', '<p>When testing exception via <code>org.junit.rules.ExpectedException</code> any code after the raised exception will not be executed, so adding
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5776', 'Exception testing via JUnit ExpectedException rule should not be mixed with other assertions', 'sonarqube', 'Code Smell', '<p>When testing exception via <code>org.junit.rules.ExpectedException</code> any code after the raised exception will not be executed, so adding
 subsequent assertions is wrong and misleading. This rule raises an issue when an assertion is done after the "expect(...)" invocation, only the code
 throwing the expected exception should be after "expect(...)".</p>
 <p>You should consider using <a
@@ -18650,7 +18677,7 @@ Assert.assertEquals(0, 1); // Correctly fails.
 <ul>
   <li> <a href="https://github.com/junit-team/junit4/wiki/Exception-testing">JUnit exception testing documentation</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5777', 'Exception testing via JUnit @Test annotation should be avoided', 'sonarqube', 'Code Smell', '<p>When testing exception via <code>@Test</code> annotation, having additional assertions inside that test method can be problematic because any code
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5777', 'Exception testing via JUnit @Test annotation should be avoided', 'sonarqube', 'Code Smell', '<p>When testing exception via <code>@Test</code> annotation, having additional assertions inside that test method can be problematic because any code
 after the raised exception will not be executed. It will prevent you to test the state of the program after the raised exception and, at worst, make
 you&nbsp;misleadingly think that it is executed.</p>
 <p>You should consider moving any assertions into a separate test method where possible, or using <a
@@ -18702,7 +18729,7 @@ public void testShouldFail() {
 <ul>
   <li> <a href="https://github.com/junit-team/junit4/wiki/Exception-testing">JUnit exception testing documentation</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5778', 'Only one method invocation is expected when testing runtime exceptions', 'sonarqube', 'Code Smell', '<p>When verifying that code raises a runtime exception, a good practice is to avoid having multiple method calls inside the tested code, to be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5778', 'Only one method invocation is expected when testing runtime exceptions', 'sonarqube', 'Code Smell', '<p>When verifying that code raises a runtime exception, a good practice is to avoid having multiple method calls inside the tested code, to be
 explicit about which method call is expected to raise the exception.</p>
 <p>It increases the clarity of the test, and avoid incorrect testing when another method is actually raising the exception.</p>
 <h2>Noncompliant Code Example</h2>
@@ -18747,7 +18774,7 @@ public void testToStringTryCatchIdiom() {
 <ul>
   <li> <a href="https://github.com/junit-team/junit4/wiki/Exception-testing">JUnit exception testing documentation</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5779', 'Assertion methods should not be used within the try block of a try-catch catching an Error', 'sonarqube', 'Bug', '<p>Assertion methods&nbsp;are throwing a "<code>java.lang.AssertionError</code>". If this call is done within the try block of a try-catch cathing a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5779', 'Assertion methods should not be used within the try block of a try-catch catching an Error', 'sonarqube', 'Bug', '<p>Assertion methods&nbsp;are throwing a "<code>java.lang.AssertionError</code>". If this call is done within the try block of a try-catch cathing a
 similar error, you should make sure to test some properties of the exception. Otherwise, the assertion will never fail.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -18779,7 +18806,7 @@ try {
 <ul>
   <li> <a href="https://github.com/junit-team/junit4/wiki/Exception-testing">JUnit 4 exception testing documentation</a> </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5783', 'Only one method invocation is expected when testing checked exceptions', 'sonarqube', 'Bug', '<p>When verifying that code raises an exception, a good practice is to avoid having multiple method calls inside the tested code, to be explicit about
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5783', 'Only one method invocation is expected when testing checked exceptions', 'sonarqube', 'Bug', '<p>When verifying that code raises an exception, a good practice is to avoid having multiple method calls inside the tested code, to be explicit about
 what is exactly tested.</p>
 <p>When two of the methods can raise the same <strong>checked</strong> exception, not respecting this good practice is a bug, since it is not possible
 to know what is really tested.</p>
@@ -18830,7 +18857,7 @@ public void testGTryCatchIdiom() {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5785', 'JUnit assertTrue/assertFalse should be simplified to the corresponding dedicated assertion', 'sonarqube', 'Code Smell', '<p>Testing equality or nullness with JUnit''s <code>assertTrue()</code> or <code>assertFalse()</code> should be simplified to the corresponding
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5785', 'JUnit assertTrue/assertFalse should be simplified to the corresponding dedicated assertion', 'sonarqube', 'Code Smell', '<p>Testing equality or nullness with JUnit''s <code>assertTrue()</code> or <code>assertFalse()</code> should be simplified to the corresponding
 dedicated assertion.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -18848,7 +18875,7 @@ Assert.assertNull(a);
 Assert.assertNotNull(a);
 Assert.assertNotEquals(a, b);
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5786', 'JUnit5 test classes and methods should have default package visibility', 'sonarqube', 'Code Smell', '<p>JUnit5 is more tolerant regarding the visibilities of Test classes than JUnit4, which required everything to be <code>public</code>.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5786', 'JUnit5 test classes and methods should have default package visibility', 'sonarqube', 'Code Smell', '<p>JUnit5 is more tolerant regarding the visibilities of Test classes than JUnit4, which required everything to be <code>public</code>.</p>
 <p>In this context, JUnit5 test classes can have any visibility but <code>private</code>, however, it is recommended to use the default package
 visibility, which improves readability of code.</p>
 <h2>Noncompliant Code Example</h2>
@@ -18880,7 +18907,7 @@ ignored by JUnit5, without a proper warning. It''s not a <code>Code Smell</code>
 <ul>
   <li> <a href="https://junit.org/junit5/docs/current/user-guide/#writing-tests-classes-and-methods">JUnit 5 Test Classes and Methods</a> </li>
 </ul>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5790', 'JUnit5 inner test classes should be annotated with @Nested', 'sonarqube', 'Bug', '<p>If not annotated with <code>@Nested</code>, an inner class containing some tests will never be executed during tests execution. While you could
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5790', 'JUnit5 inner test classes should be annotated with @Nested', 'sonarqube', 'Bug', '<p>If not annotated with <code>@Nested</code>, an inner class containing some tests will never be executed during tests execution. While you could
 still be able to manually run its tests in an IDE, it won’t be the case during the build. By contrast, a static nested class containing some tests
 should not be annotated with <code>@Nested</code>, JUnit5 will not share setup and state with an instance of its enclosing class.</p>
 <p>This rule raises an issue on inner classes and static nested classes containing JUnit5 test methods which has a wrong usage of <code>@Nested</code>
@@ -18928,7 +18955,7 @@ class MyJunit5Test {
   }
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5793', 'Migrate your tests from JUnit4 to the new JUnit5 annotations', 'sonarqube', 'Code Smell', '<p>As mentioned in JUnit5 documentation, it is possible to integrate JUnit4 with JUnit5:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5793', 'Migrate your tests from JUnit4 to the new JUnit5 annotations', 'sonarqube', 'Code Smell', '<p>As mentioned in JUnit5 documentation, it is possible to integrate JUnit4 with JUnit5:</p>
 <blockquote>
   <p>JUnit provides a gentle migration path via a JUnit Vintage test engine which allows existing tests based on JUnit 3 and JUnit 4 to be executed
   using the JUnit Platform infrastructure. Since all classes and annotations specific to JUnit Jupiter reside under a new org.junit.jupiter base
@@ -19109,7 +19136,7 @@ class MyJUnit5Test {
 <ul>
   <li> <a href="https://junit.org/junit5/docs/current/user-guide/#migrating-from-junit4">JUnit 5: Migrating from JUnit4</a> </li>
 </ul>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5803', 'Class members annotated with "@VisibleForTesting" should not be accessed from production code', 'sonarqube', 'Code Smell', '<p>@VisibleForTesting can be used to mark methods, fields and classes whose visibility restrictions have been relaxed more than necessary for the API
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5803', 'Class members annotated with "@VisibleForTesting" should not be accessed from production code', 'sonarqube', 'Code Smell', '<p>@VisibleForTesting can be used to mark methods, fields and classes whose visibility restrictions have been relaxed more than necessary for the API
 to allow for easier unit testing.</p>
 <p>Access to such methods, fields and classes only possible thanks to this relaxed visibility is fine for test code, but it should be avoided in
 production code. In production code these methods should be treated as if they are private.</p>
@@ -19141,7 +19168,7 @@ new MyObject().foo; // Noncompliant, foo is accessed from production code
 
 new MyObject().foo; // Compliant, foo is accessed from test code
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5804', 'Allowing user enumeration is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>User enumeration refers to the ability to guess existing usernames in a web application database. This can happen, for example, when using
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5804', 'Allowing user enumeration is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>User enumeration refers to the ability to guess existing usernames in a web application database. This can happen, for example, when using
 "sign-in/sign-on/forgot password" functionalities of a website.</p>
 <p>When an user tries to "sign-in" to a website with an incorrect username/login, the web application should not disclose that the username doesn''t
 exist with a message similar to "this username is incorrect", instead a generic message should be used like "bad credentials", this way it''s not
@@ -19240,7 +19267,7 @@ builder.authenticationProvider(daoauth);
   Broken Authentication </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/200.html">MITRE, CWE-200</a> - Exposure of Sensitive Information to an Unauthorized Actor </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5808', 'Authorizations should be based on strong decisions', 'sonarqube', 'Vulnerability', '<p>Authorizations granted or not to users to access resources of an application should be based on strong decisions. For instance, checking whether
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5808', 'Authorizations should be based on strong decisions', 'sonarqube', 'Vulnerability', '<p>Authorizations granted or not to users to access resources of an application should be based on strong decisions. For instance, checking whether
 the user is authenticated or not, has the right roles/privileges. It may also depend on the user''s location, or the date, time when the user requests
 access.</p>
 <h2>Noncompliant Code Example</h2>
@@ -19334,7 +19361,7 @@ public class MyPermissionEvaluator implements PermissionEvaluator {
   <li> <a href="https://www.owasp.org/index.php/Top_10-2017_A5-Broken_Access_Control">OWASP Top 10 2017 Category A5</a> - Boken Access Control </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/285.html">MITRE, CWE-285</a> - Improper Authorization </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5810', 'JUnit5 test classes and methods should not be silently ignored', 'sonarqube', 'Bug', '<p>JUnit5 is more tolerant regarding the visibilities of Test classes and methods than JUnit4, which required everything to be public. JUnit5 supports
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5810', 'JUnit5 test classes and methods should not be silently ignored', 'sonarqube', 'Bug', '<p>JUnit5 is more tolerant regarding the visibilities of Test classes and methods than JUnit4, which required everything to be public. JUnit5 supports
 default package, public and protected visibility, even if it is recommended to use the default package visibility, which improves the readability of
 code.</p>
 <p>But JUnit5 ignores without any warning:</p>
@@ -19395,7 +19422,7 @@ class MyClassTest {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5826', 'Methods setUp() and tearDown() should be correctly annotated starting with JUnit4', 'sonarqube', 'Code Smell', '<p>The <code>setUp()</code> and <code>tearDown()</code> methods (initially introduced with JUnit3 to execute a block of code before and after each
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5826', 'Methods setUp() and tearDown() should be correctly annotated starting with JUnit4', 'sonarqube', 'Code Smell', '<p>The <code>setUp()</code> and <code>tearDown()</code> methods (initially introduced with JUnit3 to execute a block of code before and after each
 test) need to be correctly annotated with the equivalent annotation in order to preserve the same behavior when migrating from JUnit3 to JUnit4 or
 JUnit5.</p>
 <p>This rule consequently raise issues on <code>setUp()</code> and <code>tearDown()</code> methods which are not annotated in test classes.</p>
@@ -19435,7 +19462,7 @@ void setUp() { ... }
 @AfterEach
 void tearDown() { ... }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5831', 'AssertJ configuration should be applied', 'sonarqube', 'Bug', '<p>A <code>org.assertj.core.configuration.Configuration</code> will be effective only once you call <code>Configuration.apply()</code> or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5831', 'AssertJ configuration should be applied', 'sonarqube', 'Bug', '<p>A <code>org.assertj.core.configuration.Configuration</code> will be effective only once you call <code>Configuration.apply()</code> or
 <code>Configuration.applyAndDisplay()</code>.</p>
 <p>This rule raises an issue when configurations are set without the appropriate call to apply them.</p>
 <h2>Noncompliant Code Example</h2>
@@ -19454,7 +19481,7 @@ configuration.applyAndDisplay();
 <ul>
   <li> <a href="https://assertj.github.io/doc/#assertj-configuration">AssertJ configuration documentation</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5833', 'AssertJ methods setting the assertion context should come before an assertion', 'sonarqube', 'Bug', '<p>Describing, setting error message or adding a comparator in <a href="https://assertj.github.io/doc/">AssertJ</a> must be done before calling the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5833', 'AssertJ methods setting the assertion context should come before an assertion', 'sonarqube', 'Bug', '<p>Describing, setting error message or adding a comparator in <a href="https://assertj.github.io/doc/">AssertJ</a> must be done before calling the
 assertion, otherwise, settings will not be taken into account.</p>
 <p>This rule raises an issue when one of the method (with all similar methods):</p>
 <ul>
@@ -19484,7 +19511,7 @@ assertThat(actual).usingComparator(new CustomComparator()).isEqualTo(expected);
 <ul>
   <li> <a href="https://assertj.github.io/doc/#calling-as-after-the-assertion">AssertJ incorrect usage documentation</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5838', 'Chained AssertJ assertions should be simplified to the corresponding dedicated assertion', 'sonarqube', 'Code Smell', '<p>AssertJ contains many assertions methods specific to common types. Both versions will test the same things, but the dedicated one will provide a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5838', 'Chained AssertJ assertions should be simplified to the corresponding dedicated assertion', 'sonarqube', 'Code Smell', '<p>AssertJ contains many assertions methods specific to common types. Both versions will test the same things, but the dedicated one will provide a
 better error message, simplifying the debugging process.</p>
 <p>This rule reports an issue when an assertion can be simplified to a dedicated one.</p>
 <p>The array below gives a non-exhaustive list of assertion reported by the rule. Code behaving similarly, or with a negation will also be
@@ -19814,7 +19841,7 @@ assertThat(getString()).isBlank();
 assertThat(getFile()).canRead();
 assertThat(getPath()).hasNoParentRaw();
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5840', 'Regex patterns and their sub-patterns should not always fail', 'sonarqube', 'Bug', '<p>Using certain features of regular expressions, it is possible to create regular expressions that can never match or contain subpatterns that can
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5840', 'Regex patterns and their sub-patterns should not always fail', 'sonarqube', 'Bug', '<p>Using certain features of regular expressions, it is possible to create regular expressions that can never match or contain subpatterns that can
 never match. Since a pattern or sub-pattern that can never match any input is pointless, this is a sign that the pattern does not work as intended and
 needs to be fixed.</p>
 <p>This rule finds some such regular expressions and subpatterns, specifically ones that meet one of the following conditions:</p>
@@ -19843,7 +19870,7 @@ $[a-z]*^
 </pre>
 <h2>Deprecated</h2>
 <p>This rule is deprecated; use <a href=''/coding_rules#rule_key=java%3AS5996''>S5996</a>, <a href=''/coding_rules#rule_key=java%3AS6001''>S6001</a> instead.</p>', 'java', 'DEPRECATED', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5841', 'AssertJ assertions "allMatch" and "doesNotContains" should also test for emptiness', 'sonarqube', 'Bug', '<p>AssertJ assertions <code>allMatch</code> and <code>doesNotContains</code> on an empty list always&nbsp;returns true whatever the content of the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5841', 'AssertJ assertions "allMatch" and "doesNotContains" should also test for emptiness', 'sonarqube', 'Bug', '<p>AssertJ assertions <code>allMatch</code> and <code>doesNotContains</code> on an empty list always&nbsp;returns true whatever the content of the
 predicate. Despite being correct, you should make explicit if you expect an empty list or not, by adding
 <code>isEmpty()</code>/<code>isNotEmpty()</code> in addition to calling the assertion, or by testing the list''s content further. It will justify the
 useless predicate to improve clarity or increase the reliability of the test.</p>
@@ -19880,7 +19907,7 @@ assertThat(logs).doesNotContain("error").isEmpty();
 // or test the content of the list further
 assertThat(logs).contains("warning").doesNotContain("error");
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5842', 'Regex repetition pattern''s body should not match the empty String', 'sonarqube', 'Bug', '<p>A regex should never include a repetitive pattern whose body would match the empty String. This is usually a sign that a part of the regex is
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5842', 'Regex repetition pattern''s body should not match the empty String', 'sonarqube', 'Bug', '<p>A regex should never include a repetitive pattern whose body would match the empty String. This is usually a sign that a part of the regex is
 redundant or does not do what the author intended.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -19895,7 +19922,7 @@ redundant or does not do what the author intended.</p>
 <pre>
 "x*"
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5843', 'Regular expressions should not be too complicated', 'sonarqube', 'Code Smell', '<p>Overly complicated regular expressions are hard to read and to maintain and can easily cause hard-to-find bugs. If a regex is too complicated, you
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5843', 'Regular expressions should not be too complicated', 'sonarqube', 'Code Smell', '<p>Overly complicated regular expressions are hard to read and to maintain and can easily cause hard-to-find bugs. If a regex is too complicated, you
 should consider replacing it or parts of it with regular code or splitting it apart into multiple patterns at least.</p>
 <p>The complexity of a regular expression is determined as follows:</p>
 <p>Each of the following operators increases the complexity by an amount equal to the current nesting level and also increases the current nesting
@@ -19937,7 +19964,7 @@ if (dateString.matches("^(?:(?:31(/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(/
 <code>static final</code> fields, all of which can be combined using the ''<code>+</code>'' operator.</p>
 <p>When a regular expression is split among multiple variables or commented lines, each part is only analyzed if it is syntactically valid by
 itself.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5845', 'Assertions comparing incompatible types should not be made', 'sonarqube', 'Bug', '<p>Assertions comparing incompatible types always fail, and negative assertions always pass. At best, negative assertions are useless. At worst, the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5845', 'Assertions comparing incompatible types should not be made', 'sonarqube', 'Bug', '<p>Assertions comparing incompatible types always fail, and negative assertions always pass. At best, negative assertions are useless. At worst, the
 developer loses time trying to fix his code logic before noticing wrong assertions.</p>
 <p>Dissimilar types are:</p>
 <ul>
@@ -19986,7 +20013,7 @@ void assertValues(int size,
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS2159''>S2159</a> - Silly equality checks should not be made </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5846', 'Empty lines should not be tested with regex MULTILINE flag', 'sonarqube', 'Code Smell', '<p>One way to test for empty lines is to use the regex <code>"^$"</code>, which can be extremely handy when filtering out empty lines from collections
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5846', 'Empty lines should not be tested with regex MULTILINE flag', 'sonarqube', 'Code Smell', '<p>One way to test for empty lines is to use the regex <code>"^$"</code>, which can be extremely handy when filtering out empty lines from collections
 of Strings, for instance. With regard to this, the Javadoc for <a
 href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html">Pattern (Line Terminators)</a> states the
 following:</p>
@@ -20033,7 +20060,7 @@ System.out.println(containsEmptyLines("a
 b")); // correctly prints ''true''
 System.out.println(containsEmptyLines("")); // also correctly prints ''true''
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5850', 'Alternatives in regular expressions should be grouped when used with anchors', 'sonarqube', 'Bug', '<p>In regular expressions, anchors (<code>^</code>, <code>$</code>, <code>A</code>, <code></code> and <code>z</code>) have higher precedence than
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5850', 'Alternatives in regular expressions should be grouped when used with anchors', 'sonarqube', 'Bug', '<p>In regular expressions, anchors (<code>^</code>, <code>$</code>, <code>A</code>, <code></code> and <code>z</code>) have higher precedence than
 the <code>|</code> operator. So in a regular expression like <code>^alt1|alt2|alt3$</code>, <code>alt1</code> would be anchored to the beginning,
 <code>alt3</code> to the end and <code>alt2</code> wouldn''t be anchored at all. Usually the intended behavior is that all alternatives are anchored at
 both ends. To achieve this, a non-capturing group should be used around the alternatives.</p>
@@ -20056,7 +20083,7 @@ mistakenly assume the precedence was not intended.</p>
 <pre>
 (?:^a)|b|(?:c$)
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5852', 'Using slow regular expressions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Most of the regular expression engines use <code>backtracking</code> to try all possible execution paths of the regular expression when evaluating
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5852', 'Using slow regular expressions is security-sensitive', 'sonarqube', 'Security Hotspot', '<p>Most of the regular expression engines use <code>backtracking</code> to try all possible execution paths of the regular expression when evaluating
 an input, in some cases it can cause performance issues, called <code>catastrophic backtracking</code> situations. In the worst case, the complexity
 of the regular expression is exponential in the size of the input, this means that a small carefully-crafted input (like 20 chars) can trigger
 <code>catastrophic backtracking</code> and cause a denial of service of the application. Super-linear regex complexity can lead to the same impact too
@@ -20171,7 +20198,7 @@ java.util.regex.Pattern.compile("(h|h|ih(((i|a|c|c|a|i|i|j|b|a|i|b|a|a|j))+h)ahb
   <li> <a
   href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/backtracking-in-regular-expressions#backtracking-with-nested-optional-quantifiers">docs.microsoft.com</a> - Backtracking with Nested Optional Quantifiers </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5853', 'Consecutive AssertJ "assertThat" statements should be chained', 'sonarqube', 'Code Smell', '<p>AssertJ assertions methods targeting the same object can be chained instead of using multiple <code>assertThat</code>. It avoids duplication and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5853', 'Consecutive AssertJ "assertThat" statements should be chained', 'sonarqube', 'Code Smell', '<p>AssertJ assertions methods targeting the same object can be chained instead of using multiple <code>assertThat</code>. It avoids duplication and
 increases the clarity of the code.</p>
 <p>This rule raises an issue when multiples <code>assertThat</code> target the same tested value.</p>
 <h2>Noncompliant Code Example</h2>
@@ -20185,7 +20212,7 @@ assertThat(someList)
   .hasSize(3)
   .contains("something");
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5854', 'Regexes containing characters subject to normalization should use the CANON_EQ flag', 'sonarqube', 'Code Smell', '<p>Characters like <code>''é''</code> can be expressed either as a single code point or as a cluster of the letter <code>''e''</code> and a combining
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5854', 'Regexes containing characters subject to normalization should use the CANON_EQ flag', 'sonarqube', 'Code Smell', '<p>Characters like <code>''é''</code> can be expressed either as a single code point or as a cluster of the letter <code>''e''</code> and a combining
 accent mark. Without the <code>CANON_EQ</code> flag, a regex will only match a string in which the characters are expressed in the same way.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -20199,7 +20226,7 @@ String s = "e";
 Pattern p = Pattern.compile("é|ë|è", Pattern.CANON_EQ);
 System.out.println(p.matcher(s).replaceAll("e")); // print ''e''
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5855', 'Regex alternatives should not be redundant', 'sonarqube', 'Bug', '<p>If an alternative in a regular expression only matches things that are already matched by another alternative, that alternative is redundant and
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5855', 'Regex alternatives should not be redundant', 'sonarqube', 'Bug', '<p>If an alternative in a regular expression only matches things that are already matched by another alternative, that alternative is redundant and
 serves no purpose.</p>
 <p>In the best case this means that the offending subpattern is merely redundant and should be removed. In the worst case it''s a sign that this regex
 does not match what it was intended to match and should be reworked.</p>
@@ -20213,7 +20240,7 @@ does not match what it was intended to match and should be reworked.</p>
 "[ab]"
 ".*"
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5856', 'Regular expressions should be syntactically valid', 'sonarqube', 'Bug', '<p>Regular expressions have their own syntax that is understood by regular expression engines. Those engines will throw an exception at runtime if
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5856', 'Regular expressions should be syntactically valid', 'sonarqube', 'Bug', '<p>Regular expressions have their own syntax that is understood by regular expression engines. Those engines will throw an exception at runtime if
 they are given a regular expression that does not conform to that syntax.</p>
 <p>To avoid syntax errors, special characters should be escaped with backslashes when they are intended to be matched literally and references to
 capturing groups should use the correctly spelled name or number of the group.</p>
@@ -20234,7 +20261,7 @@ str.equals("([");
 str.replace("([", "{");
 str.matches("(\\w+)-(\\d+)");
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5857', 'Character classes should be preferred over reluctant quantifiers in regular expressions', 'sonarqube', 'Code Smell', '<p>Using reluctant quantifiers (also known as lazy or non-greedy quantifiers) in patterns can often lead to needless backtracking, making the regex
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5857', 'Character classes should be preferred over reluctant quantifiers in regular expressions', 'sonarqube', 'Code Smell', '<p>Using reluctant quantifiers (also known as lazy or non-greedy quantifiers) in patterns can often lead to needless backtracking, making the regex
 needlessly inefficient and potentially vulnerable to <a href="https://www.regular-expressions.info/catastrophic.html">catastrophic backtracking</a>.
 Particularly when using <code>.*?</code> or <code>.+?</code> to match anything up to some terminating character, it is usually a better idea to
 instead use a greedily or possessively quantified negated character class containing the terminating character. For example <code>&lt;.+?&gt;</code>
@@ -20262,7 +20289,7 @@ more complicated, are therefore not subject to this rule:</p>
 &lt;!--.*?--&gt;
 /*.*?*/
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5860', 'Names of regular expressions named groups should be used', 'sonarqube', 'Code Smell', '<p>Why use named groups only to never use any of them later on in the code?</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5860', 'Names of regular expressions named groups should be used', 'sonarqube', 'Code Smell', '<p>Why use named groups only to never use any of them later on in the code?</p>
 <p>This rule raises issues every time named groups are:</p>
 <ul>
   <li> defined but never called anywhere in the code through their name; </li>
@@ -20328,7 +20355,7 @@ if (scoreMatcher.matches()) {
   checkScore(score);
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5863', 'Assertions should not compare an object to itself', 'sonarqube', 'Bug', '<p>Assertions comparing an object to itself are more likely to be bugs due to developer''s carelessness.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5863', 'Assertions should not compare an object to itself', 'sonarqube', 'Bug', '<p>Assertions comparing an object to itself are more likely to be bugs due to developer''s carelessness.</p>
 <p>This rule raises an issue when the actual expression matches the expected expression.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -20353,7 +20380,7 @@ class MyClassTest {
   }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5866', 'Case insensitive Unicode regular expressions should enable the “UNICODE_CASE” flag', 'sonarqube', 'Bug', '<p>By default case insensitivity only affects letters in the ASCII range. This can be changed by either passing <code>Pattern.UNICODE_CASE</code> or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5866', 'Case insensitive Unicode regular expressions should enable the “UNICODE_CASE” flag', 'sonarqube', 'Bug', '<p>By default case insensitivity only affects letters in the ASCII range. This can be changed by either passing <code>Pattern.UNICODE_CASE</code> or
 <code>Pattern.UNICODE_CHARACTER_CLASS</code> as an argument to <code>Pattern.compile</code> or using <code>(?u)</code> or <code>(?U)</code> within the
 regex.</p>
 <p>If not done, regular expressions involving non-ASCII letters will still handle those letters as being case sensitive.</p>
@@ -20374,7 +20401,7 @@ Pattern.compile("söme pättern", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHA
 str.matches("(?iU)söme pättern");
 str.matches("(?iU:söme) pättern");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5867', 'Unicode-aware versions of character classes should be preferred', 'sonarqube', 'Code Smell', '<p>When using POSIX classes like <code>p{Alpha}</code> without the <code>UNICODE_CHARACTER_CLASS</code> flag or when using hard-coded character
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5867', 'Unicode-aware versions of character classes should be preferred', 'sonarqube', 'Code Smell', '<p>When using POSIX classes like <code>p{Alpha}</code> without the <code>UNICODE_CHARACTER_CLASS</code> flag or when using hard-coded character
 classes like <code>"[a-zA-Z]"</code>, letters outside of the ASCII range, such as umlauts, accented letters or letter from non-Latin languages, won''t
 be matched. This may cause code to incorrectly handle input containing such letters.</p>
 <p>To correctly handle non-ASCII input, it is recommended to use Unicode classes like <code>p{IsAlphabetic}</code>. When using POSIX classes, Unicode
@@ -20392,7 +20419,7 @@ Pattern.compile("\\p{IsLatin}"); // matches latin letters, including umlauts and
 Pattern.compile("\\p{Alpha}", Pattern.UNICODE_CHARACTER_CLASS);
 Pattern.compile("(?U)\\p{Alpha}");
 </pre>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5868', 'Unicode Grapheme Clusters should be avoided inside regex character classes', 'sonarqube', 'Bug', '<p>When placing Unicode <a href="https://unicode.org/glossary/#grapheme_cluster">Grapheme Clusters</a> (characters which require to be encoded in
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5868', 'Unicode Grapheme Clusters should be avoided inside regex character classes', 'sonarqube', 'Bug', '<p>When placing Unicode <a href="https://unicode.org/glossary/#grapheme_cluster">Grapheme Clusters</a> (characters which require to be encoded in
 multiple <a href="https://unicode.org/glossary/#code_point">Code Points</a>) inside a character class of a regular expression, this will likely lead
 to unintended behavior.</p>
 <p>For instance, the grapheme cluster <code>c̈</code> requires two code points: one for <code>''c''</code>, followed by one for the <em>umlaut</em>
@@ -20408,7 +20435,7 @@ single codepoint, which is extremely unlikely to be the intended behavior.</p>
 <pre>
 "cc̈d̈d".replaceAll("c̈|d̈", "X"); // print "cXXd"
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5869', 'Character classes in regular expressions should not contain the same character twice', 'sonarqube', 'Code Smell', '<p>Character classes in regular expressions are a convenient way to match one of several possible characters by listing the allowed characters or
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5869', 'Character classes in regular expressions should not contain the same character twice', 'sonarqube', 'Code Smell', '<p>Character classes in regular expressions are a convenient way to match one of several possible characters by listing the allowed characters or
 ranges of characters. If the same character is listed twice in the same character class or if the character class contains overlapping ranges, this
 has no effect.</p>
 <p>Thus duplicate characters in a character class are either a simple oversight or a sign that a range in the character class matches more than is
@@ -20426,7 +20453,7 @@ str.matches("[0-9.-_]") // Noncompliant, .-_ is a range that already contains 0-
 str.matches("[0-9]{1,2}")
 str.matches("[0-9.\\-_]")
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5876', 'A new session should be created during user authentication', 'sonarqube', 'Vulnerability', '<p>Session fixation attacks occur when an attacker can force a legitimate user to use a session ID that he knows. To avoid fixation attacks, it''s a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5876', 'A new session should be created during user authentication', 'sonarqube', 'Vulnerability', '<p>Session fixation attacks occur when an attacker can force a legitimate user to use a session ID that he knows. To avoid fixation attacks, it''s a
 good practice to generate a new session each time a user authenticates and delete/invalidate the existing session (the one possibly known by the
 attacker).</p>
 <h2>Noncompliant Code Example</h2>
@@ -20460,7 +20487,7 @@ protected void configure(HttpSecurity http) throws Exception {
   <li> <a href="https://www.owasp.org/index.php/Session_fixation">OWASP Sesssion Fixation</a> </li>
   <li> <a href="https://cwe.mitre.org/data/definitions/384.html">MITRE, CWE-384</a> - Session Fixation </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5917', 'DateTimeFormatters should not use mismatched year and week numbers', 'sonarqube', 'Bug', '<p>When creating a <code>DateTimeFormatter</code> using the <code>WeekFields.weekBasedYear()</code> temporal field, the resulting year number may be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5917', 'DateTimeFormatters should not use mismatched year and week numbers', 'sonarqube', 'Bug', '<p>When creating a <code>DateTimeFormatter</code> using the <code>WeekFields.weekBasedYear()</code> temporal field, the resulting year number may be
 off by 1 at the beginning of a new year (when the date to format is in a week that is shared by two consecutive years). </p>
 <p>Using this year number in combination with an incompatible week temporal field yields a result that may be confused with the first week of the
 previous year.</p>
@@ -20514,7 +20541,7 @@ depending on how you count the weeks.</p>
 <h2>Exceptions</h2>
 <p>No issue is raised when week-based year is not used in combination with a week temporal field.</p>
 <p>Similarly, no issue is raised if week of week-based year is not used in combination with a year temporal field.</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5958', 'AssertJ "assertThatThrownBy" should not be used alone', 'sonarqube', 'Code Smell', '<p>Unlike similar AssertJ methods testing exceptions (<code>assertThatCode()</code>, <code>assertThatExceptionOfType()</code>, ...), the
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5958', 'AssertJ "assertThatThrownBy" should not be used alone', 'sonarqube', 'Code Smell', '<p>Unlike similar AssertJ methods testing exceptions (<code>assertThatCode()</code>, <code>assertThatExceptionOfType()</code>, ...), the
 <code>assertThatThrownBy()</code> method can be used alone, failing if the code did not raise any exception.</p>
 <p>Still, only testing that an exception was raised is not enough to guarantee that it was the expected one, and you should test the exception type or
 content further. In addition, it will make explicit what you are expecting, without relying on side-effects.</p>
@@ -20529,7 +20556,7 @@ assertThatThrownBy(() -&gt; shouldThrow()).isInstanceOf(IOException.class);
 //or
 assertThatThrownBy(() -&gt; shouldThrow()).hasMessage("My exception");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5960', 'Assertions should not be used in production code', 'sonarqube', 'Bug', '<p>Assertions are intended to be used in <strong>test</strong> code, but not in <strong>production</strong> code. It is confusing, and might lead to
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5960', 'Assertions should not be used in production code', 'sonarqube', 'Bug', '<p>Assertions are intended to be used in <strong>test</strong> code, but not in <strong>production</strong> code. It is confusing, and might lead to
 <code>ClassNotFoundException</code> when the build tools only provide the required dependency in test scope.</p>
 <p>In addition, assertions will throw a sub-class of <code>Error</code>: <code>AssertionError</code>, which should be avoided in production code.</p>
 <p>This rule raises an issue when any assertion intended to be used in test is used in production code.</p>
@@ -20541,7 +20568,7 @@ INSERT INTO violationTracker.issue_type (uuid, type, specification_source, categ
 </ul>
 <p>Note: this does not apply for <code>assert</code> from Java itself or if the source code package name is related to tests (contains:
 <code>test</code> or <code>assert</code> or <code>junit</code>).</p>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5961', 'Test methods should not contain too many assertions', 'sonarqube', 'Code Smell', '<p>A common good practice is to write test methods targeting only one logical concept, that can only fail for one reason.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5961', 'Test methods should not contain too many assertions', 'sonarqube', 'Code Smell', '<p>A common good practice is to write test methods targeting only one logical concept, that can only fail for one reason.</p>
 <p>While it might make sense to have more than one assertion to test one concept, having too many is a sign that a test became too complex and should
 be refactored to multiples ones.</p>
 <p>This rule will report any test method containing more than a given number of assertion.</p>
@@ -20565,7 +20592,7 @@ void test_g() {
   assertEquals(3, g(1));
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5967', 'Tests method should not be annotated with competing annotations', 'sonarqube', 'Bug', '<p>Annotating unit tests with more than one test-related annotation is not only useless but could also result in unexpected behavior like failing
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5967', 'Tests method should not be annotated with competing annotations', 'sonarqube', 'Bug', '<p>Annotating unit tests with more than one test-related annotation is not only useless but could also result in unexpected behavior like failing
 tests or unwanted side-effects.</p>
 <p>This rule reports an issue when a test method is annotated with more than one of the following competing annotation:</p>
 <ul>
@@ -20595,7 +20622,7 @@ void test() { }
 @MethodSource("methodSource")
 void test2(int argument) { }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5969', 'Mocking all non-private methods of a class should be avoided', 'sonarqube', 'Code Smell', '<p>If you end up mocking every non-private method of a class in order to write tests, it is a strong sign that your test became too complex, or that
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5969', 'Mocking all non-private methods of a class should be avoided', 'sonarqube', 'Code Smell', '<p>If you end up mocking every non-private method of a class in order to write tests, it is a strong sign that your test became too complex, or that
 you misunderstood the way you are supposed to use the mocking mechanism.</p>
 <p>You should either refactor the test code into multiple units, or consider using the class itself, by either directly instantiating it, or creating
 a new one inheriting from it, with the expected behavior.</p>
@@ -20657,7 +20684,7 @@ abstract class MyClass {
   abstract int g();
 }
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5970', 'Spring''s ModelAndViewAssert assertions should be used instead of other assertions', 'sonarqube', 'Code Smell', '<p>The Spring framework comes with dedicated classes to help writing better and simpler unit tests. In particular, when testing applications built on
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5970', 'Spring''s ModelAndViewAssert assertions should be used instead of other assertions', 'sonarqube', 'Code Smell', '<p>The Spring framework comes with dedicated classes to help writing better and simpler unit tests. In particular, when testing applications built on
 top of Spring MVC, it is recommended to use Spring''s <code>ModelAndViewAssert</code> assertions class, instead of manually testing MVC''s
 properties.</p>
 <p>&nbsp;</p>
@@ -20687,7 +20714,7 @@ ModelAndViewAssert.assertModelAttributeValue(mav, "myAttribute", myObject);
   <li> <a
   href="https://docs.spring.io/spring-framework/docs/5.2.8.RELEASE/javadoc-api/org/springframework/test/web/ModelAndViewAssert.html">ModelAndViewAssert Javadoc</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5973', 'Tests should be stable', 'sonarqube', 'Code Smell', '<p>Unstable / flaky tests are tests which sometimes pass and sometimes fail, without any code change. Obviously, they slow down developments when
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5973', 'Tests should be stable', 'sonarqube', 'Code Smell', '<p>Unstable / flaky tests are tests which sometimes pass and sometimes fail, without any code change. Obviously, they slow down developments when
 engineers have to rerun failed tests. However the real problem is that you can''t completely trust these tests, they might fail for many different
 reasons and you don''t know if any of them will happen in production.</p>
 <p>Some tools, such as TestNG, enable developers to automatically retry flaky tests. This might be ok as a temporary solution, but it should
@@ -20710,7 +20737,7 @@ public class PercentageTest {
   <li> <a href="https://engineering.atspotify.com/2019/11/18/test-flakiness-methods-for-identifying-and-dealing-with-flaky-tests/">Test Flakiness -
   Methods for identifying and dealing with flaky tests</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5976', 'Similar tests should be grouped in a single Parameterized test', 'sonarqube', 'Code Smell', '<p>When multiple tests differ only by a few hardcoded values they should be refactored as a single "parameterized" test. This reduces the chances of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5976', 'Similar tests should be grouped in a single Parameterized test', 'sonarqube', 'Code Smell', '<p>When multiple tests differ only by a few hardcoded values they should be refactored as a single "parameterized" test. This reduces the chances of
 adding a bug and makes them more readable. Parameterized tests exist in most test frameworks (JUnit, TestNG, etc...).</p>
 <p>The right balance needs of course to be found. There is no point in factorizing test methods when the parameterized version is a lot more complex
 than initial tests.</p>
@@ -20804,7 +20831,7 @@ public class AppTest
   <li> <a href="https://www.testwithspring.com/lesson/writing-parameterized-tests-with-junit-4/">Writing Parameterized Tests With JUnit 4</a> </li>
   <li> <a href="https://testng.org/doc/documentation-main.html#parameters">TestNG documentation - Parameters</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5977', 'Tests should use fixed data instead of randomized data', 'sonarqube', 'Code Smell', '<p>Tests should always:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5977', 'Tests should use fixed data instead of randomized data', 'sonarqube', 'Code Smell', '<p>Tests should always:</p>
 <ul>
   <li> Make sure that production code behaves as expected, including edge cases. </li>
   <li> Be easy to debug, i.e. understandable and reproducible. </li>
@@ -20832,7 +20859,7 @@ UUID userID = UUID.fromString("00000000-000-0000-0000-000000000001");
   Testing in Java - Philipp Hauer</a> </li>
   <li> <a href="https://jqwik.net/">Jqwik test engine</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5979', 'Annotated Mockito objects should be initialized', 'sonarqube', 'Bug', '<p>Objects annotated with Mockito annotations <code>@Mock</code>,&nbsp;<code>@Spy</code>,&nbsp;<code>@Captor</code>,&nbsp;or <code>@InjectMocks</code>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5979', 'Annotated Mockito objects should be initialized', 'sonarqube', 'Bug', '<p>Objects annotated with Mockito annotations <code>@Mock</code>,&nbsp;<code>@Spy</code>,&nbsp;<code>@Captor</code>,&nbsp;or <code>@InjectMocks</code>
 need to be initialized explicitly.</p>
 <p>There are several ways to do this:</p>
 <ul>
@@ -20928,7 +20955,7 @@ public class FooTest {
   <li> <a href="https://site.mockito.org/javadoc/current/org/mockito/MockitoAnnotations.html">Mockito documentation - MockitoAnnotations</a> </li>
   <li> <a href="https://site.mockito.org/javadoc/current/org/mockito/junit/MockitoRule.html">Mockito documentation - MockitoRule </a> </li>
 </ul>', 'java', 'READY', 'BLOCKER', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5993', 'Constructors of an "abstract" class should not be declared "public"', 'sonarqube', 'Code Smell', '<p>Abstract classes should not have public constructors. Constructors of abstract classes can only be called in constructors of their subclasses. So
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5993', 'Constructors of an "abstract" class should not be declared "public"', 'sonarqube', 'Code Smell', '<p>Abstract classes should not have public constructors. Constructors of abstract classes can only be called in constructors of their subclasses. So
 there is no point in making them public. The <code>protected</code> modifier should be enough.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -20946,7 +20973,7 @@ public abstract class AbstractClass2 {
     }
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5994', 'Regex patterns following a possessive quantifier should not always fail', 'sonarqube', 'Bug', '<p>Possessive quantifiers in Regex patterns like below improve performance by eliminating needless backtracking:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5994', 'Regex patterns following a possessive quantifier should not always fail', 'sonarqube', 'Bug', '<p>Possessive quantifiers in Regex patterns like below improve performance by eliminating needless backtracking:</p>
 <p>{noformat}</p>
 <p>?+ , *+ , ++ , {n}+ , {n,}+ , {n,m}+</p>
 <p>{noformat}</p>
@@ -20963,7 +20990,7 @@ Pattern pattern2 = Pattern.compile("\\d*+[02468]"); // Noncompliant, the sub-pat
 Pattern pattern1 = Pattern.compile("aa++bc");            // Compliant, for example it can match "aaaabc"
 Pattern pattern2 = Pattern.compile("\\d*+(?&lt;=[02468])"); // Compliant, for example it can match an even number like "1234"
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5996', 'Regex boundaries should not be used in a way that can never be matched', 'sonarqube', 'Bug', '<p>In regular expressions the boundaries <code>^</code> and <code>A</code> can only match at the beginning of the input (or, in case of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5996', 'Regex boundaries should not be used in a way that can never be matched', 'sonarqube', 'Bug', '<p>In regular expressions the boundaries <code>^</code> and <code>A</code> can only match at the beginning of the input (or, in case of
 <code>^</code> in combination with the <code>MULTILINE</code> flag, the beginning of the line) and <code>$</code>, <code></code> and <code>z</code>
 only at the end.</p>
 <p>These patterns can be misused, by accidentally switching <code>^</code> and <code>$</code> for example, to create a pattern that can never
@@ -20977,7 +21004,7 @@ Pattern.compile("$[a-z]+^"); // Noncompliant
 <pre>
 Pattern.compile("^[a-z]+$");
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5998', 'Regular expressions should not overflow the stack', 'sonarqube', 'Bug', '<p>The Java regex engine uses recursive method calls to implement backtracking. Therefore when a repetition inside a regular expression contains
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S5998', 'Regular expressions should not overflow the stack', 'sonarqube', 'Bug', '<p>The Java regex engine uses recursive method calls to implement backtracking. Therefore when a repetition inside a regular expression contains
 multiple paths (i.e. the body of the repetition contains an alternation (<code>|</code>), an optional element or another repetition), trying to match
 the regular expression can cause a stack overflow on large inputs. This does not happen when using a possessive quantifier (such as <code>*+</code>
 instead of <code>*</code>) or when using a character class inside a repetition (e.g. <code>[ab]*</code> instead of <code>(a|b)*</code>).</p>
@@ -21003,7 +21030,7 @@ Pattern.compile("(?s).*"); // Enabling the (?s) flag makes ''.'' match line brea
 '' isn''t necessary
 Pattern.compile("(ab?)*+"); // Possessive quantifiers don''t cause recursion because they disable backtracking
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6001', 'Back references in regular expressions should only refer to capturing groups that are matched before the reference', 'sonarqube', 'Bug', '<p>When a back reference in a regex refers to a capturing group that hasn''t been defined yet (or at all), it can never be matched. Named back
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6001', 'Back references in regular expressions should only refer to capturing groups that are matched before the reference', 'sonarqube', 'Bug', '<p>When a back reference in a regex refers to a capturing group that hasn''t been defined yet (or at all), it can never be matched. Named back
 references throw a <code>PatternSyntaxException</code> in that case; numeric back references fail silently when they can''t match, simply making the
 match fail.</p>
 <p>When the group is defined before the back reference but on a different control path (like in <code>(.)|1</code> for example), this also leads to a
@@ -21020,7 +21047,7 @@ Pattern.compile("(?&lt;x&gt;.)|\\k&lt;x&gt;"); // Noncompliant, group x and the 
 Pattern.compile("(.)\\1");
 Pattern.compile("(?&lt;x&gt;.)\\k&lt;x&gt;");
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6002', 'Regex lookahead assertions should not be contradictory', 'sonarqube', 'Bug', '<p>Lookahead assertions are a regex feature that makes it possible to look ahead in the input without consuming it. It is often used at the end of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6002', 'Regex lookahead assertions should not be contradictory', 'sonarqube', 'Bug', '<p>Lookahead assertions are a regex feature that makes it possible to look ahead in the input without consuming it. It is often used at the end of
 regular expressions to make sure that substrings only match when they are followed by a specific pattern.</p>
 <p>However, they can also be used in the middle (or at the beginning) of a regex. In that case there is the possibility that what comes after the
 lookahead does not match the pattern inside the lookahead. This makes the lookahead impossible to match and is a sign that there''s a mistake in the
@@ -21034,7 +21061,7 @@ Pattern.compile("(?=a)b"); // Noncompliant, the same character can''t be equal t
 Pattern.compile("(?&lt;=a)b");
 Pattern.compile("a(?=b)");
 </pre>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6019', 'Reluctant quantifiers in regular expressions should be followed by an expression that can''t match the empty string', 'sonarqube', 'Code Smell', '<p>When a reluctant quantifier (such as <code>*?</code> or <code>+?</code>) is followed by a pattern that can match the empty string or directly by
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6019', 'Reluctant quantifiers in regular expressions should be followed by an expression that can''t match the empty string', 'sonarqube', 'Code Smell', '<p>When a reluctant quantifier (such as <code>*?</code> or <code>+?</code>) is followed by a pattern that can match the empty string or directly by
 the end of the regex, it will always match the empty string when used with methods that find partial matches (such as <code>find</code>,
 <code>replaceAll</code>, <code>split</code> etc.).</p>
 <p>Similarly, when used with methods that find full matches, a reluctant quantifier that''s followed directly by the end of the regex (or a pattern
@@ -21050,7 +21077,7 @@ str.matches(".*?"); // Noncompliant, replace with ".*"
 str.split(".*?x");
 str.matches(".*");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6035', 'Single-character alternations in regular expressions should be replaced with character classes', 'sonarqube', 'Code Smell', '<p>When an alternation contains multiple alternatives that consist of a single character, it can be rewritten as a character class. This should be
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6035', 'Single-character alternations in regular expressions should be replaced with character classes', 'sonarqube', 'Code Smell', '<p>When an alternation contains multiple alternatives that consist of a single character, it can be rewritten as a character class. This should be
 preferred because it is more efficient and can even help prevent stack overflows when used inside a repetition (see rule <a href=''/coding_rules#rule_key=java%3AS5998''>S5998</a> ).</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -21062,7 +21089,7 @@ Pattern.compile("[abc]");
 // or
 Pattern.compile("[a-c]");
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6068', 'Call to Mockito method "verify", "when" or "given" should be simplified', 'sonarqube', 'Code Smell', '<p>Mockito provides <em>argument matchers</em> for flexibly stubbing or verifying method calls.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6068', 'Call to Mockito method "verify", "when" or "given" should be simplified', 'sonarqube', 'Code Smell', '<p>Mockito provides <em>argument matchers</em> for flexibly stubbing or verifying method calls.</p>
 <p><code>Mockito.verify()</code>, <code>Mockito.when()</code>, <code>Stubber.when()</code> and <code>BDDMockito.given()</code> each have overloads
 with and without argument matchers.</p>
 <p>However, the default matching behavior (i.e. without argument matchers) uses <code>equals()</code>. If only the matcher
@@ -21094,7 +21121,7 @@ public void myTest() {
   argument matchers </li>
   <li> <a href=''/coding_rules#rule_key=java%3AS6073''>S6073</a> - Mockito argument matchers should be used on all parameters </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6070', 'The regex escape sequence cX should only be used with characters in the @-_ range', 'sonarqube', 'Bug', '<p>In regular expressions the escape sequence <code>cX</code>, where the X stands for any character that''s either <code>@</code>, any capital ASCII
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6070', 'The regex escape sequence cX should only be used with characters in the @-_ range', 'sonarqube', 'Bug', '<p>In regular expressions the escape sequence <code>cX</code>, where the X stands for any character that''s either <code>@</code>, any capital ASCII
 letter, <code>[</code>, <code></code>, <code>]</code>, <code>^</code> or <code>_</code>, represents the control character that "corresponds" to the
 character following <code>c</code>, meaning the control character that comes 64 bytes before the given character in the ASCII encoding.</p>
 <p>In some other regex engines (for example in that of Perl) this escape sequence is case insensitive and <code>cd</code> produces the same control
@@ -21113,7 +21140,7 @@ Pattern.compile("\\c!"); // Noncompliant, ''!'' is outside of the ''@''-''_'' ra
 Pattern.compile("\\cA"); // Compliant, this will match the "start of heading" control character
 Pattern.compile("\\c^"); // Compliant, this will match the "record separator" control character
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6073', 'Mockito argument matchers should be used on all parameters', 'sonarqube', 'Bug', '<p>Mockito provides <em>argument matchers</em> and <em>argument captors</em> for flexibly stubbing or verifying method calls.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6073', 'Mockito argument matchers should be used on all parameters', 'sonarqube', 'Bug', '<p>Mockito provides <em>argument matchers</em> and <em>argument captors</em> for flexibly stubbing or verifying method calls.</p>
 <p><code>Mockito.verify()</code>, <code>Mockito.when()</code>, <code>Stubber.when()</code> and <code>BDDMockito.given()</code> each have overloads
 with and without argument matchers.</p>
 <p>However, if argument matchers or captors are used only on some of the parameters, all the parameters need to have matchers as well, otherwise an
@@ -21149,7 +21176,7 @@ public void myTest() {
   argument matchers </li>
   <li> <a href=''/coding_rules#rule_key=java%3AS6068''>S6068</a> - Call to Mockito method "verify", "when" or "given" should be simplified </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6103', 'AssertJ assertions with "Consumer" arguments should contain assertion inside consumers', 'sonarqube', 'Bug', '<p>AssertJ assertions taking <code>Consumer</code> objects as arguments are expected to contain "requirements", which should themselves be expressed
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6103', 'AssertJ assertions with "Consumer" arguments should contain assertion inside consumers', 'sonarqube', 'Bug', '<p>AssertJ assertions taking <code>Consumer</code> objects as arguments are expected to contain "requirements", which should themselves be expressed
 as assertions. This concerns the following methods: <a
 href="http://joel-costigliola.github.io/assertj/core-8/api/org/assertj/core/api/AbstractIterableAssert.html#allSatisfy-java.util.function.Consumer-">allSatisfy</a>,
 <a
@@ -21176,7 +21203,7 @@ assertThat(myObject).satisfies("Hello"::equals); // Noncompliant - not testing t
 assertThat(myObject).isInstanceOfSatisfying(String.class, s -&gt; assertThat(s).isEqualTo("Hello"));
 assertThat(myObject).satisfies(obj -&gt; assertThat(obj).isEqualTo("Hello"));
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6104', 'Map "computeIfAbsent()" and "computeIfPresent()" should not be used to add "null" values.', 'sonarqube', 'Bug', '<p>Map <a
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6104', 'Map "computeIfAbsent()" and "computeIfPresent()" should not be used to add "null" values.', 'sonarqube', 'Bug', '<p>Map <a
 href="https://docs.oracle.com/javase/8/docs/api/java/util/Map.html#computeIfAbsent-K-java.util.function.Function-">computeIfAbsent</a>&nbsp;and <a
 href="https://docs.oracle.com/javase/8/docs/api/java/util/Map.html#computeIfPresent-K-java.util.function.BiFunction-">computeIfPresent</a> methods are
 convenient to avoid the cumbersome process to check if a key exists or not, followed by the addition of the entry. However, when the function used to
@@ -21202,7 +21229,7 @@ if (map.containsKey(key)) {
 <ul>
   <li> <a href=''/coding_rules#rule_key=java%3AS3824''>S3824</a> - "Map.get" and value test should be replaced with single method call </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6126', 'String multiline concatenation should be replaced with Text Blocks', 'sonarqube', 'Code Smell', '<p>In Java 15 Text Blocks are now official and can be used. The most common pattern for multiline strings in Java &lt; 15 was to write String
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6126', 'String multiline concatenation should be replaced with Text Blocks', 'sonarqube', 'Code Smell', '<p>In Java 15 Text Blocks are now official and can be used. The most common pattern for multiline strings in Java &lt; 15 was to write String
 concatenation. Now it''s possible to do it in a more natural way using Text Blocks.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -21235,7 +21262,7 @@ String textBlock = """
   <li> <a href="https://cr.openjdk.java.net/~jlaskey/Strings/TextBlocksGuide_v9.html">Programmer''s Guide To Text Blocks</a>, by Jim Laskey and Stuart
   Marks </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6202', 'Operator "instanceof" should be used instead of "A.class.isInstance()"', 'sonarqube', 'Code Smell', '<p>The <code>instanceof</code> construction is a preferred way to check whether a variable can be cast to some type statically because a compile-time
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6202', 'Operator "instanceof" should be used instead of "A.class.isInstance()"', 'sonarqube', 'Code Smell', '<p>The <code>instanceof</code> construction is a preferred way to check whether a variable can be cast to some type statically because a compile-time
 error will occur in case of incompatible types. The method <a
 href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html#isInstance-java.lang.Object-">isInstance()</a> from <code>java.lang.Class</code>
 works differently and does type check at runtime only, incompatible types will therefore not be detected early in the developement, potentially
@@ -21280,7 +21307,7 @@ boolean fun(Object o, String c) throws ClassNotFoundException
   return Class.forName(c).isInstance(o); // Compliant, can''t use instanceof operator here
 }
 </pre>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6203', 'Text blocks should not be used in complex expressions', 'sonarqube', 'Code Smell', '<p>In Java 15 Text Blocks are official and can be used just like an ordinary String. However, when they are used to represent a big chunk of text,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6203', 'Text blocks should not be used in complex expressions', 'sonarqube', 'Code Smell', '<p>In Java 15 Text Blocks are official and can be used just like an ordinary String. However, when they are used to represent a big chunk of text,
 they should not be used directly in complex expressions, as it decreases the readability. In this case, it is better to extract the text block into a
 variable or a field.</p>
 <p>This rule reports an issue when a text block longer than a number of lines given as a parameter is directly used within a lambda expression.</p>
@@ -21326,7 +21353,7 @@ listOfString.stream()
 <p> * <a href="https://openjdk.java.net/jeps/378">JEP 378: Text Blocks</a></p>
 <p> * <a href="https://cr.openjdk.java.net/~jlaskey/Strings/TextBlocksGuide_v9.html">Programmer''s Guide To Text Blocks</a>, by Jim Laskey and Stuart
 Marks</p>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6205', 'Switch arrow labels should not use redundant keywords', 'sonarqube', 'Code Smell', '<p>In Switch Expressions, an arrow label consisting of a block with a single <code>yield</code> can be simplified to directly return the value,
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6205', 'Switch arrow labels should not use redundant keywords', 'sonarqube', 'Code Smell', '<p>In Switch Expressions, an arrow label consisting of a block with a single <code>yield</code> can be simplified to directly return the value,
 resulting in cleaner code.</p>
 <p>Similarly, for Switch Statements and arrow labels, a <code>break</code> in a block is always redundant and should not be used. Furthermore, if the
 resulting block contains only one statement, the curly braces of that block can also be omitted.</p>
@@ -21374,7 +21401,7 @@ switch (mode) {
 <ul>
   <li> <a href="https://openjdk.java.net/jeps/361">JEP 361: Switch Expressions</a> </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6208', 'Comma-separated labels should be used in Switch with colon case', 'sonarqube', 'Code Smell', '<p>In Java 14 there is a new way to write cases in Switch Statement and Expression when the same action should be performed for different cases.
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6208', 'Comma-separated labels should be used in Switch with colon case', 'sonarqube', 'Code Smell', '<p>In Java 14 there is a new way to write cases in Switch Statement and Expression when the same action should be performed for different cases.
 Instead of declaring multiples branches with the same action, you can combine all of them in a single case group, separated with commas. It will
 result in a more concise code and improved readability.</p>
 <p>This rule reports an issue when multiple cases in a Switch can be grouped into a single comma-separated case.</p>
@@ -21428,7 +21455,7 @@ switch (mode) {
 <ul>
   <li> <a href="https://openjdk.java.net/jeps/361">JEP 361: Switch Expressions</a> </li>
 </ul>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6212', 'Local-Variable Type Inference should be used', 'sonarqube', 'Code Smell', '<p>In Java 10 <a href="https://openjdk.java.net/jeps/286">Local-Variable Type Inference</a> was introduced. It allows you to omit the expected type of
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6212', 'Local-Variable Type Inference should be used', 'sonarqube', 'Code Smell', '<p>In Java 10 <a href="https://openjdk.java.net/jeps/286">Local-Variable Type Inference</a> was introduced. It allows you to omit the expected type of
 a variable by declaring it with the <code>var</code> keyword. </p>
 <p>While it is not always possible or cleaner to use this new way of declaring a variable, when the type on the left is the same as the one on the
 right in an assignment, using the <code>var</code> will result in a more concise code.</p>
@@ -21445,7 +21472,7 @@ var myClass = new MyClass();
 <ul>
   <li> <a href="https://openjdk.java.net/jeps/286">JEP 286: Local-Variable Type Inference</a> </li>
 </ul>', 'java', 'READY', 'INFO', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6213', 'Restricted Identifiers should not be used as Identifiers', 'sonarqube', 'Code Smell', '<p>Even if it is technically possible, <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.8">Restricted Identifiers</a>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S6213', 'Restricted Identifiers should not be used as Identifiers', 'sonarqube', 'Code Smell', '<p>Even if it is technically possible, <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.8">Restricted Identifiers</a>
 should not be used as identifiers. This is only possible for compatibility reasons, using it in Java code is confusing and should be avoided.</p>
 <p>Note that this applies to any version of Java, including the one where these identifiers are not yet restricted, to avoid future confusion.</p>
 <p>This rule reports an issue when restricted identifiers:</p>
@@ -21486,7 +21513,7 @@ String myRecord = "record";
 <ul>
   <li> <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-3.html#jls-3.8">JLS16, 3.8: Identifiers</a> </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S818', 'Literal suffixes should be upper case', 'sonarqube', 'Code Smell', '<p>Using upper case literal suffixes removes the potential ambiguity between "1" (digit 1) and "l" (letter el) for declaring literals.</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S818', 'Literal suffixes should be upper case', 'sonarqube', 'Code Smell', '<p>Using upper case literal suffixes removes the potential ambiguity between "1" (digit 1) and "l" (letter el) for declaring literals.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 long long1 = 1l; // Noncompliant
@@ -21504,7 +21531,7 @@ double double1 = 1.0D;
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/cdYxBQ">CERT DCL16-C.</a> - Use "L," not "l," to indicate a long value </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/7DZGBQ">CERT, DCL50-J.</a> - Use visually distinct identifiers </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S864', 'Limited dependence should be placed on operator precedence', 'sonarqube', 'Code Smell', '<p>The rules of operator precedence are complicated and can lead to errors. For this reason, parentheses should be used for clarification in complex
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S864', 'Limited dependence should be placed on operator precedence', 'sonarqube', 'Code Smell', '<p>The rules of operator precedence are complicated and can lead to errors. For this reason, parentheses should be used for clarification in complex
 statements. However, this does not mean that parentheses should be gratuitously added around every operation. </p>
 <p>This rule raises issues when <code>&amp;&amp;</code> and <code>||</code> are used in combination, when assignment and equality or relational
 operators are used in together in a condition, and for other operator combinations according to the following table:</p>
@@ -21587,7 +21614,7 @@ if ( (a = f(b,c)) == 1) { ... }
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/ZzZGBQ">CERT, EXP53-J.</a> - Use parentheses for precedence of operation </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/783.html">MITRE, CWE-783</a> - Operator Precedence Logic Error </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S881', 'Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression', 'sonarqube', 'Code Smell', '<p>The use of increment and decrement operators in method calls or in combination with other arithmetic operators is not recommended, because:</p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S881', 'Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression', 'sonarqube', 'Code Smell', '<p>The use of increment and decrement operators in method calls or in combination with other arithmetic operators is not recommended, because:</p>
 <ul>
   <li> It can significantly impair the readability of the code. </li>
   <li> It introduces additional side effects into a statement, with the potential for undefined behavior. </li>
@@ -21614,7 +21641,7 @@ bar++;
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/NDdGBQ">CERT, EXP05-J.</a> - Do not follow a write by a subsequent write or read of the same
   object within an expression </li>
 </ul>', 'java', 'READY', 'MAJOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S888', 'Equality operators should not be used in "for" loop termination conditions', 'sonarqube', 'Code Smell', '<p>Testing <code>for</code> loop termination using an equality operator (<code>==</code> and <code>!=</code>) is dangerous, because it could set up an
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S888', 'Equality operators should not be used in "for" loop termination conditions', 'sonarqube', 'Code Smell', '<p>Testing <code>for</code> loop termination using an equality operator (<code>==</code> and <code>!=</code>) is dangerous, because it could set up an
 infinite loop. Using a broader relational operator instead casts a wider net, and makes it harder (but not impossible) to accidentally write an
 infinite loop.</p>
 <h2>Noncompliant Code Example</h2>
@@ -21652,7 +21679,7 @@ for (int i = 0; (item = arr[i]) != null; i++) {
   <li> <a href="http://cwe.mitre.org/data/definitions/835">MITRE, CWE-835</a> - Loop with Unreachable Exit Condition (''Infinite Loop'') </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/x9YxBQ">CERT, MSC21-C.</a> - Use robust loop termination conditions </li>
 </ul>', 'java', 'READY', 'CRITICAL', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S899', 'Return values should not be ignored when they contain the operation status code', 'sonarqube', 'Bug', '<p>When the return value of a function call contain the operation status code, this value should be tested to make sure the operation completed
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S899', 'Return values should not be ignored when they contain the operation status code', 'sonarqube', 'Bug', '<p>When the return value of a function call contain the operation status code, this value should be tested to make sure the operation completed
 successfully.</p>
 <p>This rule raises an issue when the return values of the following are ignored:</p>
 <ul>
@@ -21690,7 +21717,7 @@ public void doSomething(File file, Lock lock) {
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/TTZGBQ">CERT, FIO02-J.</a> - Detect and handle file-related errors </li>
   <li> <a href="http://cwe.mitre.org/data/definitions/754">MITRE, CWE-754</a> - Improper Check for Unusual Exceptional Conditions </li>
 </ul>', 'java', 'READY', 'MINOR', 'BLOCK');
-INSERT INTO violationTracker.issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S923', 'Functions should not be defined with a variable number of arguments', 'sonarqube', 'Code Smell', '<p>As stated per effective java : </p>
+INSERT INTO issue_type (uuid, type, specification_source, category, description, language, status, severity, scope) VALUES ('java:S923', 'Functions should not be defined with a variable number of arguments', 'sonarqube', 'Code Smell', '<p>As stated per effective java : </p>
 <blockquote>
   <p>Varargs methods are a convenient way to define methods that require a variable number of arguments, but they should not be overused. They can
   produce confusing results if used inappropriately.</p>

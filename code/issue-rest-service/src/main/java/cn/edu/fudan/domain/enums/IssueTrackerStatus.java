@@ -11,6 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum IssueTrackerStatus {
     CHANGED("changed"),
+    NOT_CHANGED("not_changed"),
     FAILED("failed"),
     BUG_ADD("bug_add"),
     BUG_ADD_LAST("bug_add_last"),

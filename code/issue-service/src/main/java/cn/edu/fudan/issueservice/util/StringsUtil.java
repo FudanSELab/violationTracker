@@ -75,11 +75,11 @@ public class StringsUtil {
     }
 
     public static boolean equalsWithoutSign(String src, String target) {
-        if ((src==null|| src.trim().isEmpty())||(target==null||target.trim().isEmpty())){
+        if ((src == null || src.trim().isEmpty()) || (target == null || target.trim().isEmpty())) {
             return true;
         }
-        String srcWithoutSign = src.trim().replaceAll("[_-]"," ").toLowerCase(Locale.ROOT);
-        String targetWithoutSing = target.trim().replaceAll("[_-]"," ").toLowerCase(Locale.ROOT);
+        String srcWithoutSign = src.trim().replaceAll("[_-]", " ").toLowerCase(Locale.ROOT);
+        String targetWithoutSing = target.trim().replaceAll("[_-]", " ").toLowerCase(Locale.ROOT);
         return srcWithoutSign.equals(targetWithoutSing);
     }
 
@@ -87,7 +87,8 @@ public class StringsUtil {
         if (StringUtils.isEmpty(parentCommits)) {
             return new ArrayList<>();
         }
-        return Stream.of(parentCommits.split("[',\\[\\]]")).filter(s -> s.length() >= 8).collect(Collectors.toList());
+        return Stream.of(parentCommits.split("[',\\[\\]]")).filter(s -> s.length() >= 8).map(String::trim)
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {

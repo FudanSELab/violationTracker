@@ -509,7 +509,7 @@ declare namespace API {
     page: number;
     ps: number;
     project_name?: string;
-    repo_name?: string;
+    repo_uuids?: string;
     leaders?: string;
     order?: string;
     asc?: boolean;

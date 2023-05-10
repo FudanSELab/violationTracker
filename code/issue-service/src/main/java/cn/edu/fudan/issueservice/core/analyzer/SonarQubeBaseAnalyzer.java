@@ -50,12 +50,13 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     static final boolean IS_WINDOWS = System.getProperty("os.name").contains("Windows");
     static final String RULE = "rule";
     static final String SONAR_SEPARATOR = ":";
-    final static int SPLITTED_STR_LENGTH = 2;
+    static final int SPLITTED_STR_LENGTH = 2;
     private static final Lock ANALYZE_LOCK = new ReentrantLock();
     private static final Map<String, AnalysisSignal> ANALYSIS_COMPLETE_FLAG = new ConcurrentHashMap<>(32);
     private static final String COMPONENT = "component";
     private static final String KEY = "key";
     private static final String TOTAL = "total";
+    private static final String SONAR_RESULT_FAILED = "get sonar issue results failed!";
     /**
      * sonarPath Address prefix length
      * the length of {commit}/
@@ -64,8 +65,8 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
     private static final int COMMIT_LENGTH = 40;
     private static SonarRest rest;
     final int maxWait = 4;
-    final int MAX_SONAR_RESULT = 10000;
-    final String LINE = "line";
+    static final int MAX_SONAR_RESULT = 10000;
+    static final String LINE = "line";
     @Value("${deleteSonarProject:false}")
     private boolean deleteSonarProject;
 
@@ -108,14 +109,23 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
         }
         ANALYSIS_COMPLETE_FLAG.put(projectKey, new AnalysisSignal(ANALYZE_LOCK.newCondition(), new AtomicBoolean(false), new AtomicBoolean(false)));
         int timeout = analysisMaxTimeOut(scanRepoPath, commit);
-        boolean result = ShUtil.executeToolCommand("sonarqube", pidFile,
+        int result = ShUtil.executeToolCommand("sonarqube", pidFile,
                 binHome + "executeSonar.sh ", timeout, scanRepoPath, projectKey, commit);
-        if (!result) {
+        if (result == 1) {
             return false;
         }
-
-        return waitForAnalysis(projectKey, timeout / 1000);
-
+        boolean waitResult = waitForAnalysis(projectKey, timeout / 1000);
+        if (waitResult && result == 2) {
+            JSONObject results = rest.getSonarIssueResults(projectKey, null, null, null, 1, false, 0);
+            if (results == null) {
+                log.error(SONAR_RESULT_FAILED);
+                return false;
+            }
+        } else if (result == 2) {
+            log.info("file path: {}", scanRepoPath);
+            log.warn("some files failed to scan, but we can retrieve data from sonarqube");
+        }
+        return waitResult;
     }
 
     static final int MAX_WAIT = 4;
@@ -165,6 +175,10 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
 
         long analyzeStartTime = System.currentTimeMillis();
         JSONObject results = rest.getSonarIssueResults(projectKey, null, null, null, 1, false, 0);
+        if (results == null) {
+            log.error(SONAR_RESULT_FAILED);
+            return null;
+        }
         int total = results.getInteger(TOTAL);
         List<RawIssue> resultRawIssues = new ArrayList<>(total);
 
@@ -252,7 +266,10 @@ public class SonarQubeBaseAnalyzer extends BaseAnalyzer {
                     sonarRawIssues = rest.getSonarSecurityHotspotList(componentKey, pageSize, i)
                             .getJSONArray("hotspots");
                 }
-
+                if (sonarRawIssues == null) {
+                    log.error(SONAR_RESULT_FAILED);
+                    continue;
+                }
 
                 for (int j = 0; j < sonarRawIssues.size(); j++) {
                     JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);

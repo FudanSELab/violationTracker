@@ -46,7 +46,7 @@
     </select>
     <select id="getIssueTypesByTool" resultMap="issueTypeWithoutDescription">
         select * from issue_type
-        <where> status='READY'
+        <where> 1=1
             <if test="tool != null">
                 AND specification_source=#{tool}
             </if>

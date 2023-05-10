@@ -66,6 +66,8 @@ public abstract class BaseAnalyzer {
     protected boolean enableTotalScan;
     @Value("${debugMode}")
     protected boolean debugMode;
+    @Value("${deleteCopyFile:true}")
+    protected boolean deleteCopyFile;
     @Value("${wholeProcessTest:false}")
     protected boolean wholeProcessTest;
 
@@ -263,7 +265,7 @@ public abstract class BaseAnalyzer {
 
         String key = generateUniqueProjectKey(repoUuid, commit);
         // Delete the copied files after the incremental scan is complete
-        if (!isTotalScan(key) && !debugMode) {
+        if (!isTotalScan(key) && (!debugMode || deleteCopyFile)) {
             //todo
             deleteCopyFiles(scanRepoPath);
         }
@@ -297,7 +299,7 @@ public abstract class BaseAnalyzer {
                     commitParents.add(commitParent);
                 }
             }
-            isTotalScan = commitParents.size() == 0;
+            isTotalScan = commitParents.isEmpty();
             // If the scan list is not empty and the scan information of the parent does not exist in the cache
             // Total scan
             for (String commitParent : commitParents) {
@@ -367,6 +369,7 @@ public abstract class BaseAnalyzer {
         // copyTempRepoPath / repoUuid / curCommit / curCommit /
         String curBaseDir = targetRepoDir + FILE_SEPARATOR + curCommit + FILE_SEPARATOR;
         new File(curBaseDir).mkdirs();
+        log.info("current commit: {}, copy incremental files to {}", curCommit, curBaseDir);
         for (String curFile : curFiles) {
             if (!filterFile(curFile)) {
                 FileUtil.copyFile(jGitHelper.getRepoPath() + FILE_SEPARATOR + curFile, curBaseDir + curFile);

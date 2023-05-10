@@ -76,6 +76,10 @@ public class IssueDao {
         return issueMapper.getIssueFilterListCount(query);
     }
 
+    public int getRemainingIssueCountUntil(Map<String, Object> query) {
+        return issueMapper.getRemainingIssueCountUntil(query);
+    }
+
     public int getSolvedIssueFilterListCount(Map<String, Object> query) {
         return issueMapper.getSolvedIssueFilterListCount(query);
     }
@@ -140,8 +144,12 @@ public class IssueDao {
         return issueMapper.getIssuesOverview(query);
     }
 
-    public List<Map<String, Object>> getIssueCountByCategoryAndType(Map<String, Object> query) {
-        return issueMapper.getIssueCountByCategoryAndType(query);
+    public List<Map<String, Object>> getIssueByCategoryAndTypeAndSolveWay(Map<String, Object> query) {
+        return issueMapper.getIssueByCategoryAndTypeAndSolveWay(query);
+    }
+
+    public List<Map<String, Object>> getIssueByCategoryAndType(Map<String, Object> query) {
+        return issueMapper.getIssueByCategoryAndType(query);
     }
 
     public Map<String, Object> getLivingIssueTendency(String until, String projectId, String showDetail) {
@@ -154,7 +162,6 @@ public class IssueDao {
         }
         return map;
     }
-
     public List<Map<String, Object>> getIssueFilterList(Map<String, Object> query) {
         return issueMapper.getIssueFilterList(query);
     }

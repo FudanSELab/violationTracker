@@ -79,19 +79,31 @@ public class IssueSolved {
      */
     @Transactional(rollbackFor = Exception.class)
     public void updateSolvedWay(String repoUuid, String repoPath, boolean needNotNullSolveWay) {
+        if (needNotNullSolveWay) {
+            log.info("only check the case where the solved way is null, repo {}", repoUuid);
+        } else {
+            log.info("check all solved cases, repo {}", repoUuid);
+        }
         List<RawIssueMatchInfo> rawIssueMatchInfos = needNotNullSolveWay ?
                 rawIssueMatchInfoMapper.getMatchInfoByRepoUuidAndStatuses(repoUuid, Arrays.asList(RawIssueStatus.SOLVED.getType(), RawIssueStatus.MERGE_SOLVE.getType()))
                 : rawIssueMatchInfoMapper.getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay(repoUuid, Arrays.asList(RawIssueStatus.SOLVED.getType(), RawIssueStatus.MERGE_SOLVE.getType()));
 
         if (rawIssueMatchInfos == null || rawIssueMatchInfos.isEmpty()) {
-            log.info("nothing to be update {}", repoUuid);
+            log.info("nothing to be updated {}", repoUuid);
             return;
         }
+        rawIssueMatchInfos = rawIssueMatchInfos.stream().filter(rawIssueMatchInfo -> !rawIssueMatchInfo.getPreCommitId().equals("empty")).collect(Collectors.toList());
+        log.info("need to judge the solved way for {} records, repo {}", rawIssueMatchInfos.size(), repoUuid);
+
 
         // Update raw_issue_match_info table
-        rawIssueMatchInfoMapper.batchUpdateSolveWay(
-                judgeSolvedType(rawIssueMatchInfos, repoPath)
-        );
+        List<TwoValue<Integer, String>> solvedTypeList = judgeSolvedType(rawIssueMatchInfos, repoPath);
+        if (solvedTypeList != null && !solvedTypeList.isEmpty()) {
+            log.info("need to update the solved way for {} records, repo {}", solvedTypeList.size(), repoUuid);
+            rawIssueMatchInfoMapper.batchUpdateSolveWay(solvedTypeList);
+        } else {
+            log.info("nothing to be updated, repo {}", repoUuid);
+        }
         log.info("update repo {} done", repoUuid);
 
     }
@@ -105,7 +117,7 @@ public class IssueSolved {
 
         List<TwoValue<Integer, String>> result = new ArrayList<>(rawIssueMatchInfos.size());
 
-        log.info("start repo {}", repoPath);
+        log.info("start to judge solved way of the repo {}", repoPath);
         JGitHelper jGitHelper = JGitHelper.getInstance(repoPath);
 
 
@@ -122,8 +134,7 @@ public class IssueSolved {
             // key preRawIssueUuid  value  id
             Map<String, Integer> preRawIssueUuid2id = onePairCommits.getValue()
                     .stream().collect(Collectors
-                            .toMap(RawIssueMatchInfo::getPreRawIssueUuid,
-                                    RawIssueMatchInfo::getId));
+                            .toMap(RawIssueMatchInfo::getPreRawIssueUuid, RawIssueMatchInfo::getId, (s, s2) -> s2));
 
             // update map first RawIssueMatchInfoId two solve_way
             List<TwoValue<Integer, String>> updateSolveList = new ArrayList<>(onePairCommits.getValue().size());

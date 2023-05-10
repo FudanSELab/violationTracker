@@ -41,6 +41,7 @@
         <id property="uuid" column="uuid"/>
         <result property="issueId" column="issue_uuid"/>
         <result property="commitId" column="commit_id"/>
+        <result property="rawIssueHash" column="raw_issue_hash"/>
     </resultMap>
 
     <resultMap id="rawIssueForScan" type="cn.edu.fudan.domain.dbo.RawIssue">
@@ -99,18 +100,18 @@
     </insert>
 
     <delete id="deleteRawIssueByIds">
-        delete from raw_issue
+        delete ri from raw_issue ri
         <where>
-            uuid in
+            ri.uuid in
             <foreach collection="list" separator="," open="(" close=")" item="rawIssueId">
                 #{rawIssueId}
             </foreach>
         </where>
     </delete>
     <delete id="deleteRawIssuesByRepoUuid">
-        delete
-        from raw_issue
-        where repo_uuid = #{repoUuid}
+        delete ri
+        from raw_issue ri
+        where ri.repo_uuid = #{repoUuid}
     </delete>
 
     <select id="getNumberOfRawIssuesByIssueId" resultType="Integer">

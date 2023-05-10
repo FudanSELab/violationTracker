@@ -27,6 +27,7 @@ public class MergeMatcher extends BaseMatcher {
     private final Map<String, Issue> issueUuid2MappedIssue = new HashMap<>();
     private final Map<String, Issue> issueUuid2ReopenIssue = new HashMap<>();
     private final Map<String, RawIssue> preRawIssueMap = new HashMap<>();
+    private final Map<String, String> issueUuid2SolvedType = new HashMap<>();
     private final List<RawIssue> doubleAddCurRawIssue = new ArrayList<>();
 
     public MergeMatcher(MatcherData data) {
@@ -136,7 +137,7 @@ public class MergeMatcher extends BaseMatcher {
                         break;
                     }
                 }
-                List<String> preCommitsForParent = jGitHelper.getAllCommitParents(parentCommit);
+                List<String> preCommitsForParent = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, parentCommit);
                 issueUuid = rawIssueDao.getIssueUuidByRawIssueHashAndParentCommits(repoUuid, currentRawIssue.getRawIssueHash(), preCommitsForParent);
                 if (issueUuid == null) {
                     return;
@@ -153,7 +154,7 @@ public class MergeMatcher extends BaseMatcher {
         for (RawIssueMatchInfo matchInfo : matchInfos) {
             if (matchInfo.getStatus().equals(RawIssueStatus.ADD.getType())) {
                 String addParentCommit = matchInfo.getPreCommitId();
-                final List<String> allCommitParents = jGitHelper.getAllCommitParents(addParentCommit);
+                final List<String> allCommitParents = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, addParentCommit);
                 if (issueUuid != null && rawIssueMatchInfoDao.checkParentCommitHasIssue(issueUuid, allCommitParents, repoUuid)) {
                     // Scenario 4
                     matchInfo.setStatus(RawIssueStatus.MERGE_REOPEN.getType());
@@ -193,7 +194,7 @@ public class MergeMatcher extends BaseMatcher {
         for (RawIssueMatchInfo matchInfo : matchInfos) {
             if (matchInfo.getStatus().equals(RawIssueStatus.ADD.getType())) {
                 String addParentCommit = matchInfo.getPreCommitId();
-                final List<String> allCommitParents = jGitHelper.getAllCommitParents(addParentCommit);
+                final List<String> allCommitParents = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, addParentCommit);
                 if (issueUuid != null && rawIssueMatchInfoDao.checkParentCommitHasIssue(issueUuid, allCommitParents, repoUuid)) {
                     // Scenario 4
                     matchInfo.setStatus(RawIssueStatus.MERGE_REOPEN.getType());
@@ -246,7 +247,7 @@ public class MergeMatcher extends BaseMatcher {
         List<String> parentCommits = new ArrayList<>(parentRawIssuesMap.keySet());
         currentRawIssues.forEach(rawIssue -> rawIssue.getMatchInfos().clear());
         for (String parentCommit : parentCommits) {
-            List<String> preCommitsForParent = jGitHelper.getAllCommitParents(parentCommit);
+            List<String> preCommitsForParent = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, parentCommit);
             preCommitsForParent.remove(parentCommit);
             List<RawIssue> preRawIssueList = matchNewIssuesWithParentIssues(currentRawIssues.stream().
                             filter(rawIssue -> !rawIssue.isOnceMapped()).collect(Collectors.toList()), curFile2PreFileMap.get(parentCommit),
@@ -302,6 +303,7 @@ public class MergeMatcher extends BaseMatcher {
 
     private void resetMatchInfoStatus(Map<String, RawIssue> rawIssues, String type) {
         for (Map.Entry<String, RawIssue> rawIssueEntry : rawIssues.entrySet()) {
+            issueUuid2SolvedType.putIfAbsent(rawIssueEntry.getValue().getIssueId(), type);
             List<RawIssueMatchInfo> matchInfos = rawIssueEntry.getValue().getMatchInfos();
             for (RawIssueMatchInfo matchInfo : matchInfos) {
                 matchInfo.setIssueUuid(rawIssueEntry.getValue().getIssueId());
@@ -320,6 +322,7 @@ public class MergeMatcher extends BaseMatcher {
         // Update new issues
         for (RawIssue currentRawIssue : currentRawIssues) {
             if (!currentRawIssue.isOnceMapped()) {
+                log.warn("merge add raw issue: {}", currentRawIssue.getUuid());
                 Issue issue = generateOneIssue(currentRawIssue);
                 newIssues.put(issue.getUuid(), issue);
             }
@@ -350,9 +353,11 @@ public class MergeMatcher extends BaseMatcher {
         int ignoreMergeSolvedIssueNum = (int) solvedMergeIssues.stream().filter(solvedIssuesFromRepo::contains).count();
         matcherResult.setIgnoreSolvedMergeIssueNum(ignoreMergeSolvedIssueNum);
 
+        // Merge Solve: don't need to update solve commit and solver
         // Update solved issues
         for (Issue issue : issueUuid2SolvedIssue.values()) {
             issue.setStatus(IssueStatusEnum.SOLVED.getName());
+            issue.setSolvedType(issueUuid2SolvedType.getOrDefault(issue.getUuid(), RawIssueStatus.SOLVED.getType()));
             solvedIssue.put(issue.getUuid(), issue);
         }
 

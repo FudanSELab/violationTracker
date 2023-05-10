@@ -143,11 +143,13 @@ public interface RawIssueMatchInfoMapper {
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatuses(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);
 
     /**
-     *  get the rawIssueMatchInfos by repoUuid and status
+     * get the rawIssueMatchInfos by repoUuid and status
      *
      * @param repoUuid repoUuid
      * @param statuses
      * @return list
      */
     List<RawIssueMatchInfo> getMatchInfoByRepoUuidAndStatusesWithNullSolvedWay(@Param("repo_uuid") String repoUuid, @Param("statuses") List<String> statuses);
+    List<Map<String, String>> getMatchInfoByIssueUuidList(@Param("issue_uuids") List<String> issueUuidList);
+
 }

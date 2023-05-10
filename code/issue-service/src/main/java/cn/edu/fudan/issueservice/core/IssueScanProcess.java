@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author beethoven
@@ -30,6 +31,7 @@ public class IssueScanProcess extends BaseScanProcess {
 
     private final Map<String, Map<String, String>> repoUuid2ToolWithBeginCommit = new HashMap<>();
     private IssueScanDao issueScanDao;
+    private ScanResultDao scanResultDao;
     private IssueRepoDao issueRepoDao;
     private RawIssueCacheDao rawIssueCacheDao;
     private IssueDao issueDao;
@@ -41,6 +43,11 @@ public class IssueScanProcess extends BaseScanProcess {
     private boolean enableAllScan;
     @Value("${maxPoolSize:5}")
     private int maxPoolSize;
+    private volatile boolean scheduledEnabled = true;
+
+    public void setScheduledEnabled(boolean enabled) {
+        this.scheduledEnabled = enabled;
+    }
 
     public IssueScanProcess(@Autowired ApplicationContext applicationContext) {
         super(applicationContext);
@@ -56,15 +63,20 @@ public class IssueScanProcess extends BaseScanProcess {
     //Every 150s, check whether there are still repos to be scanned
     @Scheduled(fixedRate = 150000)
     public void scanReposWaitForScan() {
-        final List<RepoScan> waitToScanList = issueRepoScanListDao.getRepoScansByCondition(null, Arrays.asList(ScanStatus.WAITING_FOR_SCAN, ScanStatus.INTERRUPT));
+        if (!scheduledEnabled) {
+            return;
+        }
+        syncRepoStatus();
+        final List<RepoScan> waitToScanList = issueRepoScanListDao.getRepoScansByCondition(null, Arrays.asList(ScanStatus.WAITING_FOR_SCAN, ScanStatus.INTERRUPT))
+                .stream().sorted(Comparator.comparing(RepoScan::getScanStatus)).collect(Collectors.toList());
         if (waitToScanList.isEmpty()) {
             return;
         }
         final int scanningRepoSize = issueRepoDao.getScanningRepos(null).size();
         //Some threads are reserved to service new scanning requests
         int reserveForScanRequestThreadNum = 2;
-        log.info("maxPoolSize:{} scanningRepoSize:{} waitToScanList:{}",maxPoolSize, scanningRepoSize, waitToScanList.size());
-        if (scanningRepoSize <= maxPoolSize - reserveForScanRequestThreadNum) {
+        log.info("maxPoolSize:{} scanningRepoSize:{} waitToScanList:{}", maxPoolSize, scanningRepoSize, waitToScanList.size());
+        if (scanningRepoSize < maxPoolSize - reserveForScanRequestThreadNum) {
             int canAddRepoNum = maxPoolSize - reserveForScanRequestThreadNum - scanningRepoSize;
             for (RepoScan repoScan : waitToScanList) {
                 if (canAddRepoNum == 0) {
@@ -90,7 +102,19 @@ public class IssueScanProcess extends BaseScanProcess {
             }
         }
     }
-
+    private void syncRepoStatus() {
+        // sync issue_repo and issue_repo_scan_list
+        final List<RepoScan> allRepoScanList = issueRepoScanListDao.getRepoScansByCondition(null, null);
+        final Map<String, String> repoStatusMap = issueRepoDao.getRepoScanByRepoUuids(allRepoScanList.stream().map(RepoScan::getRepoUuid).collect(Collectors.toList()))
+                .stream().collect(Collectors.toMap(RepoScan::getRepoUuid, RepoScan::getScanStatus, (repoUuid1, repoUuid2) -> repoUuid1));
+        allRepoScanList.forEach(repoScan -> {
+            if (repoStatusMap.containsKey(repoScan.getRepoUuid()) && !repoScan.getScanStatus().equals(repoStatusMap.get(repoScan.getRepoUuid()))) {
+                issueRepoScanListDao.updateStatusByRepoUuid(repoScan.getRepoUuid(), repoStatusMap.get(repoScan.getRepoUuid()));
+            } else if (!repoStatusMap.containsKey(repoScan.getRepoUuid()) && repoScan.getScanStatus().equals(ScanStatus.FAILED)) {
+                issueRepoScanListDao.updateStatusByRepoUuid(repoScan.getRepoUuid(), WAITING_FOR_SCAN);
+            }
+        });
+    }
     /**
      * Generate different beginCommits depending on different tools or different strategies
      * Start by querying the latest scan commit from the issue_scan
@@ -182,6 +206,9 @@ public class IssueScanProcess extends BaseScanProcess {
     @Override
     public void updateRepoScan(RepoScan scanInfo) {
         issueRepoDao.updateIssueRepo(scanInfo);
+        if (!issueRepoScanListDao.getRepoScansByCondition(scanInfo.getRepoUuid(), null).isEmpty()) {
+            issueRepoScanListDao.updateStatusByRepoUuid(scanInfo.getRepoUuid(), scanInfo.getScanStatus());
+        }
     }
 
     @Override
@@ -194,6 +221,8 @@ public class IssueScanProcess extends BaseScanProcess {
         rawIssueDao.deleteRawIssuesByRepoUuid(repoUuid);
         rawIssueMatchInfoDao.deleteMatchInfosByRepoUuid(repoUuid);
         locationDao.deleteLocationsByRepoUuid(repoUuid);
+        issueRepoScanListDao.delRepoScan(repoUuid, null);
+        scanResultDao.deleteScanResultsByRepoUuid(repoUuid);
     }
 
     @Override
@@ -228,6 +257,11 @@ public class IssueScanProcess extends BaseScanProcess {
     @Autowired
     public void setIssueRepoDao(IssueRepoDao issueRepoDao) {
         this.issueRepoDao = issueRepoDao;
+    }
+
+    @Autowired
+    public void setScanResultDao(ScanResultDao scanResultDao) {
+        this.scanResultDao = scanResultDao;
     }
 
     @Autowired

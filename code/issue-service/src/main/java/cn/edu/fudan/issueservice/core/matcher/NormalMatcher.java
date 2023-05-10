@@ -44,7 +44,7 @@ public class NormalMatcher extends BaseMatcher {
         List<String> reopenCurIssues = new ArrayList<>();
         Date curCommitDate = DateTimeUtil.localToUtc(jGitHelper.getCommitTime(currentCommit));
 
-        List<String> preCommitsForParent = jGitHelper.getAllCommitParents(parentCommit);
+        List<String> preCommitsForParent = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, parentCommit);
         preCommitsForParent.remove(parentCommit);
         List<RawIssue> newCurRawIssues = new ArrayList<>();
 
@@ -67,6 +67,7 @@ public class NormalMatcher extends BaseMatcher {
 
         for (RawIssue newCurRawIssue : newCurRawIssues) {
             if (!newCurRawIssue.isMapped()) {
+                log.info("normal add raw issue: {}", newCurRawIssue.getUuid());
                 Issue issue = generateOneIssue(newCurRawIssue);
                 newIssues.put(issue.getUuid(), issue);
             } else {

@@ -10,14 +10,14 @@ public interface IssueMeasureInfoService {
 
 
     /**
-     * 指定某些项目的留存缺陷数的趋势统计图数据
+     * living violation tendency
      *
      * @param since      since
      * @param until      until
-     * @param projectIds 项目ids
-     * @param interval   时间粒度
-     * @param showDetail 是否展示细节
-     * @return 指定某些项目的留存缺陷数的趋势统计图数据
+     * @param projectIds repo uuids
+     * @param interval   interval
+     * @param showDetail show detail?
+     * @return living violation tendency
      */
     Object getLivingIssueTendency(String since, String until, String projectIds, String interval, String showDetail);
 

@@ -1,6 +1,7 @@
 package cn.edu.fudan.issueservice.core.process;
 
 import cn.edu.fudan.common.jgit.JGitHelper;
+import cn.edu.fudan.issueservice.dao.IssueScanDao;
 import cn.edu.fudan.issueservice.dao.RawIssueCacheDao;
 import cn.edu.fudan.issueservice.dao.IssueDao;
 import cn.edu.fudan.issueservice.dao.RawIssueDao;
@@ -8,6 +9,8 @@ import cn.edu.fudan.issueservice.domain.dbo.Issue;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
 import cn.edu.fudan.issueservice.domain.dbo.ScanResult;
 import cn.edu.fudan.issueservice.domain.enums.IgnoreTypeEnum;
+import cn.edu.fudan.issueservice.domain.enums.IssueStatusEnum;
+import cn.edu.fudan.issueservice.domain.enums.RawIssueStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +45,7 @@ public class IssueStatistics {
 
     private static IssueDao issueDao;
     private static RawIssueDao rawIssueDao;
+    private static IssueScanDao issueScanDao;
     private static RawIssueCacheDao rawIssueCacheDao;
 
     private JGitHelper jGitHelper;
@@ -92,10 +97,11 @@ public class IssueStatistics {
     private Map<String, String> rawIssueUuid2DataBaseUuid = new HashMap<>();
 
     @Autowired
-    public IssueStatistics(IssueDao issueDao, RawIssueCacheDao rawIssueCacheDao, RawIssueDao rawIssueDao) {
+    public IssueStatistics(IssueDao issueDao, RawIssueCacheDao rawIssueCacheDao, RawIssueDao rawIssueDao, IssueScanDao issueScanDao) {
         IssueStatistics.issueDao = issueDao;
         IssueStatistics.rawIssueCacheDao = rawIssueCacheDao;
         IssueStatistics.rawIssueDao = rawIssueDao;
+        IssueStatistics.issueScanDao = issueScanDao;
     }
 
     /**
@@ -127,10 +133,16 @@ public class IssueStatistics {
                     .count();
 
             solvedIssues = new ArrayList<>(solvedIssue.values());
+            Map<String, Issue> issuesMap = issueDao.getIssuesByUuidAndRepoUuid(solvedIssues.stream().map(Issue::getUuid).collect(Collectors.toList()), repoUuid)
+                    .stream().collect(Collectors.toMap(Issue::getUuid, Function.identity(), (oldValue, newValue) -> newValue));
+            // Merge Solve: don't need to update solve commit and solver
             for (Issue issue : solvedIssues) {
-                issue.setSolveCommit(commitId);
-                issue.setSolveCommitDate(currentCommitDate);
-                issue.setSolver(developer);
+                if (issue.getSolvedType() == null || issue.getSolvedType().equals(RawIssueStatus.SOLVED.getType()) ||
+                        (issuesMap.containsKey(issue.getUuid()) && issuesMap.get(issue.getUuid()).getStatus().equals(IssueStatusEnum.OPEN.getName()))) {
+                    issue.setSolveCommit(commitId);
+                    issue.setSolveCommitDate(currentCommitDate);
+                    issue.setSolver(developer);
+                }
             }
 
             eliminate = (int) Stream.concat(solvedIssue.values().stream(),
@@ -173,7 +185,7 @@ public class IssueStatistics {
                 List<RawIssue> preRawIssues = stringListEntry.getValue();
                 log.info("statistics parentCommit:{}  jgitRepoPath:{}", parentCommit, jGitHelper.getRepoPath());
                 log.info("analysis process[{}], step 2-1: get parent commits", repoUuid);
-                List<String> allParentCommits = jGitHelper.getAllCommitParents(parentCommit);
+                List<String> allParentCommits = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, parentCommit);
                 log.info("analysis process[{}], step 2-2: match rawIssue in database, step 2-1 uses {} s", repoUuid, (System.currentTimeMillis() - matchProcess) / 1000);
                 matchProcess = System.currentTimeMillis();
                 Map<String, String> uuid2Hash = preRawIssues.stream().collect(Collectors.toMap(RawIssue::getUuid, RawIssue::getRawIssueHash, (oldValue, newValue) -> newValue));

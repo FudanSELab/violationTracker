@@ -51,21 +51,21 @@
     </insert>
 
     <delete id="deleteRawIssueMatchInfo">
-        DELETE FROM raw_issue_match_info
-        WHERE cur_rawIssue_uuid IN
+        DELETE rimi FROM raw_issue_match_info rimi
+        WHERE rimi.cur_rawIssue_uuid IN
         <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
             #{rawIssueUuid}
         </foreach>
-        OR pre_rawIssue_uuid IN
+        OR rimi.pre_rawIssue_uuid IN
         <foreach collection="partOfRawIssueIds" separator="," open="(" close=")" item="rawIssueUuid">
             #{rawIssueUuid}
         </foreach>
     </delete>
 
     <delete id="deleteRawIssueMatchInfoByRepoUuid">
-        delete
-        from raw_issue_match_info
-        where repo_uuid = #{repoUuid}
+        delete rimi
+        from raw_issue_match_info rimi
+        where rimi.repo_uuid = #{repoUuid}
     </delete>
 
     <select id="getIssueByPreCommits" resultType="String">

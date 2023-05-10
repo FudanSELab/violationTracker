@@ -41,7 +41,7 @@ public interface LocationMapper {
      * @param uuid rawIssueUuid
      * @return locations
      */
-    List<Map<String, Object>> getLocationsByRawIssueUuid(String uuid);
+    List<Location> getLocationsByRawIssueUuid(String uuid);
 
     /**
      * get rawIssueUuids by anchor name

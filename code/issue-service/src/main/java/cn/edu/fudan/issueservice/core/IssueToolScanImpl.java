@@ -107,7 +107,9 @@ public class IssueToolScanImpl extends AbstractToolScan {
             } else {
                 repoPath = rest.getCodeServiceRepo(repoUuid);
             }
-            // todo repoPath is null
+            if (repoPath == null) {
+                throw new NullPointerException("the repo uuid is " + repoUuid + " and the repo path is null");
+            }
             JGitHelper jGitHelper = JGitHelper.getInstance(repoPath);
             repoResource.put(jGitHelper, true);
         }
@@ -216,6 +218,9 @@ public class IssueToolScanImpl extends AbstractToolScan {
             //2 checkout
             if (!jGitHelper.checkout(commit)){
                 log.error("checkout failed! skip the commit [{}]", commit);
+                issueScan.setStatus(ScanStatusEnum.CHECKOUT_FAILED.getType());
+                issueScan.setEndTime(new Date());
+                issueScanDao.insertOneIssueScan(issueScan);
                 return false;
             }
 
@@ -282,7 +287,7 @@ public class IssueToolScanImpl extends AbstractToolScan {
             // d. There is a cache, but previously preparing resources failed
             return;
         }
-        log.info("analyze raw issues success!");
+        log.info("analyze raw issues success! repo is {}, commit is {}", repoUuid, commit);
 
         rawIssueCache.updateIssueAnalyzeStatus(rawIssues);
 
@@ -293,23 +298,23 @@ public class IssueToolScanImpl extends AbstractToolScan {
         issueMatcher.setAnalyzer(analyzer);
         boolean matchResult = issueMatcher.matchProcess(repoUuid, commit, jGitHelper, analyzer.getToolName(), rawIssues);
         if (!matchResult) {
-            log.error("issue match failed!repo path is {}, commit is {}", repoPath, commit);
+            log.error("issue match failed! repo path is {}, commit is {}", repoPath, commit);
             issueScan.setStatus(ScanStatusEnum.MATCH_FAILED.getType());
             return;
         }
         long matchTime = System.currentTimeMillis();
-        log.info("issue match use {} s,match success!", (matchTime - matchStartTime) / 1000);
+        log.info("issue match use {} s, match success! repo is {}, commit is {}", (matchTime - matchStartTime) / 1000, repoUuid, commit);
 
         //5 issue statistics
         initIssueStatistics(commit, analyzer, jGitHelper);
         boolean statisticalResult = issueStatistics.doingStatisticalAnalysis(issueMatcher, repoUuid, analyzer.getToolName());
         if (!statisticalResult) {
-            log.error("statistical failed!repo path is {}, commit is {}", repoPath, commit);
+            log.error("statistical failed! repo path is {}, commit is {}", repoPath, commit);
             issueScan.setStatus(ScanStatusEnum.STATISTICAL_FAILED.getType());
             return;
         }
         long issueStatisticsTime = System.currentTimeMillis();
-        log.info("issue statistics use {} s,issue statistics success!", (issueStatisticsTime - matchTime) / 1000);
+        log.info("issue statistics use {} s, issue statistics success! repo is {}, commit is {}", (issueStatisticsTime - matchTime) / 1000, repoUuid, commit);
 
         //6 issue merge
 //        long issueMergeTime = System.currentTimeMillis();
@@ -327,11 +332,11 @@ public class IssueToolScanImpl extends AbstractToolScan {
             issuePersistenceManager.persistScanData(issueStatistics, repoUuid);
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("persist failed!repo path is {}, commit is {}", repoPath, commit);
-            issueScan.setStatus(ScanStatusEnum.STATISTICAL_FAILED.getType());
+            log.error("persist failed! repo path is {}, commit is {}", repoPath, commit);
+            issueScan.setStatus(ScanStatusEnum.PERSIST_FAILED.getType());
             return;
         }
-        log.info("issue persistence use {} s,issue persistence!", (System.currentTimeMillis() - issueStatisticsTime) / 1000);
+        log.info("issue persistence use {} s, issue persistence! repo is {}, commit is {}", (System.currentTimeMillis() - issueStatisticsTime) / 1000, repoUuid, commit);
 
         issueScan.setStatus(ScanStatusEnum.DONE.getType());
     }
@@ -406,11 +411,15 @@ public class IssueToolScanImpl extends AbstractToolScan {
         }
 
         String repoUuid = scanData.getRepoUuid();
-        String repoPath = scanData.getRepoPath();
-        boolean needNotNullSolveWay = scanData.isInitialScan();
-        issueSolved.updateSolvedWay(repoUuid, repoPath, needNotNullSolveWay);
-
-        log.info("judgeSolvedType repo {} done", repoUuid);
+        try {
+            // judge solved way
+            String repoPath = scanData.getRepoPath();
+            boolean needNotNullSolveWay = scanData.isInitialScan();
+            issueSolved.updateSolvedWay(repoUuid, repoPath, needNotNullSolveWay);
+            log.info("judgeSolvedType repo {} done", repoUuid);
+        } catch (Exception ignored) {
+            log.warn("judgeSolvedType repo {} failed", repoUuid);
+        }
     }
 
     @Autowired

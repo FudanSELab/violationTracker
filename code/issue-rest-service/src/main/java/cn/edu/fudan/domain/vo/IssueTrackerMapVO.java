@@ -5,7 +5,6 @@ import cn.edu.fudan.domain.enums.IssueTrackerStatus;
 import cn.edu.fudan.domain.enums.RawIssueStatus;
 import cn.edu.fudan.domain.enums.SolveWayEnum;
 import cn.edu.fudan.util.DateTimeUtil;
-import cn.edu.fudan.util.MeasureCommitUtil;
 import cn.edu.fudan.util.StringsUtil;
 import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
@@ -48,12 +47,9 @@ public class IssueTrackerMapVO implements Serializable {
         // key: commit id, value commit
         Map<String, Commit> commitMap = new HashMap<>(32);
         commitList.forEach(commit -> commitMap.put(commit.getCommitId(), commit));
+        // set commit time
+        updateRawIssueCommitInfo(rawIssueList, commitMap);
 
-        // Set the time for the raw issue
-        rawIssueList.forEach(rawIssue -> {
-            rawIssue.setMessage(commitMap.get(rawIssue.getCommitId()).getMessage());
-            rawIssue.setCommitTime(DateTimeUtil.stringToDate(commitMap.get(rawIssue.getCommitId()).getCommitTime()));
-        });
         rawIssueList.sort(Comparator.comparing(RawIssue::getCommitTime));
         this.metaInfo.setFileName(rawIssueList.get(0).getFileName());
         this.metaInfo.setClassName(findClassName(rawIssueList.get(0).getFileName()));
@@ -61,6 +57,68 @@ public class IssueTrackerMapVO implements Serializable {
         log.debug("solved raw-issue list size is {}", solvedPreRawIssueList.size());
         log.debug("failed commit list size is {}", failedCommitList.size());
 
+        // file deletion
+        Set<String> fileDeleteSet = new HashSet<>(8);
+        Map<String, String> solvedRawIssueUuidMap = new HashMap<>(8);
+        // Categorically counts the status of issues under different commits.
+        Map<String, Set<String>> trackerCommitMap = getTrackerCommitMap(rawIssueMatchInfoList, fileDeleteSet, solvedRawIssueUuidMap);
+
+        // Initialize the tracker nodes
+        List<IssueTrackerNode> nodes = getTrackerNodes(commitMap, rawIssueList, solvedPreRawIssueList, solvedRawIssueUuidMap, fileDeleteSet, trackerCommitMap);
+
+
+        nodes.sort(Comparator.comparing(IssueTrackerNode::getCommitTime).reversed());
+        if (page == 1) {
+            //  Returned only in the first request
+            this.setIssueLocations(rawIssueList);
+        }
+
+        if (Boolean.TRUE.equals(showAll)) {
+            // All nodes
+            PagedGridResult<IssueTrackerNode> nodePagedGridResult = PagedGridResult.restPage(nodes, page, ps);
+            this.setNode(nodePagedGridResult);
+            // set edges
+            this.setEdge(handleIndirectEdges(page, ps, nodes, commitMap));
+        } else {
+            // filter nodes with issues changed
+            log.debug("filter nodes with issues changed");
+            List<IssueTrackerNode> filterNodes = new ArrayList<>();
+            nodes.forEach(n -> {
+                if (!IssueTrackerStatus.NOT_CHANGED.getType().equals(n.getIssueStatus())) {
+                    filterNodes.add(n);
+                }
+            });
+            log.debug("{} nodes have issues or changes", filterNodes.size());
+            filterNodes.sort(Comparator.comparing(IssueTrackerNode::getCommitTime).reversed());
+            Set<String> filterCommits = filterNodes.stream().map(IssueTrackerNode::getCommitId).collect(Collectors.toSet());
+            filterNodes.forEach(n -> {
+                if (StringUtils.isEmpty(n.getFilePath()) && !n.getIssueStatus().equals("solved")) {
+                    log.info("raw issue commits: {}", JSON.toJSONString(filterCommits));
+                }
+            });
+            PagedGridResult<IssueTrackerNode> filterNodePage = PagedGridResult.restPage(filterNodes, page, ps);
+            this.setNode(filterNodePage);
+            log.debug("a total of {} node information are obtained on page {}", filterNodePage.getRows().size(), page);
+            log.debug("update the edges of the nodes");
+            // the edges of the nodes
+            this.setEdge(handleIndirectEdges(page, ps, filterNodes, commitMap));
+        }
+    }
+
+    private void updateRawIssueCommitInfo(List<RawIssue> rawIssueList, Map<String, Commit> commitMap) {
+        // set commit time, developer
+        rawIssueList.forEach(rawIssue -> {
+            if (commitMap.containsKey(rawIssue.getCommitId())) {
+                rawIssue.setMessage(commitMap.get(rawIssue.getCommitId()).getMessage());
+                rawIssue.setCommitTime(DateTimeUtil.stringToDate(commitMap.get(rawIssue.getCommitId()).getCommitTime()));
+            } else {
+                rawIssue.setMessage("");
+                rawIssue.setCommitTime(new Date());
+            }
+        });
+    }
+
+    private Map<String, Set<String>> getTrackerCommitMap(List<RawIssueMatchInfo> rawIssueMatchInfoList, Set<String> fileDeleteSet, Map<String, String> solvedRawIssueUuidMap) {
         // key: status, value: list of commit ids
         Map<String, Set<String>> trackerCommitMap = new HashMap<>();
         //      a. changed commits（all）
@@ -73,13 +131,14 @@ public class IssueTrackerMapVO implements Serializable {
         trackerCommitMap.put(IssueTrackerStatus.BUG_MAY_CHANGED.getType(), new HashSet<>());
         //      e. Issues were solved in these commits
         trackerCommitMap.put(IssueTrackerStatus.SOLVED.getType(), new HashSet<>());
+        //      f. not changed commits
+        trackerCommitMap.put(IssueTrackerStatus.NOT_CHANGED.getType(), new HashSet<>());
 
-        // The solved way is file deletion
-        Set<String> fileDeleteSet = new HashSet<>(8);
-        Map<String, String> solvedRawIssueUuidMap = new HashMap<>(8);
-        // The date of the earliest introduced violation
-        Date addDate = null;
         for (RawIssueMatchInfo info : rawIssueMatchInfoList) {
+            if (RawIssueStatus.DEFAULT.getType().equals(info.getStatus())) {
+                trackerCommitMap.get(IssueTrackerStatus.NOT_CHANGED.getType()).add(info.getCurCommitId());
+                continue;
+            }
             trackerCommitMap.get(IssueTrackerStatus.CHANGED.getType()).add(info.getCurCommitId());
             if (RawIssueStatus.SOLVED.getType().equals(info.getStatus()) ||
                     info.getStatus().contains("solve")) {
@@ -94,290 +153,174 @@ public class IssueTrackerMapVO implements Serializable {
                     RawIssueStatus.REOPEN.getType().equals(info.getStatus()) ||
                     RawIssueStatus.MERGE_REOPEN.getType().equals(info.getStatus())) {
                 trackerCommitMap.get(IssueTrackerStatus.BUG_ADD.getType()).add(info.getCurCommitId());
-                // The date of the earliest introduced violation
-                if (commitMap.get(info.getCurCommitId()) != null && (addDate == null ||
-                        !after(commitMap.get(info.getCurCommitId()).getCommitTime(), addDate))) {
-                    addDate = DateTimeUtil.stringToDate(commitMap.get(info.getCurCommitId()).getCommitTime());
-                }
-            } else if (RawIssueStatus.CHANGED.getType().equals(info.getStatus())) {
+            } else if (RawIssueStatus.CHANGED.getType().equals(info.getStatus()) ||
+                    RawIssueStatus.MERGE_CHANGED.getType().equals(info.getStatus())) {
                 trackerCommitMap.get(IssueTrackerStatus.BUG_CHANGED.getType()).add(info.getCurCommitId());
-            } else if (RawIssueStatus.DEFAULT.getType().equals(info.getStatus())) {
-                trackerCommitMap.get(IssueTrackerStatus.BUG_MAY_CHANGED.getType()).add(info.getCurCommitId());
             }
         }
-        // A list of failed commits for scanning
-        trackerCommitMap.get(IssueTrackerStatus.BUG_MAY_CHANGED.getType()).addAll(failedCommitList);
-
-        // Initialize the tracker nodes
-        List<IssueTrackerNode> nodes = getTrackerNodes(commitList, rawIssueList, solvedPreRawIssueList, solvedRawIssueUuidMap, fileDeleteSet, trackerCommitMap);
-
-        log.debug("all nodes size is {}", nodes.size());
-        for (Map.Entry<String, Set<String>> entry : trackerCommitMap.entrySet()) {
-            log.debug("{} nodes size is {}", entry.getKey(), entry.getValue().size());
-        }
-        nodes.sort(Comparator.comparing(IssueTrackerNode::getCommitTime).reversed());
-        // commit edges
-        Set<String> edgeSet = initEdges(nodes, commitMap, addDate);
-
-        if (page == 1) {
-            // Returned only in the first request
-            this.setIssueLocations(rawIssueList);
-        }
-
-        if (Boolean.TRUE.equals(showAll)) {
-            // All nodes
-            PagedGridResult<IssueTrackerNode> nodePagedGridResult = PagedGridResult.restPage(nodes, page, ps);
-            this.setNode(nodePagedGridResult);
-            if (nodePagedGridResult.getRows().isEmpty()) {
-                return;
-            }
-            this.setEdge(handleDirectEdges(page, ps, nodes, edgeSet));
-        } else {
-            log.debug("filter nodes with issues/changes");
-            List<IssueTrackerNode> filterNodes = new ArrayList<>();
-            nodes.forEach(n -> {
-                for (RawIssueMatchInfo info : rawIssueMatchInfoList) {
-                    if (n.getCommitId().equals(info.getCurCommitId())) {
-                        filterNodes.add(n);
-                        break;
-                    }
-                }
-            });
-            log.debug("{} nodes have issues or changes", filterNodes.size());
-            filterNodes.sort(Comparator.comparing(IssueTrackerNode::getCommitTime).reversed());
-            Set<String> filterCommits = filterNodes.stream().map(IssueTrackerNode::getCommitId).collect(Collectors.toSet());
-            filterNodes.forEach(n -> {
-                if (StringUtils.isEmpty(n.getFilePath()) && !n.getIssueStatus().equals("solved")) {
-                    log.info("raw issue commits: {}", JSON.toJSONString(filterCommits));
-                }
-            });
-            PagedGridResult<IssueTrackerNode> filterNodePage = PagedGridResult.restPage(filterNodes, page, ps);
-            this.setNode(filterNodePage);
-            log.debug("a total of {} node information are obtained on page {}", filterNodePage.getRows().size(), page);
-            if (filterNodePage.getRows().isEmpty()) {
-                return;
-            }
-            log.debug("update the edges of the nodes");
-            this.setEdge(handleIndirectEdges(page, ps,
-                    new HashSet<>(trackerCommitMap.get(IssueTrackerStatus.CHANGED.getType())),
-                    filterNodes, commitMap, rawIssueList));
-        }
+        // scan failed
+        // fixme 暂时不记录扫描失败的 commit，只记录 add~solved 之间的
+//        trackerCommitMap.get(IssueTrackerStatus.BUG_MAY_CHANGED.getType()).addAll(failedCommitList);
+        return trackerCommitMap;
     }
 
     /**
-     * Initialize tracker nodes
+     * 初始化 tracker node
      *
-     * @param commitList
-     * @return
+     * @param commitMap commitId -> commit
+     * @return tracker nodes
      */
-    private List<IssueTrackerNode> getTrackerNodes(List<Commit> commitList, List<RawIssue> rawIssues, List<RawIssue> solvedPreRawIssues,
+    private List<IssueTrackerNode> getTrackerNodes(Map<String, Commit> commitMap, List<RawIssue> rawIssues, List<RawIssue> solvedPreRawIssues,
                                                    Map<String, String> solvedRawIssueUuidMap, Set<String> fileDeleteSet, Map<String, Set<String>> trackerCommitMap) {
-        // key: commit, value: rawIssue
+        // commit -> rawIssue
         Map<String, RawIssue> rawIssueMap = new HashMap<>(16);
         rawIssues.forEach(rawIssue -> rawIssueMap.put(rawIssue.getCommitId(), rawIssue));
-        // key: raw issue uuid, value: rawIssue
+        // raw issue uuid -> rawIssue
         Map<String, RawIssue> preRawIssueMap = new HashMap<>(8);
         solvedPreRawIssues.forEach(rawIssue -> preRawIssueMap.put(rawIssue.getUuid(), rawIssue));
 
-        // Do not directly look up the commit table through the repo uuid,
-        // there is a situation where a commit belongs to multiple repos,
-        // and the list of committed lists obtained is incomplete
+        // 不直接通过 repo uuid 查找 commit 表，存在一个 commit 属于多个 repo 的情况，获取的 commit 列表不全
         List<IssueTrackerNode> trackerNodes = new ArrayList<>();
         Set<String> distinctCommits = new HashSet<>();
-        for (Commit commit : commitList) {
-            if (!distinctCommits.contains(commit.getCommitId())) {
-                IssueTrackerNode trackerNode = new IssueTrackerNode();
-                trackerNode.setCommitId(commit.getCommitId());
-                List<String> parentCommit = StringsUtil.parseParentCommits(commit.getParentCommits());
-                StringJoiner sj = new StringJoiner(",");
-                parentCommit.forEach(sj::add);
-                trackerNode.setParentCommit(sj.toString());
-                trackerNode.setCommitter(commit.getDeveloper());
-                trackerNode.setCommitTime(DateTimeUtil.stringToDate(commit.getCommitTime()));
-                trackerNode.setAuthorTime(DateTimeUtil.stringToDate(commit.getAuthorTime()));
-                String filePath;
-                if (fileDeleteSet.contains(trackerNode.getCommitId())) {
-                    // file deletion
-                    filePath = "";
-                    trackerNode.setSolveWay(SolveWayEnum.FILE_DELETE.lowercase);
-                } else {
-                    if (solvedRawIssueUuidMap.containsKey(commit.getCommitId())) {
-                        filePath = findFilePath(preRawIssueMap.get(solvedRawIssueUuidMap.get(commit.getCommitId())));
+        for (Map.Entry<String, Set<String>> commitEntry : trackerCommitMap.entrySet()) {
+            commitEntry.getValue().forEach(c -> {
+                if (!distinctCommits.contains(c)) {
+                    IssueTrackerNode trackerNode = new IssueTrackerNode();
+                    trackerNode.setCommitId(c);
+                    updateTrackerNodeCommitInfo(trackerNode, commitMap.get(c));
+                    String filePath;
+                    if (fileDeleteSet.contains(trackerNode.getCommitId())) {
+                        // 以 file delete 方式解决的 commit，文件路径应当为空
+                        filePath = "";
+                        trackerNode.setSolveWay(SolveWayEnum.FILE_DELETE.lowercase);
+                    } else if (solvedRawIssueUuidMap.containsKey(c)) {
+                        filePath = findFilePath(preRawIssueMap.get(solvedRawIssueUuidMap.get(c)));
                         trackerNode.setSolveWay("others");
                     } else {
-                        filePath = findFilePath(rawIssueMap.get(commit.getCommitId()));
+                        filePath = findFilePath(rawIssueMap.get(c));
                     }
+                    trackerNode.setFilePath(filePath);
+                    // 更新状态
+                    trackerNode.setIssueStatus("");
+                    if (!commitEntry.getKey().equals(IssueTrackerStatus.CHANGED.getType())) {
+                        trackerNode.setIssueStatus(commitEntry.getKey());
+                    }
+                    trackerNodes.add(trackerNode);
+                    distinctCommits.add(trackerNode.getCommitId());
                 }
-                trackerNode.setFilePath(filePath);
-                // update status
-                setTrackerStatus(trackerCommitMap, trackerNode);
-                trackerNodes.add(trackerNode);
-                distinctCommits.add(trackerNode.getCommitId());
-            }
+            });
+        }
+        log.debug("all nodes size is {}", trackerNodes.size());
+        for (Map.Entry<String, Set<String>> entry : trackerCommitMap.entrySet()) {
+            log.debug("{} nodes size is {}", entry.getKey(), entry.getValue().size());
         }
         return trackerNodes;
     }
 
-    /**
-     * commit edges
-     *
-     * @param nodes
-     * @param commitMap
-     * @param addDate
-     * @return
-     */
-    private Set<String> initEdges(List<IssueTrackerNode> nodes, Map<String, Commit> commitMap, Date addDate) {
-        Set<String> edgeSet = new HashSet<>();
-        Set<String> commitSet = new HashSet<>(32);
-        nodes.forEach(issueTrackerNode -> commitSet.add(issueTrackerNode.getCommitId()));
-        for (IssueTrackerNode n : nodes) {
-            if (n != null) {
-                edgeSet.add(n.getCommitId() + "_" + n.getParentCommit());
-                Set<String> changedResult = new HashSet<>();
-                findParentCommits(n.getCommitId(), changedResult, commitSet, commitMap, addDate, new HashSet<>());
-            }
-        }
-        return edgeSet;
-    }
 
-    /**
-     * Direct edges
-     *
-     * @param page
-     * @param ps
-     * @param nodes   //     * @param allNodeMap
-     * @param edgeSet
-     * @return
-     */
-    private List<CommitEdge> handleDirectEdges(Integer page, Integer ps, List<IssueTrackerNode> nodes, Set<String> edgeSet) {
-        List<CommitEdge> edges = new ArrayList<>();
-        for (IssueTrackerNode n : nodes.subList((page - 1) * ps, Math.min(page * ps, nodes.size()))) {
-            Set<String> parentCommitSet = new HashSet<>(StringsUtil.parseParentCommits(n.getParentCommit()));
-            for (String parent : parentCommitSet) {
-                CommitEdge e = CommitEdge.builder()
-                        .target(n.getCommitId())
-                        .source(parent)
-                        .changeRelation("UNCHANGED").build();
-                if (edgeSet.contains(n.getCommitId() + "_" + parent)) {
-                    e.setChangeRelation("CHANGED");
-                }
-                edges.add(e);
-            }
+    private void updateTrackerNodeCommitInfo(IssueTrackerNode trackerNode, Commit commit) {
+        if (commit != null) {
+            List<String> parentCommit = StringsUtil.parseParentCommits(commit.getParentCommits());
+            StringJoiner sj = new StringJoiner(",");
+            parentCommit.forEach(sj::add);
+            trackerNode.setParentCommit(sj.toString());
+            trackerNode.setCommitter(commit.getDeveloper());
+            trackerNode.setCommitTime(DateTimeUtil.stringToDate(commit.getCommitTime()));
+            trackerNode.setAuthorTime(DateTimeUtil.stringToDate(commit.getAuthorTime()));
+        } else {
+            trackerNode.setCommitTime(new Date());
+            trackerNode.setCommitter("");
         }
-        return edges;
     }
 
     /**
      * Indirect edges
      *
-     * @param page
-     * @param ps
-     * @param changedCommits
-     * @param filterNodes
-     * @param commitMap
-     * @param rawIssues
-     * @return
+     * @param page      page num
+     * @param ps        page size
+     * @param nodes     nodes
+     * @param commitMap commit id -> commit
+     * @return edges
      */
-    private List<CommitEdge> handleIndirectEdges(Integer page, Integer ps, Set<String> changedCommits,
-                                                 List<IssueTrackerNode> filterNodes,
-                                                 Map<String, Commit> commitMap,
-                                                 List<RawIssue> rawIssues) {
+    private List<CommitEdge> handleIndirectEdges(Integer page, Integer ps, List<IssueTrackerNode> nodes,
+                                                 Map<String, Commit> commitMap) {
         List<CommitEdge> edges = new ArrayList<>();
         // Current page
-        List<IssueTrackerNode> curNodes = filterNodes.subList((page - 1) * ps, Math.min(page * ps, filterNodes.size()));
+        List<IssueTrackerNode> curNodes = nodes.subList((page - 1) * ps, Math.min(page * ps, nodes.size()));
         // All nodes before the current page
-        List<IssueTrackerNode> beforeNodes = filterNodes.subList(0, Math.min(page * ps, filterNodes.size()));
+        List<IssueTrackerNode> beforeNodes = nodes.subList(0, Math.min(page * ps, nodes.size()));
         if (curNodes.isEmpty()) return edges;
-        Date minDate = curNodes.get(curNodes.size() - 1).getCommitTime();
         Set<String> curCommitSet = curNodes.stream().map(IssueTrackerNode::getCommitId).collect(Collectors.toSet());
-        for (IssueTrackerNode n : beforeNodes) {
-            Set<String> parents = new HashSet<>();
-            Set<String> directParents = Set.of(commitMap.get(n.getCommitId()).getParentCommits().split(","));
-            Set<String> visitedCommits = new HashSet<>();
+        for (IssueTrackerNode trackerNode : beforeNodes) {
+            Set<String> directParents = commitMap.get(trackerNode.getCommitId()) == null ? new HashSet<>() :
+                    new HashSet<>(StringsUtil.parseParentCommits(commitMap.get(trackerNode.getCommitId()).getParentCommits()));
             // Look for the parents of the current revision
-            findParentCommits(n.getCommitId(), parents, curCommitSet, commitMap, minDate, visitedCommits);
-            for (String parent : parents) {
-                if (!curCommitSet.contains(parent)) {
-                    continue;
-                }
-                CommitEdge e = CommitEdge.builder()
-                        .target(n.getCommitId())
-                        .source(parent)
-                        .changeRelation("UNCHANGED")
-                        .type(directParents.contains(parent) ? "direct" : "indirect")
-                        .build();
-                if (changedCommits.contains(n.getCommitId())) {
-                    int v1 = findVersion(rawIssues, n.getCommitId());
-                    int v2 = findVersion(rawIssues, parent);
-                    if (v2 != -1 && v1 != v2) {
-                        e.setChangeRelation("CHANGED");
-                    }
-                }
-                edges.add(e);
-            }
+            List<String> allParents = findParentCommits(trackerNode.getCommitId(), commitMap);
+            findEdgeInCommitSet(trackerNode, directParents, allParents, curCommitSet, edges);
         }
+        List<String> beforeCommitList = beforeNodes.stream().map(IssueTrackerNode::getCommitId).collect(Collectors.toList());
+        edges.removeAll(filterRedundantEdge(edges, beforeCommitList));
         log.debug("indirect edges size: {}", edges.size());
         return edges;
     }
 
-    /**
-     * Update status
-     *
-     * @param commitMap
-     * @param node
-     */
-    private void setTrackerStatus(Map<String, Set<String>> commitMap, IssueTrackerNode node) {
-        node.setIssueStatus("");
-        for (Map.Entry<String, Set<String>> entry : commitMap.entrySet()) {
-            if (!entry.getKey().equals(IssueTrackerStatus.CHANGED.getType()) &&
-                    entry.getValue().contains(node.getCommitId())) {
-                node.setIssueStatus(entry.getKey());
+    private void findEdgeInCommitSet(IssueTrackerNode node, Set<String> directParents, List<String> allParents,
+                                     Set<String> curCommitSet, List<CommitEdge> edges) {
+        for (String parent : allParents) {
+            if (curCommitSet.contains(parent) && !parent.equals(node.getCommitId())) {
+                // Keep only the edges between commits on the current page.
+                CommitEdge e = CommitEdge.builder()
+                        .target(node.getCommitId())
+                        .source(parent)
+                        .changeRelation(IssueTrackerStatus.NOT_CHANGED.getType().equals(node.getIssueStatus()) ? "UNCHANGED" : "CHANGED")
+                        .type(directParents.contains(parent) ? "direct" : "indirect")
+                        .build();
+                edges.add(e);
             }
         }
+    }
+
+    private List<CommitEdge> filterRedundantEdge(List<CommitEdge> edges, List<String> commits) {
+        // Filter out redundant edges, and if there are a->c a->b b->c, then delete a->c.
+        Map<String, List<CommitEdge>> commitEdgeMap = edges.stream().collect(Collectors.groupingBy(commitEdge -> commitEdge.getTarget() + "_" + commitEdge.getSource()));
+        List<CommitEdge> removeEdgeList = new ArrayList<>();
+        for (int i = 0; i < commits.size(); i++) {
+            for (int j = i + 1; j < commits.size() - 1; j++) {
+                if (commitEdgeMap.containsKey(commits.get(i) + "_" + commits.get(i + 1)) &&
+                        commitEdgeMap.containsKey(commits.get(j) + "_" + commits.get(j + 1))) {
+                    removeEdgeList.addAll(commitEdgeMap.getOrDefault(commits.get(i) + "_" + commits.get(j + 1), new ArrayList<>()));
+                }
+            }
+        }
+        return removeEdgeList;
     }
 
     /**
      * Look for the parents in the revision in commitOfCurrentPage and put the result in parents
      *
-     * @param commitId
-     * @param parents
-     * @param commitOfCurrentPage
-     * @param commitMap
-     * @param minDate
-     * @param visitedCommits
+     * @param commitId  commit id
+     * @param commitMap commit id -> commit
      */
-    private void findParentCommits(String commitId, Set<String> parents, Set<String> commitOfCurrentPage, Map<String, Commit> commitMap, Date minDate, Set<String> visitedCommits) {
-        if (commitOfCurrentPage.isEmpty() || commitMap.get(commitId) == null) {
-            return;
+    private List<String> findParentCommits(String commitId, Map<String, Commit> commitMap) {
+        if (commitMap.get(commitId) == null) {
+            return Collections.emptyList();
         }
-        Set<String> parentCommitSet = new HashSet<>(StringsUtil.parseParentCommits(commitMap.get(commitId).getParentCommits()));
-        for (String parentCommit : parentCommitSet) {
-            // It ends after finding its indirect parent in the commitOfCurrentPage
-            if (!visitedCommits.contains(parentCommit)) {
-                visitedCommits.add(parentCommit);
-                if (commitOfCurrentPage.contains(parentCommit)) {
-                    parents.add(parentCommit);
-                } else if (commitMap.get(parentCommit) != null && (after(commitMap.get(parentCommit).getCommitTime(), minDate)
-                        || MeasureCommitUtil.isCherryPick(commitMap.get(parentCommit), commitMap))) {
-                    findParentCommits(commitMap.get(parentCommit).getCommitId(), parents, commitOfCurrentPage, commitMap, minDate, visitedCommits);
+        List<String> parentCommitList = new ArrayList<>();
+        Queue<String> parentCommitQueue = new LinkedList<>();
+        parentCommitQueue.offer(commitId);
+        while (!parentCommitQueue.isEmpty()) {
+            String indexCommit = parentCommitQueue.poll();
+            parentCommitList.add(indexCommit);
+            if (commitMap.containsKey(indexCommit)) {
+                List<String> parents = StringsUtil.parseParentCommits(commitMap.get(indexCommit).getParentCommits());
+                for (String parent : parents) {
+                    if (!parentCommitList.contains(parent) && !parentCommitQueue.contains(parent)) {
+                        parentCommitQueue.offer(parent);
+                    }
                 }
             }
         }
-    }
-
-    /**
-     * Get the version of current commit
-     *
-     * @param rawIssues
-     * @param commitId
-     * @return
-     */
-    private int findVersion(List<RawIssue> rawIssues, String commitId) {
-        for (RawIssue rawIssue : rawIssues) {
-            if (commitId.equals(rawIssue.getCommitId()))
-                return rawIssue.getVersion();
-        }
-        return -1;
+        return parentCommitList;
     }
 
     /**
@@ -411,7 +354,4 @@ public class IssueTrackerMapVO implements Serializable {
         return "";
     }
 
-    private boolean after(String time, Date date) {
-        return DateTimeUtil.stringToDate(time).compareTo(date) >= 0;
-    }
 }

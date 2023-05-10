@@ -14,11 +14,22 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class ShUtil {
+    private ShUtil() {
+        throw new IllegalStateException("Utility class");
+    }
 
-    public static boolean executeToolCommand(String tool, String logFile, String command, int timeout, String... args) {
+    /**
+     * @param tool    tool name
+     * @param logFile LOG file
+     * @param command shell script
+     * @param timeout timeout
+     * @param args    other args
+     * @return 0 success, 1 failed, 2 unsure
+     */
+    public static int executeToolCommand(String tool, String logFile, String command, int timeout, String... args) {
         Process process = parseToProcess(command, args);
         if (process == null) {
-            return false;
+            return 1;
         }
         try (PrintWriter pw = new PrintWriter(new FileWriter(logFile))) {
             Calendar calendar = Calendar.getInstance();
@@ -30,8 +41,12 @@ public class ShUtil {
         }
         return executeCommand(process, timeout);
     }
-
-    private static boolean executeCommand(Process process, int timeout) {
+    /**
+     * @param process process
+     * @param timeout timeout
+     * @return 0 success, 1 failed, 2 unsure
+     */
+    private static int executeCommand(Process process, int timeout) {
         try {
 
             // true if the process has exited ;  false if the waiting time elapsed before the process has exited.
@@ -41,13 +56,13 @@ public class ShUtil {
             if (!isProcessNormalExited) {
                 process.destroy();
                 log.error("invoke tool timeout ! ({}s)", timeout);
-                return false;
+                return 1;
             }
-            return process.exitValue() == 0;
+            return process.exitValue();
         } catch (InterruptedException e) {
             log.warn("command execute error, msg is: {}", e.getMessage());
         }
-        return false;
+        return 1;
     }
 
 
@@ -65,7 +80,7 @@ public class ShUtil {
         if (process == null) {
             return false;
         }
-        return executeCommand(process, timeout);
+        return executeCommand(process, timeout) == 0;
     }
 
     public static Process parseToProcess(String command, String... args) {

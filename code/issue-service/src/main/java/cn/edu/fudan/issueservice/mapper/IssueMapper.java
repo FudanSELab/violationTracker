@@ -98,6 +98,13 @@ public interface IssueMapper {
     int getIssueFilterListCount(Map<String, Object> query);
 
     /**
+     * Returns the number of surviving violations before the cutoff date, i.e., legacy data.
+     * @param query
+     * @return
+     */
+    int getRemainingIssueCountUntil(Map<String, Object> query);
+
+    /**
      * Return the number of solved issues
      *
      * @param query conditions
@@ -228,7 +235,7 @@ public interface IssueMapper {
      * @param query query
      * @return issue count group by type
      */
-    List<Map<String, Object>> getIssueCountByCategoryAndType(Map<String, Object> query);
+    List<Map<String, Object>> getIssueByCategoryAndType(Map<String, Object> query);
 
     /**
      * living issue tendency data
@@ -425,4 +432,6 @@ public interface IssueMapper {
      */
     List<String> getIssueUuidsByIssueTypeStatus(@Param("repoUuids") List<String> repoUuids, @Param("tool") String tool, @Param("issueTypeStatus") String issueTypeStatus);
 
+
+    List<Map<String, Object>> getIssueByCategoryAndTypeAndSolveWay(Map<String, Object> query);
 }

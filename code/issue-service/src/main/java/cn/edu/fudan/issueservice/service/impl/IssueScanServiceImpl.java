@@ -1,12 +1,15 @@
 package cn.edu.fudan.issueservice.service.impl;
 
+import cn.edu.fudan.common.domain.ScanInfo;
 import cn.edu.fudan.common.domain.po.scan.RepoScan;
 import cn.edu.fudan.common.domain.po.scan.ScanStatus;
 import cn.edu.fudan.issueservice.component.SonarRest;
 import cn.edu.fudan.issueservice.dao.*;
 import cn.edu.fudan.issueservice.domain.dto.ScanRequestDTO;
+import cn.edu.fudan.issueservice.domain.enums.ToolEnum;
 import cn.edu.fudan.issueservice.service.IssueScanService;
 import cn.edu.fudan.issueservice.util.DateTimeUtil;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +26,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class IssueScanServiceImpl implements IssueScanService {
-
     private IssueScanDao issueScanDao;
     private IssueRepoDao issueRepoDao;
     private RawIssueCacheDao rawIssueCacheDao;
@@ -43,28 +45,53 @@ public class IssueScanServiceImpl implements IssueScanService {
         List<RepoScan> issueRepos = getIssueReposByRepoUuid(repoUuid);
         RepoScan issueRepo = new RepoScan();
         issueRepo.setRepoUuid(repoUuid);
+        // not scan
         if (issueRepos.isEmpty()) {
             log.warn("can not find repo:{} in issue repo", repoUuid);
-            issueRepo.setScanStatus(ScanStatus.FAILED);
+            issueRepo.setScanStatus(ScanInfo.Status.WAITING_FOR_SCAN.getStatus());
             return issueRepo;
         }
         final List<RepoScan> issueReposOrderByEndScanTime = issueRepos.stream()
                 .sorted(Comparator.comparing(r -> DateTimeUtil.format(r.getEndScanTime()))).collect(Collectors.toList());
         issueRepo.setStartScanTime(issueReposOrderByEndScanTime.get(0).getStartScanTime());
         issueRepo.setEndScanTime(issueReposOrderByEndScanTime.get(issueReposOrderByEndScanTime.size() - 1).getEndScanTime());
-        boolean isScanning = false;
-        boolean isFailed = false;
+        // all failed
+        boolean isFailed = issueReposOrderByEndScanTime.stream().allMatch(repoScan ->
+                ScanStatus.FAILED.equals(repoScan.getScanStatus()));
+        // all complete
+        boolean isComplete = issueReposOrderByEndScanTime.stream().allMatch(repoScan ->
+                ScanStatus.COMPLETE.equals(repoScan.getScanStatus()));
+        if (isFailed) {
+            issueRepo.setScanStatus(ScanInfo.Status.FAILED.getStatus());
+            return issueRepo;
+        } else if (isComplete) {
+            issueRepo.setScanStatus(ScanInfo.Status.COMPLETE.getStatus());
+            return issueRepo;
+        }
         for (RepoScan repoScan : issueReposOrderByEndScanTime) {
-            // failed or interrupt
-            if (repoScan.getScanStatus().equals(ScanStatus.FAILED) || repoScan.getScanStatus().equals(ScanStatus.INTERRUPT)) {
-                isFailed = true;
-                break;
-            }
-            if (repoScan.getScanStatus().equals(ScanStatus.SCANNING)) {
-                isScanning = true;
+            switch (repoScan.getScanStatus()) {
+                case ScanStatus.FAILED:
+                    issueRepo.setScanStatus(ScanInfo.Status.FAILED.getStatus());
+                    isFailed = true;
+                    break;
+                //  scanning or interrupt
+                case ScanStatus.INTERRUPT:
+                    issueRepo.setScanStatus(ScanStatus.INTERRUPT);
+                    return issueRepo;
+                case ScanStatus.SCANNING:
+                    issueRepo.setScanStatus(ScanInfo.Status.SCANNING.getStatus());
+                    return issueRepo;
+                case ScanStatus.WAITING_FOR_SCAN:
+                    issueRepo.setScanStatus(ScanInfo.Status.WAITING_FOR_SCAN.getStatus());
+                    return issueRepo;
+                default:
+                    issueRepo.setScanStatus(isFailed ? ScanInfo.Status.FAILED.getStatus() : ScanInfo.Status.COMPLETE.getStatus());
+                    break;
             }
         }
-        issueRepo.setScanStatus(isFailed || issueRepos.isEmpty() ? ScanStatus.FAILED : ((isScanning || tools.size() != issueRepos.size()) ? ScanStatus.SCANNING : ScanStatus.COMPLETE));
+        if (tools.size() > issueRepos.size()) {
+            issueRepo.setScanStatus(ScanInfo.Status.WAITING_FOR_SCAN.getStatus());
+        }
         return issueRepo;
     }
 

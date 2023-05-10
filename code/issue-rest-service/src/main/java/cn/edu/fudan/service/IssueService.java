@@ -12,7 +12,6 @@ import java.util.Map;
 public interface IssueService {
 
     /**
-     * 根据repoUuid和tool删除对应issue
      *
      * @param repoUuid repoUuid
      * @param tool     tool
@@ -21,59 +20,38 @@ public interface IssueService {
 
 
     /**
-     * 根据缺陷扫描工具获取该工具下扫描的所有的issue类型
      *
      * @param tool tool
-     * @return 所有的issue类型
+     * @return all issue types
      */
     List<String> getExistIssueTypes(String tool);
 
     /**
-     * 更新缺陷优先级
-     *
-     * @param issueUuid issueUuid
-     * @param priority  优先级
-     * @param token     token
-     * @throws Exception 异常
-     */
-    void updatePriority(String issueUuid, String priority, String token) throws Exception;
-
-    /**
-     * 修改Issue的状态
-     *
-     * @param issueUuid    issueUuid
-     * @param status       状态
-     * @param manualStatus manualStatus
-     */
-    void updateStatus(String issueUuid, String status, String manualStatus);
-
-    /**
-     * 项目详情页面的issueCount每日数据
      *
      * @param repoUuids repo_uuids
      * @param since     since
      * @param until     until
      * @param tool      tool
-     * @return 项目详情页面的issueCount每日数据
+     * @return
      */
     List<Map<String, Object>> getRepoIssueCounts(List<String> repoUuids, String since, String until, String tool);
 
     /**
-     * 获取缺陷严重程度列表
+     * violation severities
      *
-     * @return 获取缺陷严重程度列表
+     * @return severity list
      */
     List<String> getIssueSeverities();
 
     /**
-     * 获取缺陷的状态列表
+     * violation statuses
      *
-     * @return 缺陷的状态列表
+     * @return status list
      */
     List<String> getIssueStatus();
 
     /**
-     * 获取引入过缺陷的所有开发者姓名列表
+     * developers who have introduced some violations
      *
      * @param repoUuids repoUuid list
      * @return issueIntroducers
@@ -89,40 +67,40 @@ public interface IssueService {
     List<IssueFilterSidebarVO> getIssuesFilterSidebar(Map<String, Object> query);
 
     /**
-     * 返回issue总数
+     * count violations by condition
      *
-     * @param query 条件
-     * @return issue总数
+     * @param query query
+     * @return violation list size
      */
     Map<String, Object> getIssueFilterListCount(Map<String, Object> query);
 
     /**
-     * 根据query获取issuesList
+     * filter violations by condition
      *
-     * @param query           条件
+     * @param query           query
      * @param issueFilterList issueFilterList
      * @return issuesList
      */
     Map<String, Object> getIssueFilterList(Map<String, Object> query, Map<String, Object> issueFilterList);
 
     /**
-     * 返回缺陷详情 由于只有open的issue才有location，所以去除solved issues
+     * violation details
      *
-     * @param query           条件
-     * @param issueFilterList 结果
+     * @param query           query
+     * @param issueFilterList result list
      * @return IssueFilterListWithDetail
      */
     Map<String, Object> getIssueFilterListWithDetail(Map<String, Object> query, Map<String, Object> issueFilterList);
 
     /**
-     * 开发者风险页面
+     * developer risk
      *
      * @param repoList  repoList
      * @param developer developer
      * @param asc       asc
      * @param page      page
      * @param ps        ps
-     * @return 开发者风险页面
+     * @return
      */
     Map<String, Object> getIssueRiskByDeveloper(List<String> repoList, String developer, Boolean asc, int page, int ps, int level);
 
@@ -144,8 +122,8 @@ public interface IssueService {
 
     PagedGridResult<DeveloperIssueVO> getDeveloperIssueByCommit(String repoUuids, String developers, String facets, String identity, String since, String until, String tool, int page, int ps);
 
-    public Object getLivingIssueTendency(String beginDate, String endDate, String projectIds, String interval, String showDetail);
+    Object getLivingIssueTendency(String beginDate, String endDate, String projectIds, String interval, String showDetail);
 
-    PagedGridResult<IssueWithLocationItem> getFileIssues(String repoUuid, String commitId, String filePath);
+    PagedGridResult<IssueWithLocationItem> getFileIssues(String repoUuid, String commitId, String filePath, boolean closed);
 
 }

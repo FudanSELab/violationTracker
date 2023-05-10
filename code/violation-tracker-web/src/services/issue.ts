@@ -56,7 +56,7 @@ export async function getRepositoryScanStatus(
   userToken: string,
   signal?: AbortSignal,
 ) {
-  const url = `${baseUrl}/issue/scan-statuses`;
+  const url = `${baseUrl}issue/scan-statuses`;
   return get(`${url}?${stringify(params)}`, '', signal)
     .then(handleError)
     .then((d) => d as any)
@@ -332,7 +332,7 @@ export async function getLivingIssueForGraph(
 }
 
 export async function postScanRepo(data: FormData, userToken?: string) {
-  const url = `${baseUrl}issue/scan`;
+  const url = `${baseUrl}issue/scan/`;
   return request(url, {
     method: 'POST',
     headers: {

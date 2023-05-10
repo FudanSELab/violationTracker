@@ -108,9 +108,13 @@ public class PagedGridResult<T> {
         } else {
             result.setRows(startPage(list, page, ps));
             result.setRecords(list.size());
-            if (list.size() % ps != 0)
-                result.setTotal(list.size() / ps + 1);
-            else result.setTotal(list.size() / ps);
+            if (ps == 0) {
+                result.setTotal(0);
+            } else {
+                if (list.size() % ps != 0)
+                    result.setTotal(list.size() / ps + 1);
+                else result.setTotal(list.size() / ps);
+            }
             result.setPs(ps);
             result.setPage(page);
         }
@@ -128,15 +132,12 @@ public class PagedGridResult<T> {
     }
 
     private static <T> List<T> startPage(List<T> list, Integer page, Integer ps) {
-        if (list == null) {
-            return new ArrayList<T>();
-        }
-        if (list.size() == 0) {
-            return new ArrayList<T>();
+        if (list == null || list.isEmpty()) {
+            return new ArrayList<>();
         }
 
         Integer count = list.size(); // records
-        Integer pageCount = 0; // page num
+        Integer pageCount; // page num
         if (count % ps == 0) {
             pageCount = count / ps;
         } else {

@@ -1,7 +1,7 @@
-package cn.edu.fudan.issueservice.dao;
+package cn.edu.fudan.dao;
 
 import cn.edu.fudan.common.domain.po.scan.RepoScan;
-import cn.edu.fudan.issueservice.mapper.IssueRepoScanListMapper;
+import cn.edu.fudan.mapper.IssueRepoScanListMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

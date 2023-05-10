@@ -119,10 +119,12 @@ public class IssueOuterController {
             @ApiImplicitParam(name = "order", defaultValue = "no", allowableValues = "no , quantity , open , solved"),
             @ApiImplicitParam(name = "issue_uuids", value = "Issue uuids\nUse commas as separators"),
             @ApiImplicitParam(name = "manual_status", defaultValue = "Default", allowableValues = "Ignore , Misinformation , To_Review , Default"),
-            @ApiImplicitParam(name = "solved_types", value = "Solved issue types\nUse commas as separators")
+            @ApiImplicitParam(name = "solved_types", value = "Solved issue types\nUse commas as separators"),
+            @ApiImplicitParam(name = "issue_id", value = "Issue id")
     })
     @GetMapping(value = {"/issue/filter"})
     public ResponseBean<Map<String, Object>> filterIssues(HttpServletRequest request,
+                                                          @RequestParam(value = "displayId", required = false) String id,
                                                           @RequestParam(value = "project_names", required = false) String projectNames,
                                                           @RequestParam(value = "repo_uuids", required = false) String repoUuids,
                                                           @RequestParam(value = "since", required = false) String since,
@@ -145,6 +147,7 @@ public class IssueOuterController {
                                                           @RequestParam(value = "issue_uuids", required = false) String issueUuids,
                                                           @RequestParam(value = "manual_status", required = false, defaultValue = "Default") String manualStatus,
                                                           @RequestParam(value = "solved_types", required = false) String solvedType,
+                                                          @RequestParam(value = "issue_id", required = false) String issueId,
                                                           @RequestParam(value = "tag", required = false) String tagIds,
                                                           @RequestParam(value = "exclude", required = false, defaultValue = "false") Boolean exclude) {
         String userToken = request.getHeader(TOKEN);
@@ -169,8 +172,8 @@ public class IssueOuterController {
         } catch (Exception e) {
             return new ResponseBean<>(400, FAILED + e.getMessage(), null);
         }
-        String[] queryName = {STATUS, "filesPath", "issueUuids"};
-        String[] spiltStrings = {status, filesPath, issueUuids};
+        String[] queryName = {STATUS, "filesPath", "issueUuids", "id"};
+        String[] spiltStrings = {status, filesPath, issueUuids, id};
         StringsUtil.splitString(queryName, spiltStrings, query);
         if (!StringUtils.isEmpty(type)) {
             List<String> types = new ArrayList<>();
@@ -200,6 +203,7 @@ public class IssueOuterController {
         query.put("ps", ps);
         query.put("asc", asc);
         query.put("detail", detail);
+        query.put("issueId", issueId);
         if ("id".equals(order)) {
             order = "displayId";
         }
@@ -235,7 +239,8 @@ public class IssueOuterController {
             @ApiImplicitParam(name = "solved_types", value = "Solved issue types"),
     })
     @GetMapping(value = "issue/filter/sidebar")
-    public ResponseBean<List<IssueFilterSidebarVO>> getIssueFilterSidebar(@RequestParam(value = "project_names", required = false) String projectNames,
+    public ResponseBean<List<IssueFilterSidebarVO>> getIssueFilterSidebar(@RequestParam(value = "displayId", required = false) String id,
+                                                                          @RequestParam(value = "project_names", required = false) String projectNames,
                                                                           @RequestParam(value = "repo_uuids", required = false) String repoUuids,
                                                                           @RequestParam(value = "tools", required = false, defaultValue = "sonarqube,ESLint,TscanCode") String tools,
                                                                           @RequestParam(value = "since", required = false) String since,
@@ -253,7 +258,10 @@ public class IssueOuterController {
         }
 
         String token = httpServletRequest.getHeader(TOKEN);
+        long startRepoTime = System.currentTimeMillis();
         List<String> repoList = issueService.getRepoListByUrlProjectNamesRepoUuids(null, projectNames, repoUuids, token);
+        long endRepoTime = System.currentTimeMillis();
+        log.info("repo sidebar uses {} millis", endRepoTime - startRepoTime);
         log.debug("repo list: {}", repoList);
         List<String> solvedTypes = new ArrayList<>();
         if (!StringUtils.isEmpty(solvedType)) {
@@ -278,6 +286,10 @@ public class IssueOuterController {
         query.put(PRIORITY, priority == null ? null : Objects.requireNonNull(IssuePriorityEnums.JavaIssuePriorityEnum.getPriorityEnum(priority)).getRank());
         query.put(PRODUCER, StringsUtil.splitStringList(introducer));
         query.put(SOLVED_TYPE, solvedTypes);
+        String[] queryName = {"id"};
+        String[] spiltStrings = {id};
+        StringsUtil.splitString(queryName, spiltStrings, query);
+
         try {
             return new ResponseBean<>(200, SUCCESS, issueService.getIssuesFilterSidebar(query));
         } catch (Exception e) {
@@ -509,13 +521,15 @@ public class IssueOuterController {
     @GetMapping("/issue/tracker-file")
     public ResponseBean<PagedGridResult<IssueWithLocationItem>> getFileIssues(@RequestParam(name = "repo_uuid") String repoUuid,
                                                                               @RequestParam(name = "commit_id") String commitId,
-                                                                              @RequestParam(name = "file_path") String filePath) {
+                                                                              @RequestParam(name = "file_path") String filePath,
+                                                                              @RequestParam(name = "closed", defaultValue = "true") Boolean closed) {
         try {
-            return new ResponseBean<>(200, SUCCESS, issueService.getFileIssues(repoUuid, commitId, filePath));
+            return new ResponseBean<>(200, SUCCESS, issueService.getFileIssues(repoUuid, commitId, filePath, closed));
         } catch (Exception e) {
             return new ResponseBean<>(500, FAILED + e.getMessage(), null);
         }
     }
+
 
 
     @GetMapping(value = {"/issue/scan-statuses"})

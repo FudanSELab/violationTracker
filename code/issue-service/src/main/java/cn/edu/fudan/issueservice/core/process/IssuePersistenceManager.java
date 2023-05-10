@@ -42,12 +42,14 @@ public class IssuePersistenceManager {
         Map<String,String> rawIssueUuid2DataBaseUuid = issueStatistics.getRawIssueUuid2DataBaseUuid();
 
         //1.handle issues and persist
+        log.info("1. insert into issues: {}", repoUuid);
         solvedIssues.forEach(issue -> issue.setResolution(String.valueOf(Integer.parseInt(issue.getResolution()) + 1)));
         issueDao.batchUpdateIssue(Stream.concat(solvedIssues.stream(), mappedIssues.stream().filter(issue -> !issue.getStatus().equals("Merged"))).collect(Collectors.toList()));
 //        issueDao.insertIssueList(newIssues.stream().filter(issue -> !issue.getStatus().equals("Merged")).collect(Collectors.toList()));
         issueDao.insertIssueList(newIssues);
 
         //2.rawIssue persist
+        log.info("2. insert into raw_issues: {}", repoUuid);
         List<RawIssue> curAllRawIssues = issueMatcher.getCurAllRawIssues();
         //2.1 get the new rawIssues' stream list for step2 and step3
         List<RawIssue> newRawIssuesStreamList = curAllRawIssues.stream()
@@ -74,6 +76,7 @@ public class IssuePersistenceManager {
 //        }
 
         //3.rawIssueMatchInfo persist
+        log.info("3. insert into raw_issue_match_infos: {}", repoUuid);
         List<RawIssueMatchInfo> rawIssueMatchInfos = new ArrayList<>();
         //3.1 get new issues' rawIssueMatchInfo
         newRawIssuesStreamList.forEach(rawIssue -> rawIssueMatchInfos.addAll(rawIssue.getMatchInfos()));
@@ -99,11 +102,13 @@ public class IssuePersistenceManager {
         rawIssueMatchInfoDao.insertRawIssueMatchInfoList(rawIssueMatchInfos);
 
         //4.update issue ignore records
+        log.info("4. update issue ignore records: {}", repoUuid);
 //        issueIgnoreDao.updateIssueIgnoreRecords(issueStatistics.getUsedIgnoreRecordsUuid());
 //        List<String> paths = issueIgnoreDao.getIgnorePathsByRepoId(repoUuid);
 //        paths.forEach(path -> issueIgnoreDao.setIgnorePath(path, repoUuid));
 
         //5.location persist
+        log.info("5. insert into locations: {}", repoUuid);
         List<Location> locations = new ArrayList<>();
 //        insertRawIssueList.forEach(rawIssue -> locations.addAll(rawIssue.getLocations()));
         curAllRawIssues.forEach(rawIssue -> locations.addAll(rawIssue.getLocations()));
@@ -114,6 +119,7 @@ public class IssuePersistenceManager {
         issueDao.updateIssuesForIgnore(issueStatistics.getIgnoreFiles(), repoUuid);
 
         //7.scanResult persist
+        log.info("6. insert into scan_result: {}", repoUuid);
         List<ScanResult> scanResult = issueStatistics.getScanResults();
         scanResultDao.addScanResults(scanResult);
 

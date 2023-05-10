@@ -109,5 +109,5 @@ public interface IssueRepoMapper {
     List<RepoScan> getRepoScanByStatus(@Param("status") String status);
 
     void insertIssueRepos(@Param("repoScanList") List<RepoScan> repoScanList);
-
+    List<RepoScan> getRepoScanByRepoUuids(@Param("repoUuids") List<String> repoUuids);
 }

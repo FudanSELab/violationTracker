@@ -19,5 +19,6 @@ public interface IssueRepoScanListMapper {
     List<RepoScan> getRepoScansByCondition(@Param("repoUuid") String repoUuid, @Param("statusList") List<String> statusList);
 
     void updateStatusByRepoUuid(@Param("repoUuid") String repoUuid, @Param("status") String status);
+    void deleteRepoRepoByCondition(@Param("repoUuid") String repoUuid,  @Param("status") String status);
 
 }

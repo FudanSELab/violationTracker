@@ -15,7 +15,7 @@ import { arr2str } from '@/utils/conversion';
 
 interface SearchParams extends Record<string, any> {
   projectName?: string[];
-  repoName?: string[];
+  repoUuid?: string[];
   leaders?: string;
 }
 
@@ -26,7 +26,7 @@ interface IProps {
 const generateParams = (params: SearchParams): API.ProjectScanSearchParams => {
   return {
     project_name: arr2str(params.projectName),
-    repo_name: arr2str(params.repoName),
+    repo_uuids: arr2str(params.repoUuid),
     leaders: params.leaders,
     page: params.current,
     ps: params.pageSize,
@@ -81,6 +81,7 @@ const ProjectScanTable: React.FC<IProps> = ({ className }) => {
       }
       const scanStatusResp = await getRepositoryScanStatus(
         {
+          repo_uuids: totalParams.repo_uuids,
           page: params.current,
           ps: params.pageSize,
         },
@@ -160,7 +161,7 @@ const ProjectScanTable: React.FC<IProps> = ({ className }) => {
               }))}
               onChange={(v) => {
                 form.setFieldsValue({ projectName: v });
-                form.resetFields(['repoName']);
+                form.resetFields(['repoUuid']);
                 setUpdateForm(!updateForm);
               }}
             />

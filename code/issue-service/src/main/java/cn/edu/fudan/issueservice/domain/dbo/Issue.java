@@ -35,9 +35,11 @@ public class Issue {
     private String solveCommit;
     private Date solveCommitDate;
     private String producer;
+    private String producerStatus;
     private String solver;
     private String latestProducer;
     private String latestSolver;
+    private String solvedType;
 
     /**
      * A new issue is generated based on rawIssue
@@ -61,6 +63,7 @@ public class Issue {
         issue.setManualStatus(IgnoreTypeEnum.DEFAULT.getName());
         issue.setResolution(String.valueOf(0));
         issue.setProducer(r.getDeveloperName());
+        issue.setProducerStatus(IgnoreTypeEnum.DEFAULT.getName());
         issue.setSolveCommit(null);
         issue.setSolveCommitDate(null);
         return issue;

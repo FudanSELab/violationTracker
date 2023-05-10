@@ -129,7 +129,7 @@ public class IssueMatcher {
             log.info("match process[{}], step 4: match raw issues, commit {}, step 3 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
             startProcess = System.currentTimeMillis();
             Matcher matcher = matcherFactory.createMatcher(commitStatusEnum, matcherData);
-            matcher.init(logHome, issueDao, issueTypeDao, rawIssueDao, rawIssueMatchInfoDao);
+            matcher.init(logHome, issueDao, issueTypeDao, rawIssueDao, rawIssueMatchInfoDao, issueTypeMap, issueScanDao);
             MatcherResult matcherResult = matcher.matchRawIssues();
             log.info("match process[{}], step 5: sum up matcher data, commit {}, step 4 uses {} s", repoUuid, curCommit, (System.currentTimeMillis() - startProcess) / 1000);
             startProcess = System.currentTimeMillis();
@@ -199,16 +199,18 @@ public class IssueMatcher {
             matchProcess = System.currentTimeMillis();
             List<Issue> newIssueList = new ArrayList<>();
             List<RawIssue> newRawIssueList = new ArrayList<>();
-            List<String> allParentCommits = jGitHelper.getAllCommitParents(curCommit);
-            log.info("init matcher data[{}], step 1-4:match rawIssue in database for current commit: {} parentCommit: {}, step 1-3 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
+            List<String> allParentCommits = issueScanDao.getAllCommitParents(jGitHelper, repoUuid, curCommit);
+            log.info("init matcher data[{}], step 1-4:get rawIssue by hash in database for current commit: {} parentCommit: {}, step 1-3 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
             matchProcess = System.currentTimeMillis();
             // According to rawIssueHash and parentCommit to get the issue uuid corresponding to the rawIssue
             Map<String, String> hash2IssueIdMap = rawIssueDao.getIssueUuidsByRawIssueHashsAndParentCommits(repoUuid,
                     preRawIssues.stream().map(RawIssue::getRawIssueHash).collect(Collectors.toList()), allParentCommits);
+            log.info("init matcher data[{}], step 1-5:match rawIssue in database for current commit: {} parentCommit: {}, step 1-4 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
+            matchProcess = System.currentTimeMillis();
             preRawIssues.forEach(rawIssue -> {
                 String issueId = hash2IssueIdMap.get(rawIssue.getRawIssueHash());
                 if (issueId == null) {
-                    log.warn("hash: " + rawIssue.getRawIssueHash() + " is null, commit id: {}, type: {}", rawIssue.getCommitId(), rawIssue.getType());
+                    log.warn("hash: " + rawIssue.getRawIssueHash() + " is null, commit id: {}, raw issue: {}, type: {}", rawIssue.getCommitId(), rawIssue.getUuid(), rawIssue.getType());
                     rawIssue.setCommitTime(DateTimeUtil.localToUtc(jGitHelper.getCommitTime(rawIssue.getCommitId())));
                     newIssueList.add(generateOneIssue(rawIssue));
                     newRawIssueList.add(rawIssue);
@@ -216,10 +218,10 @@ public class IssueMatcher {
                     rawIssue.setIssueId(issueId);
                 }
             });
-            log.info("init matcher data[{}], step 1-5:insert issues not found in database for current commit: {} parentCommit: {}, step 1-4 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
+            log.info("init matcher data[{}], step 1-6:insert issues not found in database for current commit: {} parentCommit: {}, step 1-4 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
             matchProcess = System.currentTimeMillis();
-            insertIssueNotFoundInDataBase(newIssueList, newRawIssueList);
-            log.info("init matcher data[{}], step 1-6:current commit: {} parentCommit: {}, step 1-5 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
+            insertIssueNotFoundInDataBase(repoUuid, newIssueList, newRawIssueList);
+            log.info("init matcher data[{}], step 1-7:current commit: {} parentCommit: {}, step 1-5 uses {} s", repoUuid, curCommit, parentCommit, (System.currentTimeMillis() - matchProcess) / 1000);
             matchProcess = System.currentTimeMillis();
             commitFileMap.put(parentCommit, curFiles);
             parentRawIssuesMap.put(parentCommit, preRawIssues);
@@ -319,16 +321,17 @@ public class IssueMatcher {
     private Issue generateOneIssue(RawIssue rawIssue) {
         Issue issue = Issue.valueOf(rawIssue);
         // Ignore the issues that hashes are null
-        issue.setManualStatus(IgnoreTypeEnum.IGNORE.getName());
+        issue.setProducerStatus(IgnoreTypeEnum.IGNORE.getName());
         IssueType issueType = issueTypeMap.get(rawIssue.getType());
         issue.setIssueCategory(issueType == null ? IssuePriorityEnums.getIssueCategory(rawIssue.getTool(), rawIssue.getPriority()) : issueType.getCategory());
         rawIssue.setIssueId(issue.getUuid());
-        rawIssue.getMatchInfos().forEach(rawIssueMatchInfo -> rawIssueMatchInfo.setIssueUuid(issue.getUuid()));
+        rawIssue.getMatchInfos().clear();
+        rawIssue.getMatchInfos().add(rawIssue.generateRawIssueMatchInfo(null));
         return issue;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void insertIssueNotFoundInDataBase(List<Issue> newIssues, List<RawIssue> newRawIssues) {
+    public void insertIssueNotFoundInDataBase(String repoUuid, List<Issue> newIssues, List<RawIssue> newRawIssues) {
         issueDao.insertIssueList(newIssues);
         rawIssueDao.insertRawIssueList(newRawIssues);
         List<RawIssueMatchInfo> rawIssueMatchInfos = new ArrayList<>();
@@ -336,6 +339,7 @@ public class IssueMatcher {
         rawIssueMatchInfoDao.insertRawIssueMatchInfoList(rawIssueMatchInfos);
         List<Location> locations = new ArrayList<>();
         newRawIssues.forEach(rawIssue -> locations.addAll(rawIssue.getLocations()));
+        locations.forEach(l -> l.setRepoUuid(repoUuid));
         locationDao.insertLocationList(locations);
     }
 

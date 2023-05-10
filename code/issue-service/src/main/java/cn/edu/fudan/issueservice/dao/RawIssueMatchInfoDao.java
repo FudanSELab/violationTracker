@@ -35,6 +35,9 @@ public class RawIssueMatchInfoDao {
     public List<Map<String, String>> getMatchInfoByIssueUuid(String issueUuid) {
         return rawIssueMatchInfoMapper.getMatchInfoByIssueUuid(issueUuid);
     }
+    public List<Map<String, String>> getMatchInfoByIssueUuidList(List<String> issueUuidList) {
+        return rawIssueMatchInfoMapper.getMatchInfoByIssueUuidList(issueUuidList);
+    }
 
     public List<String> getIssueUuidsByCommits(List<String> parentCommits) {
         return rawIssueMatchInfoMapper.getIssueByPreCommits(parentCommits);

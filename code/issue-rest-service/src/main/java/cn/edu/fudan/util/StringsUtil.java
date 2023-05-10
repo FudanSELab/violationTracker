@@ -87,7 +87,8 @@ public class StringsUtil {
         if (StringUtils.isEmpty(parentCommits)) {
             return new ArrayList<>();
         }
-        return Stream.of(parentCommits.split("[',\\[\\]]")).filter(s -> s.length() >= 8).collect(Collectors.toList());
+        return Stream.of(parentCommits.split("[',\\[\\]]")).filter(s -> s.length() >= 8).map(String::trim)
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {

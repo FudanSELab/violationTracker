@@ -125,7 +125,7 @@ public class RawIssueCacheDao {
     public int getCacheCount(String repoUuid, String toolName){
         return (int) mongoTemplate.count(Query.query(createRepoCriteria(repoUuid, toolName)), RawIssueCache.class, COLLECTION_NAME);
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public boolean deleteRepo(String repoUuid, String toolName) {
         try {
             mongoTemplate.remove(Query.query(createRepoCriteria(repoUuid, toolName)), RawIssueCache.class, COLLECTION_NAME);

@@ -64,17 +64,18 @@
     </insert>
 
     <delete id="deleteScanResultsByRepoIdAndCategory">
-        delete
-        from scan_result
-        where repo_uuid = #{repo_uuid}
-        and category = #{category}
+        delete sr
+        from scan_result sr
+        where sr.repo_uuid = #{repo_uuid}
+        and sr.category = #{category}
     </delete>
 
     <delete id="deleteScanResultsByRepoUuid">
-        delete
-        from scan_result
-        where repo_uuid = #{repoUuid}
+        delete sr
+        from scan_result sr
+        where sr.repo_uuid = #{repoUuid}
     </delete>
+
 
     <select id="getRepoIssueCounts" parameterType="String" resultType="java.util.HashMap">
         SELECT

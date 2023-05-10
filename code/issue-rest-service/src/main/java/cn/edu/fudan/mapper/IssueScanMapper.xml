@@ -54,11 +54,11 @@
     </insert>
 
     <delete id="deleteIssueScanByRepoIdAndTool" parameterType="String">
-        delete
-        from issue_scan
-        where repo_uuid = #{repo_uuid}
+        delete iis
+        from issue_scan iis
+        where iis.repo_uuid = #{repo_uuid}
         <if test="tool != null and tool != ''">
-            and tool = #{tool}
+            and iis.tool = #{tool}
         </if>
     </delete>
 

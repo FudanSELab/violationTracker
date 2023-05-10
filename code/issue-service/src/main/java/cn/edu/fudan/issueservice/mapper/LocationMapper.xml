@@ -55,9 +55,9 @@
     </insert>
 
     <delete id="deleteLocationsByRepoUuid">
-        DELETE
-        FROM location
-        WHERE repo_uuid = #{repo_uuid}
+        DELETE l
+        FROM location l
+        WHERE l.repo_uuid = #{repo_uuid}
     </delete>
 
 

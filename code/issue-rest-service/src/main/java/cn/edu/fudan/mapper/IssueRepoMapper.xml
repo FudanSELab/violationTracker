@@ -69,11 +69,11 @@
 
     <update id="updateIssueRepo">
         UPDATE issue_repo
-        SET end_scan_time        = #{issueRepo.endScanTime},
+        SET end_scan_time = #{issueRepo.endScanTime},
         scanned_commit_count = #{issueRepo.scannedCommitCount},
-        scan_time            = #{issueRepo.scanTime},
-        status               = #{issueRepo.scanStatus},
-        total_commit_count   = #{issueRepo.totalCommitCount}
+        scan_time = #{issueRepo.scanTime},
+        status = #{issueRepo.scanStatus},
+        total_commit_count = #{issueRepo.totalCommitCount}
         WHERE repo_uuid = #{issueRepo.repoUuid}
         AND tool = #{issueRepo.tool}
     </update>
@@ -138,7 +138,10 @@
         end_scan_time
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-        AND tool = #{tool}
+        <if test="tool != null and tool != ''">
+            AND tool = #{tool}
+        </if>
+        LIMIT 1
     </select>
 
     <select id="getStartCommitTime" resultType="java.lang.String">
@@ -155,7 +158,10 @@
         SELECT start_commit
         FROM issue_repo
         WHERE repo_uuid = #{repoUuid}
-        AND tool = #{tool} LIMIT 1
+        <if test="tool != null and tool != ''">
+            AND tool = #{tool}
+        </if>
+        LIMIT 1
     </select>
 
     <select id="getStartCommits" resultType="java.lang.String">
@@ -202,5 +208,6 @@
     <select id="getAllRepos" resultMap="issueRepo">
         select repo_uuid, branch, tool from issue_repo order by repo_uuid
     </select>
+
 </mapper>
 

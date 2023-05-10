@@ -1,9 +1,6 @@
 /** new
- * ip地址变动时，注意要更改以下2个地址:
- * 1) baseIp
- * 2) homepage (注意端口号)
+ * When the IP address changes, please make sure to update the following addresses:
  */
-export const baseIp = 'http://10.176.34.85';
-export const homepage = `${baseIp}:8888/`;
+export const baseIp = 'http://10.176.34.82';
 export const baseUrl = `${baseIp}:8000/`;
 export const projectRoot = '';

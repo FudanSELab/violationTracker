@@ -2,10 +2,7 @@ package cn.edu.fudan.issueservice.core.matcher;
 
 import cn.edu.fudan.issueservice.core.analyzer.BaseAnalyzer;
 import cn.edu.fudan.issueservice.core.process.RawIssueMatcher;
-import cn.edu.fudan.issueservice.dao.IssueDao;
-import cn.edu.fudan.issueservice.dao.IssueTypeDao;
-import cn.edu.fudan.issueservice.dao.RawIssueDao;
-import cn.edu.fudan.issueservice.dao.RawIssueMatchInfoDao;
+import cn.edu.fudan.issueservice.dao.*;
 import cn.edu.fudan.issueservice.domain.dbo.Issue;
 import cn.edu.fudan.issueservice.domain.dbo.IssueType;
 import cn.edu.fudan.issueservice.domain.dbo.RawIssue;
@@ -95,5 +92,6 @@ public interface Matcher {
      * @param rawIssueMatchInfoDao rawIssueMatchInfoDao
      * @Param rawIssueDao          rawIssueDao
      */
-    void init(String logHome, IssueDao issueDao, IssueTypeDao issueTypeDao, RawIssueDao rawIssueDao, RawIssueMatchInfoDao rawIssueMatchInfoDao);
+    void init(String logHome, IssueDao issueDao, IssueTypeDao issueTypeDao, RawIssueDao rawIssueDao, RawIssueMatchInfoDao rawIssueMatchInfoDao,
+              Map<String, IssueType> issueTypeMap, IssueScanDao issueScanDao);
 }

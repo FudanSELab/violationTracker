@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.edu.fudan</groupId>
-    <artifactId>issue-service</artifactId>
-    <version>1.0.3</version>
+    <artifactId>violation-service</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>issue-service</name>
+    <name>violation-service</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
@@ -273,9 +273,9 @@
         <dependency>
             <groupId>cn.edu.fudan</groupId>
             <artifactId>common</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/common-1.0.1.jar</systemPath>
+            <systemPath>${project.basedir}/lib/common-1.0.2.jar</systemPath>
         </dependency>
 
         <dependency>
