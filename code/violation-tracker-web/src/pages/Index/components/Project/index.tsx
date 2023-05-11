@@ -24,10 +24,8 @@ const Project: React.FC = () => {
   const { userStore } = useStores();
   const [showNumericTable, setShowNumericTable] = useState<boolean>(false);
   const [dateRange] = useState<string[]>([
-    moment()
-      .weekday(-1 - 6 * 7)
-      .format(DATE_FORMAT),
-    moment().weekday(-1).format(DATE_FORMAT),
+    moment().subtract(5, 'years').format(DATE_FORMAT),
+    moment().format(DATE_FORMAT),
   ]);
 
   const [projectBasicList, setProjectBasicList] = useState<API.ProjectItem[]>(
@@ -44,12 +42,13 @@ const Project: React.FC = () => {
     const filterIsFinished = ({ projectId }: ProjectViewData<any>) =>
       projectIdList.has(+projectId);
     const graphParams = {
-      // project_ids: '',
       project_ids: list.map(({ projectId }) => projectId).join(','),
       since: dateRange[0],
       until: dateRange[1],
+      interval: 'year',
       detail: false,
     };
+    console.log(graphParams);
     getLivingIssueForGraph(graphParams, userStore.userToken).then((data) => {
       if (typeof data !== 'boolean' && data) {
         setLivingIssueList(data.filter(filterIsFinished));
@@ -86,15 +85,6 @@ const Project: React.FC = () => {
         }}
       />
       <Divider />
-      <FormItem label="Time Range" style={{ marginBottom: '10px' }}>
-        <DatePicker.RangePicker
-          value={[
-            moment(dateRange[0], DATE_FORMAT),
-            moment(dateRange[1], DATE_FORMAT),
-          ]}
-          disabled
-        />
-      </FormItem>
       <div className="button-switch">
         <Button
           type="link"

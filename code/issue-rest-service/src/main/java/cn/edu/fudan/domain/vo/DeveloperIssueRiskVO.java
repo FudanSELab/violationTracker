@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @author beethoven
  * @date 2022-01-10 14:51:37
@@ -13,8 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeveloperIssueRiskVO {
-
+public class DeveloperIssueRiskVO implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String developer;
     private Integer introduceNum;
     private Integer selfIntroduceOpenNum;

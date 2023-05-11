@@ -32,7 +32,7 @@ const ProjectLinesView: React.FC<IProps> = ({ dataList }) => {
     () => [
       {
         type: 'livingIssue',
-        title: 'Living Violations',
+        title: 'Remaining Violations',
         yAxisTitle: 'violations',
         yField: 'num',
         onClick: (item: LivingIssueProjectViewData) => {

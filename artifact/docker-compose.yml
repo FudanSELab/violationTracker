@@ -1,0 +1,278 @@
+version: '1'
+
+networks:
+  kong-net:
+    external: false
+  sonar-net:
+    external: false
+  app-net:
+    external: false
+
+services:
+  # Kong Configuration
+  kong-migrations:
+    image: kong:latest
+    command: kong migrations bootstrap
+    depends_on:
+      - kong
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: ${KONG_PG_USER}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD}
+    networks:
+      - kong-net
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+  kong-migrations-up:
+    image: kong:latest
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      - kong-migrations
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: ${KONG_PG_USER}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD}
+    networks:
+      - kong-net
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+  kong:
+    image: kong:latest
+    user: "${KONG_USER:-kong}"
+    depends_on:
+      - kong-db
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: '0.0.0.0:8001'
+      KONG_CASSANDRA_CONTACT_POINTS: kong-db
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: kong
+      KONG_PG_USER: ${KONG_PG_USER}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD}
+    networks:
+      - kong-net
+    ports:
+      - "8000:8000/tcp"
+      - "8101:8001/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+  konga:
+    image: pantsel/konga
+    networks:
+      - kong-net
+    depends_on:
+      - kong-db
+    ports:
+      - "1337:1337/tcp"
+    environment:
+      TOKEN_SECRET: konga
+      DB_ADAPTER: postgres
+      DB_HOST: kong-db
+      DB_PORT: 5432
+      DB_DATABASE: kong
+      DB_USER: ${KONG_PG_USER}
+      DB_PASSWORD: ${KONG_PG_PASSWORD}
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+  kong-db:
+    image: postgres:10
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: ${KONG_PG_USER}
+      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${KONG_PG_USER}" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "5432:5432"
+    networks:
+      - kong-net
+    volumes:
+      - ./volumes/postgres/for-kong/data:/var/lib/postgresql/data
+
+  # SonarQube Configuration
+  sonarqube:
+    image: sonarqube:8.9.1-community
+    container_name: sonarqube
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001/tcp"
+    networks:
+      - sonar-net
+    environment:
+      - TZ=Asia/Shanghai
+      - sonar.jdbc.username=${SONAR_PG_USER}
+      - sonar.jdbc.password=${SONAR_PG_PASSWORD}
+      - sonar.jdbc.url=jdbc:postgresql://sonar-db:5432/sonar
+    depends_on:
+      - sonar-db
+    volumes:
+      - ./volumes/sonarqube/conf:/opt/sonarqube/conf
+      - ./volumes/sonarqube/data:/opt/sonarqube/data
+      - ./volumes/sonarqube/extensions:/opt/sonarqube/extensions
+      - ./volumes/sonarqube/lib/bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+  sonar-db:
+    image: postgres:10
+    container_name: sonar-db
+    networks:
+      - sonar-net
+    environment:
+      TZ: Asia/Shanghai
+      POSTGRES_USER: ${SONAR_PG_USER}
+      POSTGRES_PASSWORD: ${SONAR_PG_PASSWORD}
+    volumes:
+      - ./volumes/postgres/for-sonar/data:/var/lib/postgresql/data
+
+  # MySQL Configuration
+  mysql:
+    image: mysql:5.7.34
+    container_name: mysql
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    sysctls:
+      net.ipv4.ip_forward: 0
+      net.ipv4.ip_nonlocal_bind: 1
+      net.ipv4.conf.default.rp_filter: 1
+      net.ipv4.conf.default.accept_source_route: 0
+    networks:
+      - app-net
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./volumes/mysql/data:/var/lib/mysql
+      - ./volumes/mysql/log:/var/log/mysql
+      - ./volumes/mysql/my.cnf:/etc/mysql/my.cnf
+
+  # Redis Configuration
+  redis:
+    image: redis:5.0
+    container_name: redis
+    restart: on-failure
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - app-net
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redis/redis.conf:/redis.conf
+      - ./volumes/redis/log:/var/log/redis
+      - ./volumes/redis/data:/data/redis
+    command: redis-server /redis.conf
+
+  # Mongo Configuration
+  mongo-container:
+    image: mongo:latest
+    container_name: mongodb
+    restart: on-failure
+    environment:
+      - TZ=Asia/Shanghai
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    ports:
+      - "27017:27017"
+    deploy:
+      resources:
+         limits:
+           memory: 8G
+         reservations:
+           memory: 1024M
+    volumes:
+      - ./volumes/mongo/data:/data/db
+    command: mongod
+
+  # Frontend
+  frontend:
+    image: node:lts-slim
+    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      - app-net
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./services/frontend:/home/app/frontend
+    ports:
+      - "80:80"
+    working_dir: /home/app/frontend
+    command: sh ./frontend.sh start
+
+  # Violation Scan Service Configuration
+  violation-app:
+    container_name: violation-app
+    image: node-jenv-oracle-jdk:11
+    restart: on-failure
+    environment:
+      - TZ=Asia/Shanghai
+      - JAVA_HOME=/usr/local/jdk-11.0.11/
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      - default
+      - app-net
+    ports:
+      - "8005:8005/tcp"
+    volumes:
+      - ./services/issue:/home/app/issue
+      - ./dependency:/home/app/dependency
+      - ./repository:/home/app/repository
+    command: sh /home/app/issue/debug/violation-service.sh restart
+
+  # Violation Rest Service Configuration
+  violation-rest-app:
+    container_name: violation-rest-app
+    image: node-jenv-oracle-jdk:11
+    restart: on-failure
+    environment:
+      - TZ=Asia/Shanghai
+      - JAVA_HOME=/usr/local/jdk-11.0.11/
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      - default
+      - app-net
+    ports:
+      - "8805:8805/tcp"
+    volumes:
+      - ./services/issue:/home/app/issue
+      - ./dependency:/home/app/dependency
+      - ./repository:/home/app/repository
+    command: sh /home/app/issue/debug/violation-rest-service.sh restart

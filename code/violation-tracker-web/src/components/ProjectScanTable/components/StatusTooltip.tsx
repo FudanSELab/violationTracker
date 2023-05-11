@@ -33,7 +33,7 @@ const StatusTooltip: React.FC<{ record: API.ProjectScanItem }> = ({
                 toolStatusType = <CheckCircleOutlined />;
               } else if (scanStatus === 'scanning') {
                 toolStatusType = <LoadingOutlined />;
-              } else if (scanStatus === 'stop') {
+              } else if (scanStatus === 'stop' || scanStatus === 'interrupt') {
                 toolStatusType = <PauseCircleOutlined />;
               } else {
                 toolStatusType = <QuestionCircleOutlined />;
@@ -107,7 +107,14 @@ const StatusTooltip: React.FC<{ record: API.ProjectScanItem }> = ({
     } else {
       return (
         <Popover content={intl.get(status)} title={intl.get('scan status')}>
-          <span>{intl.get(status)}</span>
+          <span>
+            {intl.get(status) + intl.get('at')}
+            <br />
+            {record.endScanTime ?? ''}
+            <PauseCircleOutlined style={{ marginLeft: 10 }} />
+            <br />
+            Cost: {record.scanTime + ' s' ?? ''}
+          </span>
         </Popover>
       );
     }

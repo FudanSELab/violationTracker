@@ -40,6 +40,10 @@ public class RedisServiceImpl implements RedisService {
         for (RepoScan repo : repoScans) {
             addRedisById(repo.getRepoUuid());
         }
+        Set<Object> riskKeys = redisTemplate.keys("*issue-risk*");
+        if (riskKeys != null) {
+            riskKeys.forEach(key -> redisTemplate.delete(key));
+        }
     }
 
     @Override

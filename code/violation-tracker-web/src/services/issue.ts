@@ -32,18 +32,6 @@ export function getProjectList(
       projectName: 'sonarqube',
       projectId: 'sonarqube',
     },
-    {
-      leaders: [],
-      lifeStatus: 0,
-      projectName: 'TscanCode',
-      projectId: 'TscanCode',
-    },
-    {
-      leaders: [],
-      lifeStatus: 0,
-      projectName: 'ESLint',
-      projectId: 'ESLint',
-    },
   ];
 }
 
@@ -320,7 +308,13 @@ type SearchParams = {
 };
 
 export async function getLivingIssueForGraph(
-  params: SearchParams,
+  params: {
+    until: string;
+    interval: string;
+    detail: boolean;
+    project_ids: string;
+    since: string;
+  },
   userToken?: string,
 ) {
   const url = `${baseUrl}issue/living-issue-tendency`;

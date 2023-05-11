@@ -95,6 +95,7 @@ const ScanRepoButton: React.FC<{
           title: 'Tips: Make sure if the repository is in a docker',
           getPopupContainer: () => document.body,
         }}
+        initialValue="/home/fdse/code-wisdom-installer/services/issue/debug/repo/dolphinscheduler"
         name="repoPath"
         rules={[
           {
@@ -104,17 +105,17 @@ const ScanRepoButton: React.FC<{
         ]}
       />
       <ProFormText
-        label="Repository Uuid"
-        placeholder="Please enter the uuid of the repository"
+        label="Repository Name"
+        placeholder="Please enter the name of the repository"
         name="repoUuid"
         tooltip={{
-          title: 'Tips: The repository uuid is the repository name',
+          title: 'Tips: The repository name will be the repository UUID',
           getPopupContainer: () => document.body,
         }}
         rules={[
           {
             required: true,
-            message: 'Repository uuid is the repo name',
+            message: 'Repository name is the repo UUID',
           },
         ]}
       />

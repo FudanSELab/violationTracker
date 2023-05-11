@@ -57,8 +57,10 @@ public abstract class BaseMatcher implements Matcher {
         this.rawIssueDao = rawIssueDao;
         this.rawIssueMatchInfoDao = rawIssueMatchInfoDao;
         this.issueScanDao = issueScanDao;
-        this.issueTypeMap = new HashMap<>(32);
-        this.issueTypeDao.getIssueTypes(null).forEach(issueType -> issueTypeMap.putIfAbsent(issueType.getType(), issueType));
+        this.issueTypeMap = new HashMap<>(issueTypeMap);
+        if (this.issueTypeMap.isEmpty()) {
+            this.issueTypeDao.getIssueTypes(null).forEach(issueType -> issueTypeMap.putIfAbsent(issueType.getType(), issueType));
+        }
     }
 
     @Override

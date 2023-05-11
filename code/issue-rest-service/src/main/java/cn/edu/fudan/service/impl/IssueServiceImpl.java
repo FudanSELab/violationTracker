@@ -417,8 +417,9 @@ public class IssueServiceImpl implements IssueService {
                 .build();
 
         result.add(javaSideBarVO);
-        result.add(jsSideBarVO);
-        result.add(cppSideBarVO);
+        // fixme FSE
+//        result.add(jsSideBarVO);
+//        result.add(cppSideBarVO);
 
         return result;
     }

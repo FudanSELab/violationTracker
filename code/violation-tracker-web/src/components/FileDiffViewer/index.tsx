@@ -636,7 +636,7 @@ class FileDiffViewer extends React.Component<IProps, IState> {
       >
         <div className="file-change">
           <Typography.Text className="from" italic>
-            {left === undefined ? '未知文件路径' : left.filePath}
+            {left === undefined ? 'unknown file path' : left.filePath}
           </Typography.Text>
           <br />
           <Typography.Text className="to" italic>

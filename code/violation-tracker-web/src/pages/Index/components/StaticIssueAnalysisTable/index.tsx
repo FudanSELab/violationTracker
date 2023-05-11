@@ -111,31 +111,32 @@ const StaticIssueAnalysisTable = observer(() => {
         width: 200,
       },
       {
-        title: intl.get('inserted issues') + 'times',
+        title: intl.get('inserted issues'),
         dataIndex: 'introduceNum',
-        width: 200,
+        width: 120,
         search: false,
       },
       {
-        title: intl.get('unsolved inserted issues') + 'times',
+        title: intl.get('unsolved inserted issues'),
         dataIndex: 'selfIntroduceOpenNum',
-        width: 200,
+        width: 120,
         search: false,
       },
       {
         // 解决自己引入缺陷数
-        title: intl.get('Solved self') + intl.get('inserted issues') + 'times',
+        title: intl.get('Solved self'),
         dataIndex: 'selfIntroduceSelfSolvedNum',
         search: false,
       },
       {
-        title: intl.get('others solve') + 'times',
+        title: intl.get('others solve'),
         dataIndex: 'selfIntroduceOthersSolveNum',
         search: false,
       },
       {
         // 引入缺陷生存周期（天）
-        title: intl.get('inserted issues') + intl.get('lifeCycle') + '(days)',
+        title:
+          intl.get('inserted issues') + ' ' + intl.get('lifeCycle') + '(days)',
         dataIndex: 'selfIntroduceSelfSolvedMiddleNum',
         width: 300,
         search: false,
@@ -262,7 +263,7 @@ const StaticIssueAnalysisTable = observer(() => {
         rowClassName={(_, index) => (index % 2 === 0 ? '' : 'dark')}
         rowKey="developer"
         dateFormatter="string"
-        headerTitle="Static defect analysis table"
+        headerTitle="Static Violation Analysis By Developers"
         actionRef={actionRef}
         columns={columns}
         formRef={formRef}

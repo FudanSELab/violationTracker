@@ -34,7 +34,7 @@ export const INDEX_TABS: {
     content: (
       <span>
         <BarsOutlined />
-        Project
+        Repository
       </span>
     ),
     children: (
@@ -48,7 +48,7 @@ export const INDEX_TABS: {
     content: (
       <span>
         <ExceptionOutlined />
-        Violation Cases
+        Violation Case
       </span>
     ),
     children: (

@@ -115,7 +115,7 @@ public class IssueOuterController {
             @ApiImplicitParam(name = "url", value = "Repository url"),
             @ApiImplicitParam(name = "commit", value = "Commit id\nThe default value is the recent commit"),
             @ApiImplicitParam(name = "detail", defaultValue = "false", allowableValues = "true , false"),
-            @ApiImplicitParam(name = "asc", defaultValue = "false",allowableValues = "true , false"),
+            @ApiImplicitParam(name = "asc", defaultValue = "false", allowableValues = "true , false"),
             @ApiImplicitParam(name = "order", defaultValue = "no", allowableValues = "no , quantity , open , solved"),
             @ApiImplicitParam(name = "issue_uuids", value = "Issue uuids\nUse commas as separators"),
             @ApiImplicitParam(name = "manual_status", defaultValue = "Default", allowableValues = "Ignore , Misinformation , To_Review , Default"),
@@ -178,7 +178,7 @@ public class IssueOuterController {
         if (!StringUtils.isEmpty(type)) {
             List<String> types = new ArrayList<>();
             types.add(type);
-            query.put("types",types);
+            query.put("types", types);
         }
         List<String> solvedTypes = new ArrayList<>();
         if (!StringUtils.isEmpty(solvedType)) {
@@ -365,7 +365,19 @@ public class IssueOuterController {
         log.info("issue risk:receive request");
         String token = httpServletRequest.getHeader(TOKEN);
         List<String> repoList = issueService.getRepoListByUrlProjectNamesRepoUuids(null, projectNames, repoUuids, token);
-        return new ResponseBean<>(200, SUCCESS, issueService.getIssueRiskByDeveloper(repoList, developer, asc, page, ps, level));
+        String keyOfRedis = "issue-risk?" + "project_names:" + projectNames + "repo_uuids:" + repoUuids + "developer:" + developer + "asc:" + asc + "page:" + page + "ps:" + ps + "level:" + level;
+        Map<String, Object> results;
+        try {
+            if (redisService.getValueFromRedis(keyOfRedis) != null) {
+                results = (Map<String, Object>) redisService.getValueFromRedis(keyOfRedis);
+            } else {
+                results = issueService.getIssueRiskByDeveloper(repoList, developer, asc, page, ps, level);
+                redisService.addNewRedis(keyOfRedis, results);
+            }
+            return new ResponseBean<>(200, SUCCESS, results);
+        } catch (Exception e) {
+            return new ResponseBean<>(500, FAILED + e.getMessage(), null);
+        }
     }
 
     @ApiOperation(value = "Living issues", notes = "return int", httpMethod = "GET")
@@ -531,7 +543,6 @@ public class IssueOuterController {
     }
 
 
-
     @GetMapping(value = {"/issue/scan-statuses"})
     public ResponseBean<List<RepoScan>> scanStatuses(@RequestParam(name = "repo_uuids", required = false, defaultValue = "") String repoUuids,
                                                      @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
@@ -573,7 +584,7 @@ public class IssueOuterController {
                                                                                     @RequestParam(value = "ps", required = false, defaultValue = "20") Integer ps,
                                                                                     @RequestParam(value = "show_all", required = false, defaultValue = "false") Boolean showAll) {
         try {
-            IssueTrackerMapVO data = issueMeasureInfoService.getTrackerMap(repoUuid, issueUuid,  page, ps, showAll);
+            IssueTrackerMapVO data = issueMeasureInfoService.getTrackerMap(repoUuid, issueUuid, page, ps, showAll);
             return new cn.edu.fudan.common.domain.ResponseBean<>(200, SUCCESS, data);
         } catch (Exception e) {
             e.printStackTrace();
@@ -586,18 +597,22 @@ public class IssueOuterController {
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
     @Autowired
     public void setRedisService(RedisService redisService) {
         this.redisService = redisService;
     }
+
     @Autowired
     public void setIssueScanService(IssueScanService issueScanService) {
         this.issueScanService = issueScanService;
     }
+
     @Autowired
     public void setIssueMeasureInfoService(IssueMeasureInfoService issueMeasureInfoService) {
         this.issueMeasureInfoService = issueMeasureInfoService;
     }
+
     @Autowired
     public void setCodeService(CodeService codeService) {
         this.codeService = codeService;

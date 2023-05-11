@@ -65,8 +65,9 @@ public class IssueScanServiceImpl implements IssueScanService {
             jsRepos.add(repo);
         });
         retMap.put(ToolEnum.SONAR.getType(), javaRepos);
-        retMap.put(ToolEnum.TSCANCODE.getType(), cppRepos);
-        retMap.put(ToolEnum.ESLINT.getType(), jsRepos);
+        // fixme FSE
+//        retMap.put(ToolEnum.TSCANCODE.getType(), cppRepos);
+//        retMap.put(ToolEnum.ESLINT.getType(), jsRepos);
         return retMap;
     }
 
